@@ -1,0 +1,11 @@
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: enno
+      MONGO_INITDB_ROOT_PASSWORD: 05tBzukhNJtrQWizP8ZsZJfJMMTOPo
+    volumes:
+      - ./db:/data/db
+    ports:
+      - "27017:27017"
