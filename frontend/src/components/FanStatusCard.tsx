@@ -1,4 +1,15 @@
-import { Badge, Button, Group, Paper, Stack, Text, ThemeIcon, Tooltip } from '@mantine/core'
+import {
+  Badge,
+  Button,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Tooltip,
+  useComputedColorScheme,
+  useMantineTheme,
+} from '@mantine/core'
 import { IconAlertCircle, IconPlayerPause, IconPlayerPlay, IconWind } from '@tabler/icons-react'
 import { FanStatus } from '../services/api'
 
@@ -18,9 +29,14 @@ export function FanStatusCard({
   const badgeLabel = isRunning ? 'Aktiv' : 'Aus'
   const buttonLabel = isRunning ? 'Lüfter stoppen' : 'Lüfter starten'
   const buttonIcon = isRunning ? <IconPlayerPause size={18} /> : <IconPlayerPlay size={18} />
+  const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const isDark = colorScheme === 'dark'
+  const cardBackground = isDark ? theme.colors.dark[6] : theme.white
+  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
 
   return (
-    <Paper withBorder radius="lg" p="lg" shadow="soft" className="card-surface">
+    <Paper withBorder radius="lg" p="lg" shadow="soft" bg={cardBackground} style={{ borderColor }}>
       <Group justify="space-between" align="flex-start" mb="sm">
         <Group gap="sm">
           <ThemeIcon color="blue" variant="light" size={36} radius="md">

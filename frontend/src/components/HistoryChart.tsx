@@ -1,4 +1,16 @@
-import { Badge, Box, Divider, Group, Loader, Paper, SegmentedControl, Stack, Text } from '@mantine/core'
+import {
+  Badge,
+  Box,
+  Divider,
+  Group,
+  Loader,
+  Paper,
+  SegmentedControl,
+  Stack,
+  Text,
+  useComputedColorScheme,
+  useMantineTheme,
+} from '@mantine/core'
 import { ChartData, ChartOptions } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { SensorReading } from '../services/api'
@@ -26,6 +38,11 @@ export function HistoryChart({
   rangeOptions: { label: string; value: string }[]
   smoothingLabel: string
 }) {
+  const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const isDark = colorScheme === 'dark'
+  const cardBackground = isDark ? theme.colors.dark[6] : theme.white
+  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
   const legendDetails = [
     { label: 'Innenluft (blau)', color: '#228be6' },
     { label: 'Außenluft (grün)', color: '#12b886' },
@@ -33,7 +50,7 @@ export function HistoryChart({
   ]
 
   return (
-    <Paper withBorder radius="lg" p="lg" shadow="sm">
+    <Paper withBorder radius="lg" p="lg" shadow="sm" bg={cardBackground} style={{ borderColor }}>
       {history.length === 0 ? (
         <Group justify="center" py="xl">
           <Loader />

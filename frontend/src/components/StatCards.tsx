@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core'
+import { Paper, SimpleGrid, Stack, Text, ThemeIcon, useMantineTheme } from '@mantine/core'
 
 export type StatCard = {
   label: string
@@ -10,6 +10,8 @@ export type StatCard = {
 }
 
 export function StatCards({ cards }: { cards: StatCard[] }) {
+  const theme = useMantineTheme()
+
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" mt="lg">
       {cards.map((stat) => (
@@ -18,10 +20,9 @@ export function StatCards({ cards }: { cards: StatCard[] }) {
           radius="lg"
           p="md"
           shadow="card"
-          className="stat-card"
-          data-accent={`${stat.colors[0]}-${stat.colors[1]}`}
+          bg={`linear-gradient(135deg, var(--mantine-color-${stat.colors[0]}-6), var(--mantine-color-${stat.colors[1]}-4))`}
         >
-          <Stack gap={6} align="center" ta="center">
+          <Stack gap={6} align="center" ta="center" c={theme.white}>
             <ThemeIcon size={38} radius="md" variant="white" color={stat.colors[0]}>
               {stat.icon}
             </ThemeIcon>

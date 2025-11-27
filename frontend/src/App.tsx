@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AppShell, Badge, Container, Grid, Stack, Tooltip as MantineTooltip } from '@mantine/core'
+import {
+  AppShell,
+  Badge,
+  Container,
+  Grid,
+  Stack,
+  Tooltip as MantineTooltip,
+  useComputedColorScheme,
+  useMantineTheme,
+} from '@mantine/core'
 import { IconTemperature, IconTemperatureMinus, IconTemperaturePlus } from '@tabler/icons-react'
 import {
   Chart as ChartJS,
@@ -68,6 +77,9 @@ function formatTimestamp(timestamp: string) {
 }
 
 function App() {
+  const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const isDark = colorScheme === 'dark'
   const [current, setCurrent] = useState<SensorReading | null>(null)
   const [history, setHistory] = useState<SensorReading[]>([])
   const [loading, setLoading] = useState(true)
@@ -384,6 +396,10 @@ function App() {
     </>
   )
 
+  const mainBackground = isDark
+    ? `linear-gradient(180deg, ${theme.colors.dark[8]}, ${theme.colors.dark[7]} 45%, ${theme.colors.dark[6]})`
+    : `linear-gradient(180deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]} 45%, ${theme.colors.gray[0]})`
+
   return (
     <AppShell padding="lg" header={{ height: 72 }} footer={{ height: 70 }}>
       <AppShell.Header>
@@ -396,7 +412,7 @@ function App() {
         />
       </AppShell.Header>
 
-      <AppShell.Main className="app-shell-main">
+      <AppShell.Main bg={mainBackground}>
         <Container size="xl" py="xl">
           <Grid gutter="xl">
             <Grid.Col span={12}>

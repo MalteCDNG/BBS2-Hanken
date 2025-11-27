@@ -1,5 +1,17 @@
-import { Badge, Button, Container, Group, Select, Text, ThemeIcon, Tooltip } from '@mantine/core'
-import { IconDashboard, IconRefresh, IconClock } from '@tabler/icons-react'
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Container,
+  Group,
+  Select,
+  Text,
+  ThemeIcon,
+  Tooltip,
+  useComputedColorScheme,
+  useMantineColorScheme,
+} from '@mantine/core'
+import { IconDashboard, IconRefresh, IconClock, IconMoonStars, IconSunHigh } from '@tabler/icons-react'
 
 export function HeaderBar({
   refreshInterval,
@@ -16,6 +28,10 @@ export function HeaderBar({
 }) {
   const refreshSeconds = refreshInterval / 1000
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  const { setColorScheme } = useMantineColorScheme()
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const toggleColorScheme = () =>
+    setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark')
 
   return (
     <Container size="xl" h="100%">
@@ -45,6 +61,16 @@ export function HeaderBar({
             <Badge color="green" variant="light" leftSection={<IconClock size={14} />}>
               {lastUpdatedRelative}
             </Badge>
+          </Tooltip>
+          <Tooltip label="Farbschema umschalten" withArrow>
+            <ActionIcon
+              variant="default"
+              size="lg"
+              aria-label="Farbschema umschalten"
+              onClick={toggleColorScheme}
+            >
+              {computedColorScheme === 'dark' ? <IconSunHigh size={18} /> : <IconMoonStars size={18} />}
+            </ActionIcon>
           </Tooltip>
           <Tooltip label="Aktualisierungshäufigkeit wählen" withArrow>
             <Select

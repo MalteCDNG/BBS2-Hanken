@@ -1,4 +1,17 @@
-import { Alert, Badge, Group, Loader, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core'
+import {
+  Alert,
+  Badge,
+  Group,
+  Loader,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  useComputedColorScheme,
+  useMantineTheme,
+} from '@mantine/core'
 import { IconDashboard, IconAlertCircle } from '@tabler/icons-react'
 import { SensorReading } from '../services/api'
 
@@ -13,20 +26,42 @@ function TemperatureCard({
   accent: string
   description?: string
 }) {
+  const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const isDark = colorScheme === 'dark'
+  const accentGradients: Record<string, string> = {
+    blue: isDark
+      ? `linear-gradient(135deg, ${theme.colors.ocean[7]}, ${theme.colors.ocean[6]})`
+      : `linear-gradient(135deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]})`,
+    teal: isDark
+      ? `linear-gradient(135deg, ${theme.colors.mint[7]}, ${theme.colors.mint[6]})`
+      : `linear-gradient(135deg, ${theme.colors.mint[0]}, ${theme.colors.mint[1]})`,
+    orange: isDark
+      ? `linear-gradient(135deg, ${theme.colors.orange[7]}, ${theme.colors.orange[6]})`
+      : `linear-gradient(135deg, ${theme.colors.orange[0]}, ${theme.colors.yellow[0]})`,
+  }
+  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
+  const fallbackBackground = isDark ? theme.colors.dark[6] : theme.colors.gray[0]
+
   return (
-    <Paper withBorder radius="lg" p="lg" shadow="card" className="accent-card" data-accent={accent}>
+    <Paper
+      withBorder
+      radius="lg"
+      p="lg"
+      shadow="card"
+      bg={accentGradients[accent] ?? fallbackBackground}
+      style={{ position: 'relative', overflow: 'hidden', borderColor }}
+    >
       <Badge
         color={accent}
         variant="light"
         radius="md"
         size="md"
         px="sm"
-        style={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          boxShadow: `0 0 0 1px var(--mantine-color-${accent}-4)`,
-        }}
+        pos="absolute"
+        top={16}
+        right={16}
+        style={{ boxShadow: `0 0 0 1px var(--mantine-color-${accent}-4)` }}
       >
         Live
       </Badge>

@@ -1,4 +1,14 @@
-import { Badge, Divider, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core'
+import {
+  Badge,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  useComputedColorScheme,
+  useMantineTheme,
+} from '@mantine/core'
 import { IconWind } from '@tabler/icons-react'
 import { SensorReading } from '../services/api'
 
@@ -9,9 +19,15 @@ export type VentilationAdvice = {
 }
 
 export function AdvicePanel({ current, ventilationAdvice }: { current: SensorReading | null; ventilationAdvice: VentilationAdvice }) {
+  const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const isDark = colorScheme === 'dark'
+  const cardBackground = isDark ? theme.colors.dark[6] : theme.white
+  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
+
   return (
     <Stack gap="md">
-      <Paper withBorder radius="lg" p="lg" shadow="soft" className="card-surface">
+      <Paper withBorder radius="lg" p="lg" shadow="soft" bg={cardBackground} style={{ borderColor }}>
         <Stack gap="xs">
           <Group gap="sm">
             <ThemeIcon color={ventilationAdvice.color} variant="light" size={36} radius="md">
@@ -50,7 +66,7 @@ export function AdvicePanel({ current, ventilationAdvice }: { current: SensorRea
         </Stack>
       </Paper>
 
-      <Paper withBorder radius="lg" p="lg" shadow="soft" className="card-surface">
+      <Paper withBorder radius="lg" p="lg" shadow="soft" bg={cardBackground} style={{ borderColor }}>
         <Stack gap="xs">
           <Text fw={600}>Hinweise</Text>
           <Text size="sm" c="dimmed">
