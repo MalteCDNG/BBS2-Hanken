@@ -1,38 +1,40 @@
-import axios from 'axios'
+import axios from "axios";
 
 export interface SensorReading {
-  indoorTemp: number
-  outdoorTemp: number
-  dewPoint: number
-  humidity?: number
-  timestamp: string
+  indoorTemp: number;
+  outdoorTemp: number;
+  dewPoint: number;
+  humidity?: number;
+  timestamp: string;
 }
 
 export interface FanStatus {
-  running: boolean
-  updatedAt: string
+  running: boolean;
+  updatedAt: string;
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api',
-})
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000",
+});
 
 export async function fetchCurrent(): Promise<SensorReading> {
-  const { data } = await api.get<SensorReading>('/current')
-  return data
+  const { data } = await api.get<SensorReading>("/readings/current/");
+  return data;
 }
 
 export async function fetchHistory(): Promise<SensorReading[]> {
-  const { data } = await api.get<{ readings: SensorReading[] }>('/history')
-  return data.readings
+  const { data } = await api.get<{ readings: SensorReading[] }>(
+    "/readings/history/"
+  );
+  return data.readings;
 }
 
 export async function fetchFanStatus(): Promise<FanStatus> {
-  const { data } = await api.get<FanStatus>('/fan')
-  return data
+  const { data } = await api.get<FanStatus>("/fan/");
+  return data;
 }
 
 export async function toggleFan(): Promise<FanStatus> {
-  const { data } = await api.post<FanStatus>('/fan/toggle')
-  return data
+  const { data } = await api.post<FanStatus>("/fan/toggle/");
+  return data;
 }
