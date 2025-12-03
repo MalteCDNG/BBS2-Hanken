@@ -151,9 +151,17 @@ export function useHistoryData(refreshInterval: number) {
 
   const refreshData = useCallback(async () => {
     setIsRefreshing(true);
+    const end = new Date().toISOString();
+    const start = new Date(
+      Date.now() - HISTORY_RANGE_OPTIONS[historyRange].durationMs
+    ).toISOString();
+
     try {
-      const [currentReading, historyReadings, currentFanStatus] =
-        await Promise.all([fetchCurrent(), fetchHistory(), fetchFanStatus()]);
+      const [currentReading, historyReadings, currentFanStatus] = await Promise.all([
+        fetchCurrent(),
+        fetchHistory(start, end),
+        fetchFanStatus(),
+      ]);
       setCurrent(currentReading);
       const mergedHistory = [...historyReadings];
       const hasCurrentReading = historyReadings.some(
@@ -182,7 +190,7 @@ export function useHistoryData(refreshInterval: number) {
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, []);
+  }, [historyRange]);
 
   useEffect(() => {
     refreshData();
