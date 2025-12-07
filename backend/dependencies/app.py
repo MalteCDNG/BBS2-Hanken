@@ -1,18 +1,17 @@
 from contextlib import asynccontextmanager
 
-from beanie import init_beanie
 from fastapi import FastAPI, WebSocket
 from fastapi_crons import Crons, get_cron_router
 
 import dependencies.globals
 import hardware.util
-from dependencies.db import database
-from dependencies.models import Reading, State, Settings
+from dependencies.db import init as init_db
+from dependencies.models import Settings
 
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
-    await init_beanie(database=database, document_models=[Reading, State, Settings])
+    await init_db()
     db_settings = await Settings.find_all().to_list()
 
     if len(db_settings) == 0:

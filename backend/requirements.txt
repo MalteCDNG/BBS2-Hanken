@@ -7,3 +7,7 @@ uvicorn~=0.38.0
 websockets~=15.0.1
 fastapi-crons~=2.0.1
 validators~=0.35.0
+pyjwt~=2.10.1
+pwdlib~=0.3.0
+pwdlib[argon2]~=0.3.0
+python-multipart~=0.0.20

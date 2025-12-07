@@ -8,13 +8,16 @@ from starlette.websockets import WebSocketDisconnect
 from dependencies.app import app, crons, wsmanager
 from dependencies.models import Reading
 from hardware import dht22
-from routes import readings, fan, settings
+from routes import readings, fan, settings, auth
 
 load_dotenv()
+
+auth.init()
 
 app.include_router(readings.router, prefix="/readings")
 app.include_router(fan.router, prefix="/fan")
 app.include_router(settings.router, prefix="/settings")
+app.include_router(auth.router, prefix="/auth")
 
 origins = [
     "http://localhost",
