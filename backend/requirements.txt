@@ -6,3 +6,4 @@ pymongo~=4.15.4
 uvicorn~=0.38.0
 websockets~=15.0.1
 fastapi-crons~=2.0.1
+validators~=0.35.0
