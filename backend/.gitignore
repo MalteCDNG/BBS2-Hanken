@@ -1,4 +1,9 @@
+.idea/
+.vs/
+.vscode/
+
 .venv/
+
 docker/db/
 .env
 cron_state.db
