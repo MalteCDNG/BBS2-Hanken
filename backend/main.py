@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from dotenv import load_dotenv
 from fastapi import WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
@@ -8,6 +9,8 @@ from dependencies.app import app, crons, wsmanager
 from dependencies.models import Reading
 from hardware import dht22
 from routes import readings, fan, settings
+
+load_dotenv()
 
 app.include_router(readings.router, prefix="/readings")
 app.include_router(fan.router, prefix="/fan")
