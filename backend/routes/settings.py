@@ -1,6 +1,8 @@
 import validators
 from fastapi import APIRouter, HTTPException
 
+import dependencies.app
+import dependencies.globals
 from dependencies.models import Settings
 
 router = APIRouter()
@@ -15,6 +17,9 @@ async def update_settings(settings: Settings):
     from_db = await Settings.find_one()
     settings.id = from_db.id
     await settings.save()
+
+    dependencies.globals.settings = settings
+    await dependencies.app.update_get_data_cron()
 
     return "ok"
 
