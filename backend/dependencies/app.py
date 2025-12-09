@@ -18,7 +18,8 @@ async def lifespan(fastapi_app: FastAPI):
         new_settings = Settings(
             dht22_indoor_address="",
             dht22_outdoor_address="",
-            data_cron="*/30 * * * *"
+            data_cron="*/30 * * * *",
+            fan_override_duration=0,
         )
         await new_settings.insert()
         dependencies.globals.settings = new_settings
