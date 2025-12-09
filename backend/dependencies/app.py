@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+from datetime import datetime
 
+from croniter import croniter
 from fastapi import FastAPI, WebSocket
 from fastapi_crons import Crons, get_cron_router
 
@@ -8,6 +10,14 @@ import hardware.util
 from dependencies.db import init as init_db
 from dependencies.models import Settings
 
+
+async def update_get_data_cron():
+    get_data_job = crons_app.get_job("get-data")
+    get_data_job.expr = dependencies.globals.settings.data_cron
+    get_data_job._cron_iter = croniter(get_data_job.expr, datetime.now())
+    get_data_job.update_next_run()
+    await crons_app.stop()
+    await crons_app.start()
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
@@ -30,11 +40,13 @@ async def lifespan(fastapi_app: FastAPI):
     if len(db_settings) > 1:
         raise RuntimeError("Settings could not be determined. Amount Settings: "+str(len(db_settings)))
 
+    await update_get_data_cron()
+
     yield
     hardware.util.shutdown()
 
 app = FastAPI(lifespan=lifespan)
-crons = Crons(app)
+crons_app = Crons(app)
 app.include_router(get_cron_router(), prefix="/crons")
 
 

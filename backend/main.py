@@ -5,7 +5,7 @@ from fastapi import WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
-from dependencies.app import app, crons, wsmanager
+from dependencies.app import app, crons_app, wsmanager
 from dependencies.models import Reading
 from hardware import dht22
 from routes import readings, fan, settings, auth
@@ -36,7 +36,7 @@ app.add_middleware(
 async def read_root():
     return {"Hello": "World"}
 
-@crons.cron("*/30 * * * *", name="")
+@crons_app.cron("*/30 * * * *", name="get-data")
 async def get_data_cron():
     print("Daten werden geholt")
     indoor = await dht22.get_data_indoor()
