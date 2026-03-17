@@ -5,15 +5,16 @@ from hardware.util import is_raspberrypi
 
 
 if is_raspberrypi():
-    import machine
     import adafruit_dht
+    import board
 
 class DHT:
     def __init__(self, gpio: int):
         if not is_raspberrypi():
             return
 
-        self.sensor = adafruit_dht.DHT22(machine.Pin(gpio, machine.Pin.IN, machine.Pin.PULL_UP))
+        pin = getattr(board, f"D{gpio}")
+        self.sensor = adafruit_dht.DHT22(pin)
 
     def get_data(self):
         if not is_raspberrypi():
