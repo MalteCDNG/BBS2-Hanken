@@ -13,7 +13,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 import { IconDashboard, IconAlertCircle } from '@tabler/icons-react'
-import { SensorReading } from '../services/api'
+import { type ReadingWithDewPoint } from '../services/api'
 
 function TemperatureCard({
   label,
@@ -85,7 +85,15 @@ function TemperatureCard({
   )
 }
 
-export function LiveSummaryCards({ current, loading, error }: { current: SensorReading | null; loading: boolean; error: string | null }) {
+export function LiveSummaryCards({
+  current,
+  loading,
+  error,
+}: {
+  current: ReadingWithDewPoint | null
+  loading: boolean
+  error: string | null
+}) {
   if (error) {
     return (
       <Alert icon={<IconAlertCircle size={18} />} title="Fehler" color="red" radius="md" variant="light">
@@ -104,13 +112,27 @@ export function LiveSummaryCards({ current, loading, error }: { current: SensorR
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
-      <TemperatureCard label="Innenluft" value={current?.indoorTemp ?? 0} accent="blue" />
-      <TemperatureCard label="Außenluft" value={current?.outdoorTemp ?? 0} accent="teal" />
       <TemperatureCard
-        label="Taupunkttemperatur"
-        value={current?.dewPoint ?? 0}
+        label="Innenluft"
+        value={current?.indoorTemp ?? 0}
+        accent="blue"
+        description={current ? `Luftfeuchte ${current.indoorHumidity.toFixed(0)}%` : undefined}
+      />
+      <TemperatureCard
+        label="Außenluft"
+        value={current?.outdoorTemp ?? 0}
+        accent="teal"
+        description={current ? `Luftfeuchte ${current.outdoorHumidity.toFixed(0)}%` : undefined}
+      />
+      <TemperatureCard
+        label="Taupunkt innen"
+        value={current?.dewPointIndoor ?? 0}
         accent="orange"
-        description="Relevante Schwelle für Kondensationsgefahr"
+        description={
+          current
+            ? `Außentaupunkt ${current.dewPointOutdoor.toFixed(1)}°C`
+            : 'Relevante Schwelle für Kondensationsgefahr'
+        }
       />
     </SimpleGrid>
   )

@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import {
   Badge,
   Divider,
@@ -12,7 +12,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { StatCard, StatCards } from "./StatCards";
-import { SensorReading } from "../services/api";
+import { type ReadingWithDewPoint } from "../services/api";
 
 export function HeroSection({
   current,
@@ -21,7 +21,7 @@ export function HeroSection({
   lastUpdatedRelative,
   accentBadges,
 }: {
-  current: SensorReading | null;
+  current: ReadingWithDewPoint | null;
   statCards: StatCard[];
   lastUpdatedAbsolute: string;
   lastUpdatedRelative: string;
@@ -102,10 +102,18 @@ export function HeroSection({
               </Group>
               <Group justify="space-between">
                 <Text size="sm" c="dimmed">
-                  Taupunkt
+                  Taupunkt innen
                 </Text>
                 <Text fw={600}>
-                  {current ? `${current.dewPoint.toFixed(1)}°C` : "—"}
+                  {current ? `${current.dewPointIndoor.toFixed(1)}°C` : "—"}
+                </Text>
+              </Group>
+              <Group justify="space-between">
+                <Text size="sm" c="dimmed">
+                  Taupunkt außen
+                </Text>
+                <Text fw={600}>
+                  {current ? `${current.dewPointOutdoor.toFixed(1)}°C` : "—"}
                 </Text>
               </Group>
             </Stack>

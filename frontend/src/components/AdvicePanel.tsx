@@ -10,7 +10,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 import { IconWind } from '@tabler/icons-react'
-import { SensorReading } from '../services/api'
+import { type ReadingWithDewPoint } from '../services/api'
 
 export type VentilationAdvice = {
   title: string
@@ -18,7 +18,13 @@ export type VentilationAdvice = {
   color: 'gray' | 'red' | 'green' | 'yellow'
 }
 
-export function AdvicePanel({ current, ventilationAdvice }: { current: SensorReading | null; ventilationAdvice: VentilationAdvice }) {
+export function AdvicePanel({
+  current,
+  ventilationAdvice,
+}: {
+  current: ReadingWithDewPoint | null
+  ventilationAdvice: VentilationAdvice
+}) {
   const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
@@ -44,9 +50,13 @@ export function AdvicePanel({ current, ventilationAdvice }: { current: SensorRea
           <Group justify="space-between">
             <div>
               <Text size="sm" c="dimmed">
-                Innen ↔ Außen
+                Innen / Außen
               </Text>
-              <Text fw={600}>{current ? `${current.indoorTemp.toFixed(1)}°C · ${current.outdoorTemp.toFixed(1)}°C` : '—'}</Text>
+              <Text fw={600}>
+                {current
+                  ? `${current.indoorTemp.toFixed(1)}°C · ${current.indoorHumidity.toFixed(0)}% / ${current.outdoorTemp.toFixed(1)}°C · ${current.outdoorHumidity.toFixed(0)}%`
+                  : '—'}
+              </Text>
             </div>
             <Badge color="blue" variant="light">
               Differenz {current ? (current.indoorTemp - current.outdoorTemp).toFixed(1) : '—'}°C
@@ -57,10 +67,10 @@ export function AdvicePanel({ current, ventilationAdvice }: { current: SensorRea
               <Text size="sm" c="dimmed">
                 Taupunktabstand
               </Text>
-              <Text fw={600}>{current ? (current.indoorTemp - current.dewPoint).toFixed(1) : '—'}°C</Text>
+              <Text fw={600}>{current ? (current.indoorTemp - current.dewPointIndoor).toFixed(1) : '—'}°C</Text>
             </div>
             <Badge color="orange" variant="light">
-              Schwelle {current ? current.dewPoint.toFixed(1) : '—'}°C
+              Innen {current ? current.dewPointIndoor.toFixed(1) : '—'}°C · Außen {current ? current.dewPointOutdoor.toFixed(1) : '—'}°C
             </Badge>
           </Group>
         </Stack>

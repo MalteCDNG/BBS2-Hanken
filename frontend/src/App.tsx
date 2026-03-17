@@ -88,8 +88,8 @@ function App() {
           pointHitRadius: 10,
         },
         {
-          label: 'Taupunkt',
-          data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.dewPoint })),
+          label: 'Taupunkt innen',
+          data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.dewPointIndoor })),
           borderColor: '#fd7e14',
           backgroundColor: 'rgba(253, 126, 20, 0.1)',
           borderDash: [6, 6],
@@ -180,10 +180,10 @@ function App() {
       }
     }
 
-    const dewpointDelta = current.indoorTemp - current.dewPoint
-    const outsideIsCooler = current.outdoorTemp < current.indoorTemp
+    const dewPointClearance = current.indoorTemp - current.dewPointIndoor
+    const outdoorAirIsDrier = current.dewPointOutdoor < current.dewPointIndoor
 
-    if (dewpointDelta < 2) {
+    if (dewPointClearance < 2) {
       return {
         title: 'Lüften vermeiden',
         description: 'Die Raumluft liegt dicht am Taupunkt – Lüften nur kurz und vorsichtig.',
@@ -191,17 +191,17 @@ function App() {
       }
     }
 
-    if (outsideIsCooler) {
+    if (outdoorAirIsDrier) {
       return {
         title: 'Gute Lüftungsbedingungen',
-        description: 'Außenluft ist kühler als die Innenluft. Stoßlüften beugt Kondensation vor.',
+        description: 'Der Außentaupunkt liegt unter dem Innentaupunkt. Stoßlüften kann Feuchte effektiv abführen.',
         color: 'green',
       }
     }
 
     return {
       title: 'Neutral',
-      description: 'Temperaturen sind ausgeglichen. Bei Bedarf kurz lüften, um Feuchte abzubauen.',
+      description: 'Außenluft bringt derzeit kaum Trocknungsvorteil. Bei Bedarf nur kurz und gezielt lüften.',
       color: 'yellow',
     }
   }, [current])
@@ -217,20 +217,20 @@ function App() {
       },
       {
         label: 'Taupunktabstand',
-        value: current ? `${(current.indoorTemp - current.dewPoint).toFixed(1)}°C` : '—',
+        value: current ? `${(current.indoorTemp - current.dewPointIndoor).toFixed(1)}°C` : '—',
         hint: 'Abstand zur Kondensation',
         colors: ['orange', 'yellow'] as const,
         icon: <IconTemperature size={20} />,
       },
       {
-        label: 'Trend',
-        value: current ? `${current.dewPoint.toFixed(1)}°C Taupunkt` : '—',
-        hint: ventilationAdvice.title,
+        label: 'Taupunkt innen ↔ außen',
+        value: current ? `${(current.dewPointIndoor - current.dewPointOutdoor).toFixed(1)}°C` : '—',
+        hint: 'Positiv = Außenluft trockener',
         colors: ['teal', 'green'] as const,
         icon: <IconTemperatureMinus size={20} />,
       },
     ],
-    [current, ventilationAdvice.title]
+    [current]
   )
 
   const selectedRangeLabel = HISTORY_RANGE_OPTIONS[historyRange].label
@@ -247,7 +247,7 @@ function App() {
     } finally {
       setIsTogglingFan(false)
     }
-  }, [])
+  }, [setFanError, setFanStatus])
 
   const accentBadges = (
     <>
