@@ -11,6 +11,10 @@ class Reading(Document):
     indoorHumidity: float
     outdoorHumidity: float
 
+class ReadingWithDewPoint(Reading):
+    dewPointIndoor: float
+    dewPointOutdoor: float
+
 class State(Document):
     timestamp: datetime
     fan_running: bool
