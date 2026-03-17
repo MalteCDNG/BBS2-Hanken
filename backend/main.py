@@ -1,5 +1,7 @@
+import os
 from datetime import datetime
 
+import requests
 from dotenv import load_dotenv
 from fastapi import WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,15 +42,16 @@ async def read_root():
 @crons_app.cron("*/30 * * * *", name="get-data")
 async def get_data_cron():
     print("Daten werden geholt")
-    indoor = await dht22.get_data_indoor()
-    outdoor = await dht22.get_data_outdoor()
+
+    indoor = requests.get(os.environ["MEASURE_STATION_URL_INDOOR"]+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
+    outdoor = requests.get(os.environ["MEASURE_STATION_URL_OUTDOOR"]+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
 
     reading = Reading(
         timestamp=datetime.now(),
-        indoorTemp=indoor[0],
-        outdoorTemp=outdoor[0],
-        indoorHumidity=indoor[1],
-        outdoorHumidity=outdoor[1],
+        indoorTemp=indoor["temp"],
+        outdoorTemp=outdoor["temp"],
+        indoorHumidity=indoor["humid"],
+        outdoorHumidity=outdoor["humid"],
     )
     await reading.insert()
 
