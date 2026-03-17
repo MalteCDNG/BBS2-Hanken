@@ -25,4 +25,5 @@ def v(temp, humid):
 
 def taupunkt(temp, humid) -> float:
     a, b = params(temp)
-    return b*v(temp, humid) / (a-v(temp, humid))
+    res = b*v(temp, humid) / (a-v(temp, humid))
+    return round(res, 2)
