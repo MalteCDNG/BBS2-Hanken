@@ -1,6 +1,7 @@
 import os
 import sys
 
+import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from starlette import status
@@ -23,6 +24,8 @@ except:
     print("GPIO must be an integer")
     exit(1)
 
+dht = dht22.DHT(gpio)
+
 app = FastAPI()
 
 @app.get("/get/")
@@ -30,9 +33,12 @@ async def temperature(auth: str):
     if auth != os.environ["MEASURE_STATION_AUTHENTICATION"]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    temp, humid = await dht22.DHT(gpio).get_data()
+    temp, humid = dht.get_data()
 
     return {
         "temp": temp,
         "humid": humid
     }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(sys.argv[2]))
