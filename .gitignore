@@ -1,3 +1,5 @@
 .idea/
 .vscode/
 .vs/
+frontend/dist
+frontend/node_modules
