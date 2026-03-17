@@ -23,8 +23,7 @@ app.include_router(auth.router, prefix="/auth")
 app.include_router(insert.router, prefix="/insert")
 
 origins = [
-    "http://localhost",
-    "http://localhost:5173",
+    "*"
 ]
 
 app.add_middleware(
