@@ -4,7 +4,7 @@ if is_raspberrypi():
     import RPi.GPIO as GPIO
 
 
-class DHT:
+class Fan:
     running = True
     gpio = 0
 

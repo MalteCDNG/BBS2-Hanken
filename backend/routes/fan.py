@@ -1,13 +1,17 @@
-from datetime import datetime
+import os
+from datetime import datetime, timezone
 
 import pymongo
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from starlette import status
 
+import hardware.fan
 import hardware.util
 from dependencies.models import State, FanStatus
 
 router = APIRouter()
+
+#fan = hardware.fan.Fan(int(os.environ["FAN_GPIO"]))
 
 @router.get("/")
 async def fan_status():
@@ -37,9 +41,9 @@ async def fan_toggle(background_tasks: BackgroundTasks) -> FanStatus:
         running = False
 
     new_state = State(
-        timestamp=datetime.now(),
+        timestamp=datetime.now(tz=timezone.utc),
         fan_running=not running,
-        fan_override=datetime.now(),
+        fan_override=datetime.now(tz=timezone.utc),
     )
     await new_state.insert()
 
