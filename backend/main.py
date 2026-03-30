@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 from dotenv import load_dotenv
@@ -9,7 +9,6 @@ from starlette.websockets import WebSocketDisconnect
 
 from dependencies.app import app, crons_app, wsmanager
 from dependencies.models import Reading
-from hardware import dht22
 from routes import readings, fan, settings, auth, insert
 
 load_dotenv()
@@ -46,7 +45,7 @@ async def get_data_cron():
     outdoor = requests.get(os.environ["MEASURE_STATION_URL_OUTDOOR"]+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
 
     reading = Reading(
-        timestamp=datetime.now(),
+        timestamp=datetime.now(tz=timezone.utc),
         indoorTemp=indoor["temp"],
         outdoorTemp=outdoor["temp"],
         indoorHumidity=indoor["humid"],
