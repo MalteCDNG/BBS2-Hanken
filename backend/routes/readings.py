@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta
+import random
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 import pymongo
 from fastapi import APIRouter, HTTPException, status
 
 import dependencies.calculations
+import hardware.util
 from dependencies.models import Reading, ReadingWithDewPoint
 
 router = APIRouter()
@@ -31,6 +33,16 @@ async def current() -> ReadingWithDewPoint:
 
 @router.get("/history/")
 async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
+    if not hardware.util.is_raspberrypi():
+        new_reading = Reading(
+            timestamp=datetime.now(tz=timezone.utc),
+            indoorTemp=random.randint(-10, 30),
+            outdoorTemp=random.randint(-10, 30),
+            indoorHumidity=random.randint(1, 100),
+            outdoorHumidity=random.randint(1, 100),
+        )
+        await Reading.insert(new_reading)
+
     query = {
         "timestamp": {"$gt": start, "$lt": end}
     }
@@ -47,7 +59,7 @@ async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
         )
         readings.append(reading)
 
-    print(readings)
+    print(len(readings))
     return readings
 
 @router.get("/history/delta/")
