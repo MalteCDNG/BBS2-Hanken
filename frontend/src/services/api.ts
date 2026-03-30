@@ -1,11 +1,13 @@
 import axios from 'axios'
 
-export interface SensorReading {
+export interface ReadingWithDewPoint {
+  timestamp: string
   indoorTemp: number
   outdoorTemp: number
-  dewPoint: number
-  humidity?: number
-  timestamp: string
+  indoorHumidity: number
+  outdoorHumidity: number
+  dewPointIndoor: number
+  dewPointOutdoor: number
 }
 
 export interface FanStatus {
@@ -17,24 +19,39 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000',
 })
 
-export async function fetchCurrent(): Promise<SensorReading> {
-  const { data } = await api.get<SensorReading>('/readings/current/')
-  return data
+function isNoContent<T>(
+  status: number,
+  data: T | '' | null | undefined
+): data is '' | null | undefined {
+  return status === 204 || data == null || data === ''
+}
+
+export async function fetchCurrent(): Promise<ReadingWithDewPoint | null> {
+  const response = await api.get<ReadingWithDewPoint | ''>('/readings/current/')
+  if (isNoContent(response.status, response.data)) {
+    return null
+  }
+
+  return response.data
 }
 
 export async function fetchHistory(
   start: string,
   end: string
-): Promise<SensorReading[]> {
-  const { data } = await api.get<SensorReading[]>('/readings/history/', {
+): Promise<ReadingWithDewPoint[]> {
+  const { data } = await api.get<ReadingWithDewPoint[]>('/readings/history/', {
     params: { start, end },
   })
   return data
 }
 
-export async function fetchFanStatus(): Promise<FanStatus> {
-  const { data } = await api.get<FanStatus>('/fan/')
-  return data
+export async function fetchFanStatus(): Promise<FanStatus | null> {
+  const response = await api.get<FanStatus | ''>('/fan/')
+  if (isNoContent(response.status, response.data)) {
+    return null
+  }
+
+  return response.data
 }
 
 export async function toggleFan(): Promise<FanStatus> {

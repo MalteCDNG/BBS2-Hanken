@@ -13,7 +13,7 @@ import {
 } from '@mantine/core'
 import { ChartData, ChartOptions } from 'chart.js'
 import { Line } from 'react-chartjs-2'
-import { SensorReading } from '../services/api'
+import { type ReadingWithDewPoint } from '../services/api'
 
 export function HistoryChart({
   history,
@@ -27,7 +27,7 @@ export function HistoryChart({
   rangeOptions,
   smoothingLabel,
 }: {
-  history: SensorReading[]
+  history: ReadingWithDewPoint[]
   chartData: ChartData<'line', { x: string; y: number }[]>
   chartOptions: ChartOptions<'line'>
   lastUpdatedAbsolute: string
@@ -46,7 +46,7 @@ export function HistoryChart({
   const legendDetails = [
     { label: 'Innenluft (blau)', color: '#228be6' },
     { label: 'Außenluft (grün)', color: '#12b886' },
-    { label: 'Taupunkt (orange, gestrichelt)', color: '#fd7e14' },
+    { label: 'Taupunkt innen (orange, gestrichelt)', color: '#fd7e14' },
   ]
 
   return (

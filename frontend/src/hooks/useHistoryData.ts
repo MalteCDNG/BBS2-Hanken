@@ -3,7 +3,7 @@ import {
   fetchCurrent,
   fetchFanStatus,
   fetchHistory,
-  SensorReading,
+  type ReadingWithDewPoint,
   type FanStatus,
 } from "../services/api";
 import { formatDistance } from "date-fns";
@@ -94,8 +94,8 @@ function formatTimestamp(timestamp: string) {
 }
 
 export function useHistoryData(refreshInterval: number) {
-  const [current, setCurrent] = useState<SensorReading | null>(null);
-  const [history, setHistory] = useState<SensorReading[]>([]);
+  const [current, setCurrent] = useState<ReadingWithDewPoint | null>(null);
+  const [history, setHistory] = useState<ReadingWithDewPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fanStatus, setFanStatus] = useState<FanStatus | null>(null);
@@ -122,7 +122,7 @@ export function useHistoryData(refreshInterval: number) {
 
   const chartHistory = useMemo(() => {
     const bucketSizeMs = HISTORY_BUCKET_SIZES[historyRange];
-    const buckets = new Map<number, SensorReading>();
+    const buckets = new Map<number, ReadingWithDewPoint>();
 
     filteredHistory.forEach((entry) => {
       const time = new Date(entry.timestamp).getTime();
@@ -164,13 +164,15 @@ export function useHistoryData(refreshInterval: number) {
       ]);
       setCurrent(currentReading);
       const mergedHistory = [...historyReadings];
-      const hasCurrentReading = historyReadings.some(
-        (entry) =>
-          new Date(entry.timestamp).getTime() ===
-          new Date(currentReading.timestamp).getTime()
-      );
+      const hasCurrentReading = currentReading
+        ? historyReadings.some(
+            (entry) =>
+              new Date(entry.timestamp).getTime() ===
+              new Date(currentReading.timestamp).getTime()
+          )
+        : false;
 
-      if (!hasCurrentReading) {
+      if (currentReading && !hasCurrentReading) {
         mergedHistory.push(currentReading);
       }
 
@@ -184,7 +186,7 @@ export function useHistoryData(refreshInterval: number) {
       setFanError(null);
     } catch (err) {
       console.error(err);
-      setError("Konnte Sensordaten nicht laden. Läuft der Mock-Server?");
+      setError("Konnte Sensordaten nicht laden. Läuft das Backend?");
       setFanError("Konnte Lüfterstatus nicht laden.");
     } finally {
       setLoading(false);
