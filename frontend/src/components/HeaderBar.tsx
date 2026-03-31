@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Badge,
   Button,
+  Box,
   Container,
   Flex,
   Group,
@@ -9,13 +10,12 @@ import {
   Select,
   Stack,
   Text,
-  ThemeIcon,
   Tooltip,
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconClock, IconDashboard, IconMoonStars, IconRefresh, IconSunHigh } from '@tabler/icons-react'
+import { IconClock, IconMoonStars, IconRefresh, IconSunHigh } from '@tabler/icons-react'
 
 export function HeaderBar({
   refreshInterval,
@@ -43,16 +43,22 @@ export function HeaderBar({
         <Stack justify="center" gap="xs" h="100%" py={8}>
           <Group justify="center" gap="sm" wrap="nowrap">
             <Tooltip label="Nach oben scrollen" withArrow>
-              <ThemeIcon
-                size={38}
-                radius="md"
-                variant="gradient"
-                gradient={{ from: 'blue', to: 'teal' }}
+              <Box
                 onClick={scrollToTop}
-                style={{ cursor: 'pointer', flexShrink: 0 }}
+                style={{
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
-                <IconDashboard size={20} />
-              </ThemeIcon>
+                <img src="/Logo.png" alt="Taupunktmonitor Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </Box>
             </Tooltip>
 
             <div>
@@ -113,16 +119,22 @@ export function HeaderBar({
       <Flex direction="row" justify="space-between" align="center" h="100%" gap="sm">
         <Group gap="sm" wrap="nowrap">
           <Tooltip label="Nach oben scrollen" withArrow>
-            <ThemeIcon
-              size={38}
-              radius="md"
-              variant="gradient"
-              gradient={{ from: 'blue', to: 'teal' }}
+            <Box
               onClick={scrollToTop}
-              style={{ cursor: 'pointer', flexShrink: 0 }}
+              style={{
+                cursor: 'pointer',
+                flexShrink: 0,
+                width: 52,
+                height: 52,
+                borderRadius: 12,
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <IconDashboard size={20} />
-            </ThemeIcon>
+              <img src="/Logo.png" alt="Taupunktmonitor Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </Box>
           </Tooltip>
 
           <div style={{ minWidth: 0 }}>
