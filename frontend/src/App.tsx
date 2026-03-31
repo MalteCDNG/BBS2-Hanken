@@ -4,7 +4,6 @@ import {
   Badge,
   Container,
   Grid,
-  Stack,
   Tooltip as MantineTooltip,
   useComputedColorScheme,
   useMantineTheme,
@@ -30,7 +29,6 @@ import { HeroSection } from './components/HeroSection'
 import { StatCard } from './components/StatCards'
 import { LiveSummaryCards } from './components/LiveSummaryCards'
 import { HistoryChart } from './components/HistoryChart'
-import { AdvicePanel, VentilationAdvice } from './components/AdvicePanel'
 import { FooterBar } from './components/FooterBar'
 import { ChartData, ChartOptions } from 'chart.js'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
@@ -173,41 +171,6 @@ function App() {
     [historyRange]
   )
 
-  const ventilationAdvice = useMemo<VentilationAdvice>(() => {
-    if (!current) {
-      return {
-        title: 'Warte auf Messdaten',
-        description: 'Sobald frische Messwerte eintreffen, erscheint hier die Lüftungsempfehlung.',
-        color: 'gray',
-      }
-    }
-
-    const dewPointClearance = current.indoorTemp - current.dewPointIndoor
-    const outdoorAirIsDrier = current.dewPointOutdoor < current.dewPointIndoor
-
-    if (dewPointClearance < 2) {
-      return {
-        title: 'Lüften vermeiden',
-        description: 'Die Raumluft liegt dicht am Taupunkt – Lüften nur kurz und vorsichtig.',
-        color: 'red',
-      }
-    }
-
-    if (outdoorAirIsDrier) {
-      return {
-        title: 'Gute Lüftungsbedingungen',
-        description: 'Der Außentaupunkt liegt unter dem Innentaupunkt. Stoßlüften kann Feuchte effektiv abführen.',
-        color: 'green',
-      }
-    }
-
-    return {
-      title: 'Neutral',
-      description: 'Außenluft bringt derzeit kaum Trocknungsvorteil. Bei Bedarf nur kurz und gezielt lüften.',
-      color: 'yellow',
-    }
-  }, [current])
-
   const statCards = useMemo<StatCard[]>(
     () => [
       {
@@ -321,11 +284,8 @@ function App() {
               />
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, lg: 4 }} id="advice">
-              <Stack gap="lg">
-                <AdvicePanel current={current} ventilationAdvice={ventilationAdvice} />
-                <FanStatusCard status={fanStatus} loading={isTogglingFan} error={fanError} onToggle={handleToggleFan} />
-              </Stack>
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <FanStatusCard status={fanStatus} loading={isTogglingFan} error={fanError} onToggle={handleToggleFan} />
             </Grid.Col>
           </Grid>
         </Container>

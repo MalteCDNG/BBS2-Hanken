@@ -19,9 +19,6 @@ export function FooterBar() {
           <Anchor href="#history" c="dimmed" size="sm" underline="never">
             Verlauf
           </Anchor>
-          <Anchor href="#advice" c="dimmed" size="sm" underline="never">
-            Hinweise
-          </Anchor>
         </Group>
       </Flex>
     </Container>
