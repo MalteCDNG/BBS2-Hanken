@@ -46,6 +46,25 @@ const api = axios.create({
   baseURL,
 })
 
+function normalizeApiTimestamp(timestamp: string): string {
+  const hasExplicitTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp)
+  return hasExplicitTimezone ? timestamp : `${timestamp}Z`
+}
+
+function normalizeReading<T extends ReadingWithDewPoint>(reading: T): T {
+  return {
+    ...reading,
+    timestamp: normalizeApiTimestamp(reading.timestamp),
+  }
+}
+
+function normalizeFanStatus<T extends FanStatus>(status: T): T {
+  return {
+    ...status,
+    updatedAt: normalizeApiTimestamp(status.updatedAt),
+  }
+}
+
 function isNoContent<T>(
   status: number,
   data: T | '' | null | undefined
@@ -59,7 +78,7 @@ export async function fetchCurrent(): Promise<ReadingWithDewPoint | null> {
     return null
   }
 
-  return response.data
+  return normalizeReading(response.data)
 }
 
 export async function fetchHistory(
@@ -69,7 +88,7 @@ export async function fetchHistory(
   const { data } = await api.get<ReadingWithDewPoint[]>(API_ROUTES.readings.history, {
     params: { start, end },
   })
-  return data
+  return data.map(normalizeReading)
 }
 
 export async function fetchFanStatus(): Promise<FanStatus | null> {
@@ -78,12 +97,12 @@ export async function fetchFanStatus(): Promise<FanStatus | null> {
     return null
   }
 
-  return response.data
+  return normalizeFanStatus(response.data)
 }
 
 export async function toggleFan(): Promise<FanStatus> {
   const { data } = await api.post<FanStatus>(API_ROUTES.fan.toggle)
-  return data
+  return normalizeFanStatus(data)
 }
 
 export { API_ROUTES }
