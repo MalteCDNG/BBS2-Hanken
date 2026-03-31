@@ -36,19 +36,20 @@ export function FanStatusCard({
   const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
 
   return (
-    <Paper withBorder radius="lg" p="lg" shadow="soft" bg={cardBackground} style={{ borderColor }}>
-      <Group justify="space-between" align="flex-start" mb="sm">
-        <Group gap="sm">
+    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="soft" bg={cardBackground} style={{ borderColor }}>
+      <Group justify="space-between" align="flex-start" mb="sm" wrap="wrap">
+        <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
           <ThemeIcon color="blue" variant="light" size={36} radius="md">
             <IconWind size={20} />
           </ThemeIcon>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <Text fw={600}>Lüfterstatus</Text>
             <Text size="sm" c="dimmed">
               Zeigt den aktuellen Betriebszustand des Lüfters mit manuellem Schalter.
             </Text>
           </div>
         </Group>
+
         <Tooltip label={`Aktualisiert ${status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'}`} withArrow>
           <Badge color={badgeColor} variant="light" size="lg">
             {badgeLabel}
@@ -56,14 +57,14 @@ export function FanStatusCard({
         </Tooltip>
       </Group>
 
-      {error && (
-        <Group gap="xs" c="red" mb="sm">
+      {error ? (
+        <Group gap="xs" c="red" mb="sm" wrap="nowrap">
           <IconAlertCircle size={16} />
           <Text size="sm">{error}</Text>
         </Group>
-      )}
+      ) : null}
 
-      <Group justify="space-between">
+      <Group justify="space-between" align="end" wrap="wrap" gap="sm">
         <Stack gap={2}>
           <Text size="sm" c="dimmed">
             Betriebsmodus
@@ -71,7 +72,13 @@ export function FanStatusCard({
           <Text fw={600}>{isRunning ? 'Läuft' : 'Inaktiv'}</Text>
         </Stack>
 
-        <Button color={isRunning ? 'orange' : 'green'} leftSection={buttonIcon} loading={loading} onClick={onToggle}>
+        <Button
+          color={isRunning ? 'orange' : 'green'}
+          leftSection={buttonIcon}
+          loading={loading}
+          onClick={onToggle}
+          miw={{ base: '100%', sm: 180 }}
+        >
           {buttonLabel}
         </Button>
       </Group>

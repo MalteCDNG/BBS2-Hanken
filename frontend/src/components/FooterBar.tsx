@@ -3,8 +3,15 @@ import { Anchor, Container, Flex, Group, Stack, Text } from '@mantine/core'
 export function FooterBar() {
   return (
     <Container size="xl" h="100%">
-      <Flex justify="space-between" align="center" h="100%" direction={{ base: 'column', sm: 'row' }} gap="xs">
-        <Stack gap={2} align="flex-start" w={{ base: '100%', sm: 'auto' }}>
+      <Flex
+        justify="space-between"
+        align="center"
+        h="100%"
+        direction={{ base: 'column', sm: 'row' }}
+        gap={{ base: 'xs', sm: 'md' }}
+        py={{ base: 8, sm: 0 }}
+      >
+        <Stack gap={2} align="center" w={{ base: '100%', sm: 'auto' }}>
           <Text size="sm" c="dimmed" ta={{ base: 'center', sm: 'left' }}>
             © {new Date().getFullYear()} Taupunktmonitor · Raspberry Pi Sensorboard
           </Text>
@@ -12,7 +19,8 @@ export function FooterBar() {
             Frontend: Malte Ehmen · Backend: Sönke Klock
           </Text>
         </Stack>
-        <Group gap="md">
+
+        <Group gap="md" justify="center" wrap="wrap">
           <Anchor href="#live" c="dimmed" size="sm" underline="never">
             Live
           </Anchor>

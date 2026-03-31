@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react'
 import {
   Badge,
   Divider,
@@ -10,9 +10,9 @@ import {
   Title,
   useComputedColorScheme,
   useMantineTheme,
-} from "@mantine/core";
-import { StatCard, StatCards } from "./StatCards";
-import { type ReadingWithDewPoint } from "../services/api";
+} from '@mantine/core'
+import { StatCard, StatCards } from './StatCards'
+import { type ReadingWithDewPoint } from '../services/api'
 
 export function HeroSection({
   current,
@@ -21,100 +21,77 @@ export function HeroSection({
   lastUpdatedRelative,
   accentBadges,
 }: {
-  current: ReadingWithDewPoint | null;
-  statCards: StatCard[];
-  lastUpdatedAbsolute: string;
-  lastUpdatedRelative: string;
-  accentBadges: ReactNode;
+  current: ReadingWithDewPoint | null
+  statCards: StatCard[]
+  lastUpdatedAbsolute: string
+  lastUpdatedRelative: string
+  accentBadges: ReactNode
 }) {
-  const theme = useMantineTheme();
-  const colorScheme = useComputedColorScheme("light", {
+  const theme = useMantineTheme()
+  const colorScheme = useComputedColorScheme('light', {
     getInitialValueInEffect: true,
-  });
-  const isDark = colorScheme === "dark";
-  const heroBackground = isDark ? theme.colors.dark[7] : theme.white;
-  const panelBackground = isDark ? theme.colors.dark[6] : theme.white;
-  const panelBorder = isDark ? theme.colors.dark[4] : theme.colors.gray[2];
+  })
+  const isDark = colorScheme === 'dark'
+  const heroBackground = isDark ? theme.colors.dark[7] : theme.white
+  const panelBackground = isDark ? theme.colors.dark[6] : theme.white
+  const panelBorder = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
 
   return (
-    <Paper radius="lg" p="xl" shadow="card" withBorder bg={heroBackground}>
-      <Grid align="center" justify="space-between" gutter="xl">
+    <Paper radius="lg" p={{ base: 'lg', sm: 'xl' }} shadow="card" withBorder bg={heroBackground}>
+      <Grid align="center" justify="space-between" gutter={{ base: 'lg', md: 'xl' }}>
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Stack gap="sm" align="center" ta="center">
-            <Text
-              fw={700}
-              size="sm"
-              c="dimmed"
-              tt="uppercase"
-              style={{ letterSpacing: 0.6 }}
-            >
+            <Text fw={700} size="sm" c="dimmed" tt="uppercase" style={{ letterSpacing: 0.6 }}>
               Smart Monitoring
             </Text>
-            <Title order={1}>Taupunktlüftung</Title>
+            <Title order={1} style={{ textWrap: 'balance' }}>
+              Taupunktlüftung
+            </Title>
             <Text c="dimmed" maw={720}>
-              Aktuelle Messwerte vom Raspberry Pi Backend mit Langzeitverlauf –
-              optimiert für klares Situationsbewusstsein, gesundes Raumklima und
-              schnelle Lüftungsentscheidungen.
+              Aktuelle Messwerte vom Raspberry Pi Backend mit Langzeitverlauf – optimiert für klares
+              Situationsbewusstsein, gesundes Raumklima und schnelle Lüftungsentscheidungen.
             </Text>
-            <Group gap="sm" justify="center">
+            <Group gap="sm" justify="center" wrap="wrap">
               {accentBadges}
             </Group>
           </Stack>
         </Grid.Col>
+
         <Grid.Col span={{ base: 12, md: 5 }}>
-          <Paper
-            withBorder
-            radius="md"
-            p="md"
-            shadow="soft"
-            bg={panelBackground}
-            style={{ borderColor: panelBorder }}
-          >
+          <Paper withBorder radius="md" p="md" shadow="soft" bg={panelBackground} style={{ borderColor: panelBorder }}>
             <Stack gap="xs">
-              <Group justify="space-between">
+              <Group justify="space-between" wrap="nowrap" align="center">
                 <Text size="sm" c="dimmed">
                   Letzte Aktualisierung
                 </Text>
-                <Badge
-                  variant="light"
-                  color="blue"
-                  title={`Zuletzt aktualisiert ${lastUpdatedAbsolute}`}
-                >
+                <Badge variant="light" color="blue" title={`Zuletzt aktualisiert ${lastUpdatedAbsolute}`} ml="sm">
                   {lastUpdatedRelative}
                 </Badge>
               </Group>
               <Divider />
-              <Group justify="space-between" id="live">
+              <Group justify="space-between" wrap="nowrap" id="live">
                 <Text size="sm" c="dimmed">
                   Innen
                 </Text>
-                <Text fw={600}>
-                  {current ? `${current.indoorTemp.toFixed(1)}°C` : "—"}
-                </Text>
+                <Text fw={600}>{current ? `${current.indoorTemp.toFixed(1)}°C` : '—'}</Text>
               </Group>
-              <Group justify="space-between">
+              <Group justify="space-between" wrap="nowrap">
                 <Text size="sm" c="dimmed">
                   Außen
                 </Text>
-                <Text fw={600}>
-                  {current ? `${current.outdoorTemp.toFixed(1)}°C` : "—"}
-                </Text>
+                <Text fw={600}>{current ? `${current.outdoorTemp.toFixed(1)}°C` : '—'}</Text>
               </Group>
-              <Group justify="space-between">
+              <Group justify="space-between" wrap="nowrap">
                 <Text size="sm" c="dimmed">
                   Taupunkt innen
                 </Text>
-                <Text fw={600}>
-                  {current ? `${current.dewPointIndoor.toFixed(1)}°C` : "—"}
-                </Text>
+                <Text fw={600}>{current ? `${current.dewPointIndoor.toFixed(1)}°C` : '—'}</Text>
               </Group>
-              <Group justify="space-between">
+              <Group justify="space-between" wrap="nowrap">
                 <Text size="sm" c="dimmed">
                   Taupunkt außen
                 </Text>
-                <Text fw={600}>
-                  {current ? `${current.dewPointOutdoor.toFixed(1)}°C` : "—"}
-                </Text>
+                <Text fw={600}>{current ? `${current.dewPointOutdoor.toFixed(1)}°C` : '—'}</Text>
               </Group>
             </Stack>
           </Paper>
@@ -123,5 +100,5 @@ export function HeroSection({
 
       <StatCards cards={statCards} />
     </Paper>
-  );
+  )
 }

@@ -239,7 +239,7 @@ function App() {
     : `linear-gradient(180deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]} 45%, ${theme.colors.gray[0]})`
 
   return (
-    <AppShell padding="lg" header={{ height: 72 }} footer={{ height: 70 }}>
+    <AppShell padding={{ base: 'md', sm: 'lg' }} header={{ height: { base: 148, sm: 72 } }} footer={{ height: { base: 116, sm: 70 } }}>
       <AppShell.Header>
         <HeaderBar
           refreshInterval={refreshInterval}
@@ -251,7 +251,7 @@ function App() {
       </AppShell.Header>
 
       <AppShell.Main bg={mainBackground}>
-        <Container size="xl" py="xl">
+        <Container size="xl" py={{ base: 'md', sm: 'xl' }}>
           <Grid gutter="xl">
             <Grid.Col span={12}>
               <HeroSection

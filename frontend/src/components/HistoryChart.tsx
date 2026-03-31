@@ -6,11 +6,13 @@ import {
   Loader,
   Paper,
   SegmentedControl,
+  Select,
   Stack,
   Text,
   useComputedColorScheme,
   useMantineTheme,
 } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { ChartData, ChartOptions } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { type ReadingWithDewPoint } from '../services/api'
@@ -40,9 +42,11 @@ function HistoryState({
   loading?: boolean
 }) {
   return (
-    <Stack align="center" justify="center" gap="xs" h={360}>
+    <Stack align="center" justify="center" gap="xs" h={{ base: 260, sm: 360 }}>
       {loading ? <Loader size="sm" /> : null}
-      <Text fw={600}>{title}</Text>
+      <Text fw={600} ta="center">
+        {title}
+      </Text>
       <Text c="dimmed" ta="center" maw={420}>
         {description}
       </Text>
@@ -67,6 +71,7 @@ export function HistoryChart({
   const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
+  const isMobile = useMediaQuery('(max-width: 36em)')
   const cardBackground = isDark ? theme.colors.dark[6] : theme.white
   const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
 
@@ -77,27 +82,42 @@ export function HistoryChart({
   ]
 
   const hasData = history.length > 0
+  const summary = hasData
+    ? `Angezeigte ${history.length} Messpunkte (${smoothingLabel} geglättet) · Zeitraum: ${rangeLabel} · Aktualisiert ${lastUpdatedRelative} (${lastUpdatedAbsolute})`
+    : `Zeitraum: ${rangeLabel}`
 
   return (
-    <Paper withBorder radius="lg" p="lg" shadow="sm" bg={cardBackground} style={{ borderColor }}>
+    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="sm" bg={cardBackground} style={{ borderColor }}>
       <Stack gap="md">
-        <Group justify="space-between" align="flex-end">
+        <Stack gap="sm">
           <div>
             <Text fw={600}>Verlauf</Text>
             <Text size="sm" c="dimmed">
-              {hasData
-                ? `Angezeigte ${history.length} Messpunkte (${smoothingLabel} geglättet) · Zeitraum: ${rangeLabel} · Aktualisiert ${lastUpdatedRelative} (${lastUpdatedAbsolute})`
-                : `Zeitraum: ${rangeLabel}`}
+              {summary}
             </Text>
           </div>
-          <SegmentedControl
-            data={rangeOptions}
-            value={selectedRange}
-            onChange={onRangeChange}
-            size="sm"
-            aria-label="Zeitraum auswählen"
-          />
-        </Group>
+
+          {isMobile ? (
+            <Select
+              value={selectedRange}
+              data={rangeOptions}
+              onChange={(value) => value && onRangeChange(value)}
+              allowDeselect={false}
+              aria-label="Zeitraum auswählen"
+            />
+          ) : (
+            <Box style={{ overflowX: 'auto' }}>
+              <SegmentedControl
+                data={rangeOptions}
+                value={selectedRange}
+                onChange={onRangeChange}
+                size="xs"
+                aria-label="Zeitraum auswählen"
+                style={{ minWidth: 480 }}
+              />
+            </Box>
+          )}
+        </Stack>
 
         <Divider />
 
@@ -116,7 +136,7 @@ export function HistoryChart({
           />
         ) : (
           <>
-            <Box h={360} w="100%" style={{ position: 'relative' }}>
+            <Box h={{ base: 260, sm: 360 }} w="100%" style={{ position: 'relative' }}>
               <Line data={chartData} options={chartOptions} aria-label="Langzeitmessungen" style={{ width: '100%' }} />
             </Box>
 
