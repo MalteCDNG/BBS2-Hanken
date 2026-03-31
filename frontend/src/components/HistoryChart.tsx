@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Divider,
   Group,
   Loader,
   NativeSelect,
@@ -9,10 +8,10 @@ import {
   SegmentedControl,
   Stack,
   Text,
-  useComputedColorScheme,
-  useMantineTheme,
+  ThemeIcon,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
+import { IconChartLine, IconClock } from '@tabler/icons-react'
 import { ChartData, ChartOptions } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { type ReadingWithDewPoint } from '../services/api'
@@ -42,9 +41,9 @@ function HistoryState({
   loading?: boolean
 }) {
   return (
-    <Stack align="center" justify="center" gap="xs" h={{ base: 260, sm: 360 }}>
+    <Stack align="center" justify="center" gap="xs" h={{ base: 240, sm: 380 }}>
       {loading ? <Loader size="sm" /> : null}
-      <Text fw={600} ta="center">
+      <Text fw={700} ta="center">
         {title}
       </Text>
       <Text c="dimmed" ta="center" maw={420}>
@@ -68,100 +67,79 @@ export function HistoryChart({
   rangeOptions,
   smoothingLabel,
 }: HistoryChartProps) {
-  const theme = useMantineTheme()
-  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
-  const isDark = colorScheme === 'dark'
-  const isMobile = useMediaQuery('(max-width: 36em)')
-  const cardBackground = isDark ? theme.colors.dark[6] : theme.white
-  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
-
-  const legendDetails = [
-    { label: 'Innenluft', color: '#228be6' },
-    { label: 'Außenluft', color: '#12b886' },
-    { label: 'Taupunkt innen', color: '#fd7e14' },
-  ]
+  const isMobile = useMediaQuery('(max-width: 48em)')
 
   const hasData = history.length > 0
   const summary = hasData
-    ? `Angezeigte ${history.length} Messpunkte (${smoothingLabel} geglättet) · Zeitraum: ${rangeLabel} · Aktualisiert ${lastUpdatedRelative} (${lastUpdatedAbsolute})`
-    : `Zeitraum: ${rangeLabel}`
+    ? isMobile
+      ? `${history.length} Punkte, zuletzt ${lastUpdatedRelative}`
+      : `${history.length} Messpunkte, ${smoothingLabel} geglättet, zuletzt ${lastUpdatedRelative}`
+    : `Zeitraum ${rangeLabel}`
 
   return (
-    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="sm" bg={cardBackground} style={{ borderColor }}>
-      <Stack gap="md">
-        <Stack gap="sm">
-          <div>
-            <Text fw={600}>Verlauf</Text>
-            <Text size="sm" c="dimmed">
-              {summary}
-            </Text>
-          </div>
+    <Paper className="section-card chart-card fade-in-up" radius="xl" p={{ base: 'md', sm: 'lg' }}>
+      <Stack gap={isMobile ? 'md' : 'lg'}>
+        <Group justify="space-between" align="flex-start" wrap="wrap">
+          <Group gap="sm" wrap="nowrap" align="flex-start" style={{ minWidth: 0 }}>
+            <ThemeIcon size={46} radius="xl" variant="light" color="ocean">
+              <IconChartLine size={24} />
+            </ThemeIcon>
 
-          {isMobile ? (
-            <NativeSelect
-              value={selectedRange}
-              data={rangeOptions}
-              onChange={(event) => onRangeChange(event.currentTarget.value)}
-              aria-label="Zeitraum auswählen"
-            />
-          ) : (
-            <Box style={{ overflowX: 'auto' }}>
-              <SegmentedControl
-                data={rangeOptions}
-                value={selectedRange}
-                onChange={onRangeChange}
-                size="xs"
-                aria-label="Zeitraum auswählen"
-                style={{ minWidth: 480 }}
-              />
-            </Box>
-          )}
-        </Stack>
+            <div style={{ minWidth: 0 }}>
+              <Text className="surface-label" c="dimmed">
+                Historie
+              </Text>
+              <Text fw={800} size="xl" ff="var(--app-font-display)">
+                Verlauf im Zeitfenster
+              </Text>
+              <Text size="sm" c="dimmed">
+                {summary}
+              </Text>
+            </div>
+          </Group>
 
-        <Divider />
+          <Group gap="xs" wrap="wrap">
+            <Badge variant="light" color="ocean">
+              {rangeLabel}
+            </Badge>
+            <Badge variant="light" color="seafoam" leftSection={<IconClock size={14} />}>
+              {lastUpdatedAbsolute}
+            </Badge>
+          </Group>
+        </Group>
 
-        {loading ? (
-          <HistoryState
-            loading
-            title="Verlauf wird geladen"
-            description="Die Messpunkte für den gewählten Zeitraum werden gerade neu geladen."
-          />
-        ) : error ? (
-          <HistoryState title="Verlauf derzeit nicht verfügbar" description={error} />
-        ) : !hasData ? (
-          <HistoryState
-            title="Noch keine Verlaufsdaten vorhanden"
-            description="Sobald das Backend Messwerte für den gewählten Zeitraum liefert, erscheint hier die Chart."
+        {isMobile ? (
+          <NativeSelect
+            value={selectedRange}
+            data={rangeOptions}
+            onChange={(event) => onRangeChange(event.currentTarget.value)}
+            aria-label="Zeitraum auswählen"
           />
         ) : (
-          <>
-            <Box h={{ base: 260, sm: 360 }} w="100%" style={{ position: 'relative' }}>
+          <SegmentedControl data={rangeOptions} value={selectedRange} onChange={onRangeChange} aria-label="Zeitraum auswählen" />
+        )}
+
+        <Box className="chart-viewport" p={{ base: 'sm', sm: 'md' }}>
+          {loading ? (
+            <HistoryState
+              loading
+              title="Verlauf wird geladen"
+              description="Die Messpunkte für den gewählten Zeitraum werden gerade neu geladen."
+            />
+          ) : error ? (
+            <HistoryState title="Verlauf derzeit nicht verfügbar" description={error} />
+          ) : !hasData ? (
+            <HistoryState
+              title="Noch keine Verlaufsdaten vorhanden"
+              description="Sobald das Backend Messwerte für den gewählten Zeitraum liefert, erscheint hier die Chart."
+            />
+          ) : (
+            <Box h={{ base: 240, sm: 380 }} w="100%" style={{ position: 'relative' }}>
               <Line data={chartData} options={chartOptions} aria-label="Langzeitmessungen" style={{ width: '100%' }} />
             </Box>
+          )}
+        </Box>
 
-            <Group gap="sm" wrap="wrap">
-              {legendDetails.map((item) => (
-                <Badge
-                  key={item.label}
-                  variant="light"
-                  leftSection={
-                    <span
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 999,
-                        backgroundColor: item.color,
-                        display: 'inline-block',
-                      }}
-                    />
-                  }
-                >
-                  {item.label}
-                </Badge>
-              ))}
-            </Group>
-          </>
-        )}
       </Stack>
     </Paper>
   )

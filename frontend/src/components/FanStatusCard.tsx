@@ -1,15 +1,5 @@
-import {
-  Badge,
-  Button,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Tooltip,
-  useComputedColorScheme,
-  useMantineTheme,
-} from '@mantine/core'
+import { Badge, Button, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { IconAlertCircle, IconPlayerPause, IconPlayerPlay, IconWind } from '@tabler/icons-react'
 import { FanStatus } from '../services/api'
 
@@ -24,64 +14,71 @@ export function FanStatusCard({
   error: string | null
   onToggle: () => void
 }) {
+  const isMobile = useMediaQuery('(max-width: 48em)')
   const isRunning = status?.running ?? false
-  const badgeColor = isRunning ? 'green' : 'gray'
+  const badgeColor = isRunning ? 'seafoam' : 'gray'
   const badgeLabel = isRunning ? 'Aktiv' : 'Aus'
   const buttonLabel = isRunning ? 'Lüfter stoppen' : 'Lüfter starten'
   const buttonIcon = isRunning ? <IconPlayerPause size={18} /> : <IconPlayerPlay size={18} />
-  const theme = useMantineTheme()
-  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
-  const isDark = colorScheme === 'dark'
-  const cardBackground = isDark ? theme.colors.dark[6] : theme.white
-  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
+  const updatedAtLabel = status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'
 
   return (
-    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="soft" bg={cardBackground} style={{ borderColor }}>
-      <Group justify="space-between" align="flex-start" mb="sm" wrap="wrap">
-        <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
-          <ThemeIcon color="blue" variant="light" size={36} radius="md">
-            <IconWind size={20} />
-          </ThemeIcon>
-          <div style={{ minWidth: 0 }}>
-            <Text fw={600}>Lüfterstatus</Text>
-            <Text size="sm" c="dimmed">
-              Zeigt den aktuellen Betriebszustand des Lüfters mit manuellem Schalter.
-            </Text>
-          </div>
-        </Group>
+    <Paper className="section-card fan-card fade-in-up" radius="xl" p={{ base: 'md', sm: 'lg' }}>
+      <Stack gap={isMobile ? 'md' : 'lg'}>
+        <Group justify="space-between" align="flex-start" wrap="wrap">
+          <Group gap="sm" align="flex-start" wrap="nowrap" style={{ minWidth: 0 }}>
+            <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}>
+              <IconWind size={24} />
+            </ThemeIcon>
 
-        <Tooltip label={`Aktualisiert ${status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'}`} withArrow>
+            <div style={{ minWidth: 0 }}>
+              <Text className="surface-label" c="dimmed">
+                Steuerung
+              </Text>
+              <Text fw={800} size="xl" ff="var(--app-font-display)">
+                Lüfterstatus
+              </Text>
+              <Text size="sm" c="dimmed" maw={isMobile ? undefined : 320}>
+                Manueller Eingriff für das Sensorboard und die aktuelle Ventilation.
+              </Text>
+            </div>
+          </Group>
+
           <Badge color={badgeColor} variant="light" size="lg">
             {badgeLabel}
           </Badge>
-        </Tooltip>
-      </Group>
-
-      {error ? (
-        <Group gap="xs" c="red" mb="sm" wrap="nowrap">
-          <IconAlertCircle size={16} />
-          <Text size="sm">{error}</Text>
         </Group>
-      ) : null}
 
-      <Group justify="space-between" align="end" wrap="wrap" gap="sm">
-        <Stack gap={2}>
-          <Text size="sm" c="dimmed">
-            Betriebsmodus
+        <div className="metric-pill">
+          <Text className="metric-pill-label">Betriebsmodus</Text>
+          <Text fw={800} size="xl" className="live-card-value">
+            {isRunning ? 'Läuft' : 'Inaktiv'}
           </Text>
-          <Text fw={600}>{isRunning ? 'Läuft' : 'Inaktiv'}</Text>
-        </Stack>
+          <Text size="sm" c="dimmed">
+            Letzte Rückmeldung: {updatedAtLabel}
+          </Text>
+        </div>
+
+        {error ? (
+          <Group gap="xs" c="red" wrap="nowrap">
+            <IconAlertCircle size={16} />
+            <Text size="sm">{error}</Text>
+          </Group>
+        ) : null}
 
         <Button
-          color={isRunning ? 'orange' : 'green'}
+          color={isRunning ? 'amber' : 'seafoam'}
+          variant="gradient"
+          gradient={isRunning ? { from: 'amber.6', to: 'orange.5', deg: 145 } : { from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
           leftSection={buttonIcon}
           loading={loading}
           onClick={onToggle}
-          miw={{ base: '100%', sm: 180 }}
+          fullWidth
+          size={isMobile ? 'sm' : 'md'}
         >
           {buttonLabel}
         </Button>
-      </Group>
+      </Stack>
     </Paper>
   )
 }

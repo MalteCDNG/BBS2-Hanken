@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
+  ActionIcon,
+  Affix,
   AppShell,
   Badge,
   Box,
@@ -7,9 +9,8 @@ import {
   Grid,
   Tooltip as MantineTooltip,
   useComputedColorScheme,
-  useMantineTheme,
 } from '@mantine/core'
-import { IconTemperature, IconTemperatureMinus, IconTemperaturePlus } from '@tabler/icons-react'
+import { IconRefresh, IconTemperature, IconTemperatureMinus, IconTemperaturePlus } from '@tabler/icons-react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,26 +21,27 @@ import {
   Legend,
   Filler,
   TimeScale,
+  ChartData,
+  ChartOptions,
 } from 'chart.js'
 import 'chartjs-adapter-date-fns'
 import { de } from 'date-fns/locale'
+import { useMediaQuery } from '@mantine/hooks'
 import { FanStatusCard } from './components/FanStatusCard'
-import { toggleFan } from './services/api'
 import { HeaderBar } from './components/HeaderBar'
 import { HeroSection } from './components/HeroSection'
-import { StatCard } from './components/StatCards'
-import { LiveSummaryCards } from './components/LiveSummaryCards'
 import { HistoryChart } from './components/HistoryChart'
 import { FooterBar } from './components/FooterBar'
-import { ChartData, ChartOptions } from 'chart.js'
+import { StatCard } from './components/StatCards'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
+import { toggleFan } from './services/api'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler, TimeScale)
 
 function App() {
-  const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
+  const isMobile = useMediaQuery('(max-width: 48em)')
   const [isTogglingFan, setIsTogglingFan] = useState(false)
   const [refreshInterval, setRefreshInterval] = useState(10000)
   const {
@@ -63,140 +65,221 @@ function App() {
 
   const showChartPoints = chartHistory.length <= 1
 
-  const chartData = useMemo<ChartData<'line', { x: string; y: number }[]>>(() => {
-    return {
+  const chartPalette = useMemo(
+    () =>
+      isDark
+        ? {
+            indoor: '#84b0ff',
+            indoorFill: 'rgba(132, 176, 255, 0.18)',
+            outdoor: '#71ebca',
+            outdoorFill: 'rgba(113, 235, 202, 0.16)',
+            dew: '#ffca52',
+            grid: 'rgba(216, 231, 255, 0.12)',
+            text: '#d8e7ff',
+            mutedText: '#a8bfdc',
+          }
+        : {
+            indoor: '#0a4f9f',
+            indoorFill: 'rgba(10, 79, 159, 0.14)',
+            outdoor: '#069b74',
+            outdoorFill: 'rgba(6, 155, 116, 0.14)',
+            dew: '#cc8700',
+            grid: 'rgba(16, 35, 63, 0.08)',
+            text: '#10233f',
+            mutedText: '#5a6c86',
+          },
+    [isDark]
+  )
+
+  const chartData = useMemo<ChartData<'line', { x: string; y: number }[]>>(
+    () => ({
       datasets: [
         {
           label: 'Innen',
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.indoorTemp })),
-          borderColor: '#228be6',
-          backgroundColor: 'rgba(34, 139, 230, 0.1)',
-          tension: 0.3,
+          borderColor: chartPalette.indoor,
+          backgroundColor: chartPalette.indoorFill,
+          tension: 0.38,
           fill: true,
+          borderWidth: 3,
           pointRadius: showChartPoints ? 4 : 0,
           pointHoverRadius: 6,
-          pointHitRadius: 10,
+          pointHitRadius: 12,
         },
         {
           label: 'Außen',
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.outdoorTemp })),
-          borderColor: '#12b886',
-          backgroundColor: 'rgba(18, 184, 134, 0.1)',
-          tension: 0.3,
+          borderColor: chartPalette.outdoor,
+          backgroundColor: chartPalette.outdoorFill,
+          tension: 0.38,
           fill: true,
+          borderWidth: 3,
           pointRadius: showChartPoints ? 4 : 0,
           pointHoverRadius: 6,
-          pointHitRadius: 10,
+          pointHitRadius: 12,
         },
         {
           label: 'Taupunkt innen',
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.dewPointIndoor })),
-          borderColor: '#fd7e14',
-          backgroundColor: 'rgba(253, 126, 20, 0.1)',
-          borderDash: [6, 6],
-          tension: 0.3,
+          borderColor: chartPalette.dew,
+          backgroundColor: 'transparent',
+          borderDash: [8, 8],
+          tension: 0.34,
           fill: false,
+          borderWidth: 2,
           pointRadius: showChartPoints ? 4 : 0,
           pointHoverRadius: 6,
-          pointHitRadius: 10,
+          pointHitRadius: 12,
         },
       ],
-    }
-  }, [chartHistory, showChartPoints])
-
-  const chartOptions = useMemo<ChartOptions<'line'>>(
-    () => {
-      const timeUnit = HISTORY_RANGE_OPTIONS[historyRange].timeUnit
-
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom' as const,
-          },
-          tooltip: {
-            mode: 'index' as const,
-            intersect: false,
-            callbacks: {
-              title: (items) =>
-                items.length > 0
-                  ? new Intl.DateTimeFormat('de-DE', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                    }).format(new Date(items[0].parsed.x as number))
-                  : '',
-            },
-          },
-        },
-        scales: {
-          x: {
-            type: 'time' as const,
-            adapters: {
-              date: {
-                locale: de,
-              },
-            },
-            time: {
-              unit: timeUnit,
-              displayFormats: {
-                second: 'HH:mm:ss',
-                minute: 'HH:mm:ss',
-                hour: 'HH:mm',
-                day: 'dd.MM.',
-                month: 'LLL yy',
-              },
-              tooltipFormat: 'dd.MM.yyyy HH:mm:ss',
-            },
-            grid: { display: false },
-            ticks: {
-              autoSkip: true,
-              maxRotation: 0,
-            },
-          },
-          y: {
-            title: { display: true, text: 'Temperatur (°C)' },
-            ticks: { callback: (value: number | string) => `${value}°` },
-          },
-        },
-        interaction: {
-          mode: 'nearest' as const,
-          intersect: false,
-        },
-      }
-    },
-    [historyRange]
+    }),
+    [chartHistory, chartPalette, showChartPoints]
   )
+
+  const chartOptions = useMemo<ChartOptions<'line'>>(() => {
+    const timeUnit = HISTORY_RANGE_OPTIONS[historyRange].timeUnit
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'nearest',
+        intersect: false,
+      },
+      elements: {
+        point: {
+          borderWidth: 0,
+        },
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: chartPalette.mutedText,
+            usePointStyle: true,
+            boxWidth: 8,
+            boxHeight: 8,
+            padding: 18,
+          },
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: isDark ? 'rgba(9, 22, 40, 0.94)' : 'rgba(255, 255, 255, 0.96)',
+          titleColor: chartPalette.text,
+          bodyColor: chartPalette.text,
+          borderColor: chartPalette.grid,
+          borderWidth: 1,
+          padding: 14,
+          callbacks: {
+            title: (items) =>
+              items.length > 0
+                ? new Intl.DateTimeFormat('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  }).format(new Date(items[0].parsed.x as number))
+                : '',
+          },
+        },
+      },
+      scales: {
+        x: {
+          type: 'time',
+          adapters: {
+            date: {
+              locale: de,
+            },
+          },
+          time: {
+            unit: timeUnit,
+            displayFormats: {
+              second: 'HH:mm:ss',
+              minute: 'HH:mm:ss',
+              hour: 'HH:mm',
+              day: 'dd.MM.',
+              month: 'LLL yy',
+            },
+            tooltipFormat: 'dd.MM.yyyy HH:mm:ss',
+          },
+          grid: {
+            color: chartPalette.grid,
+            drawBorder: false,
+          },
+          ticks: {
+            autoSkip: true,
+            maxRotation: 0,
+            color: chartPalette.mutedText,
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Temperatur (°C)',
+            color: chartPalette.mutedText,
+          },
+          grid: {
+            color: chartPalette.grid,
+            drawBorder: false,
+          },
+          ticks: {
+            color: chartPalette.mutedText,
+            callback: (value: number | string) => `${value}°`,
+          },
+        },
+      },
+    }
+  }, [chartPalette, historyRange, isDark])
 
   const statCards = useMemo<StatCard[]>(
     () => [
       {
-        label: 'Innen ↔ Außen',
-        value: current ? `${(current.indoorTemp - current.outdoorTemp).toFixed(1)}°C` : '—',
-        hint: 'Temperaturdifferenz',
-        colors: ['blue', 'cyan'] as const,
+        label: 'Innen vs. Außen',
+        value: current ? `${(current.indoorTemp - current.outdoorTemp).toFixed(1)}°C` : '--',
+        hint: 'Temperaturdifferenz im Moment',
+        colors: ['ocean', 'seafoam'] as const,
         icon: <IconTemperaturePlus size={20} />,
       },
       {
         label: 'Taupunktabstand',
-        value: current ? `${(current.indoorTemp - current.dewPointIndoor).toFixed(1)}°C` : '—',
-        hint: 'Abstand zur Kondensation',
-        colors: ['orange', 'yellow'] as const,
+        value: current ? `${(current.indoorTemp - current.dewPointIndoor).toFixed(1)}°C` : '--',
+        hint: 'Puffer bis zur Kondensation',
+        colors: ['amber', 'yellow'] as const,
         icon: <IconTemperature size={20} />,
       },
       {
-        label: 'Taupunkt innen ↔ außen',
-        value: current ? `${(current.dewPointIndoor - current.dewPointOutdoor).toFixed(1)}°C` : '—',
-        hint: 'Positiv = Außenluft trockener',
-        colors: ['teal', 'green'] as const,
+        label: 'Taupunkt innen vs. außen',
+        value: current ? `${(current.dewPointIndoor - current.dewPointOutdoor).toFixed(1)}°C` : '--',
+        hint: 'Positiv bedeutet trockenere Außenluft',
+        colors: ['seafoam', 'teal'] as const,
         icon: <IconTemperatureMinus size={20} />,
       },
     ],
     [current]
+  )
+
+  const heroHighlights = useMemo(
+    () => [
+      {
+        label: 'Innenfeuchte',
+        value: current ? `${current.indoorHumidity.toFixed(0)}%` : '--',
+        hint: 'Relative Luftfeuchte im Raum',
+      },
+      {
+        label: 'Trocknungspotenzial',
+        value: current ? `${(current.dewPointIndoor - current.dewPointOutdoor).toFixed(1)}°C` : '--',
+        hint: 'Je höher, desto besser fürs Auslüften',
+      },
+      {
+        label: 'Auto-Refresh',
+        value: `${refreshInterval / 1000}s`,
+        hint: 'Intervall für die Live-Synchronisierung',
+      },
+    ],
+    [current, refreshInterval]
   )
 
   const selectedRangeLabel = HISTORY_RANGE_OPTIONS[historyRange].label
@@ -209,7 +292,7 @@ function App() {
       setFanError(null)
     } catch (err) {
       console.error(err)
-      setFanError('Konnte Lüfterstatus nicht umschalten.')
+      setFanError('Konnte den Lüfterstatus nicht umschalten.')
     } finally {
       setIsTogglingFan(false)
     }
@@ -217,43 +300,53 @@ function App() {
 
   const accentBadges = (
     <>
-      <MantineTooltip label="Innen- und Außenwerte im Blick" withArrow>
-        <Badge variant="light" color="blue">
-          Innen- & Außenluft
+      <MantineTooltip label="Innen- und Außenwerte im direkten Vergleich" withArrow>
+        <Badge size="lg" variant={isDark ? 'filled' : 'light'} color="ocean">
+          Innen und Außen
         </Badge>
       </MantineTooltip>
-      <MantineTooltip label="Taupunkt überwachen für Kondensationsschutz" withArrow>
-        <Badge variant="light" color="orange">
-          Taupunktkontrolle
+      <MantineTooltip label="Taupunkt im Blick behalten, um Kondensation früh zu erkennen" withArrow>
+        <Badge size="lg" variant={isDark ? 'filled' : 'light'} color="amber">
+          Taupunktschutz
         </Badge>
       </MantineTooltip>
-      <MantineTooltip label="Trendentwicklung über die Zeit" withArrow>
-        <Badge variant="light" color="teal">
-          Verlauf & Trends
+      <MantineTooltip label="Langzeitverlauf für Muster, Trends und schnelle Entscheidungen" withArrow>
+        <Badge size="lg" variant={isDark ? 'filled' : 'light'} color="seafoam">
+          Verlauf und Trends
         </Badge>
       </MantineTooltip>
     </>
   )
 
-  const mainBackground = isDark
-    ? `linear-gradient(180deg, ${theme.colors.dark[8]}, ${theme.colors.dark[7]} 45%, ${theme.colors.dark[6]})`
-    : `linear-gradient(180deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]} 45%, ${theme.colors.gray[0]})`
-
   return (
-    <AppShell padding={{ base: 'md', sm: 'lg' }} header={{ height: { base: 184, sm: 72 } }}>
-      <AppShell.Header>
-        <HeaderBar
-          refreshInterval={refreshInterval}
-          onIntervalChange={setRefreshInterval}
-          onManualRefresh={refreshData}
-          isRefreshing={isRefreshing}
-          lastUpdatedRelative={lastUpdatedRelative}
-        />
-      </AppShell.Header>
+    <AppShell padding={{ base: 'sm', sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
+      {!isMobile ? (
+        <AppShell.Header className="shell-header" withBorder={false}>
+          <HeaderBar
+            refreshInterval={refreshInterval}
+            onIntervalChange={setRefreshInterval}
+            onManualRefresh={refreshData}
+            isRefreshing={isRefreshing}
+            lastUpdatedRelative={lastUpdatedRelative}
+          />
+        </AppShell.Header>
+      ) : null}
 
-      <AppShell.Main bg={mainBackground}>
-        <Container size="xl" py={{ base: 'md', sm: 'xl' }}>
-          <Grid gutter="xl">
+      <AppShell.Main className="app-shell-main">
+        <Container size="xl" py={{ base: 'xs', sm: 'xl' }}>
+          {isMobile ? (
+            <Box mb="md">
+              <HeaderBar
+                refreshInterval={refreshInterval}
+                onIntervalChange={setRefreshInterval}
+                onManualRefresh={refreshData}
+                isRefreshing={isRefreshing}
+                lastUpdatedRelative={lastUpdatedRelative}
+              />
+            </Box>
+          ) : null}
+
+          <Grid gutter={{ base: 'md', md: 'xl' }}>
             <Grid.Col span={12}>
               <HeroSection
                 current={current}
@@ -261,11 +354,8 @@ function App() {
                 lastUpdatedAbsolute={lastUpdatedAbsolute}
                 lastUpdatedRelative={lastUpdatedRelative}
                 accentBadges={accentBadges}
+                highlights={heroHighlights}
               />
-            </Grid.Col>
-
-            <Grid.Col span={12} id="live">
-              <LiveSummaryCards current={current} loading={loading} error={error} />
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, lg: 8 }} id="history">
@@ -285,14 +375,32 @@ function App() {
               />
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, lg: 4 }}>
+            <Grid.Col span={{ base: 12, lg: 4 }} id="controls">
               <FanStatusCard status={fanStatus} loading={isTogglingFan} error={fanError} onToggle={handleToggleFan} />
             </Grid.Col>
           </Grid>
         </Container>
+
         <Box mt={{ base: 'lg', sm: 'xl' }} pb={{ base: 'md', sm: 'lg' }}>
           <FooterBar />
         </Box>
+
+        {isMobile ? (
+          <Affix position={{ bottom: 18, right: 18 }}>
+            <ActionIcon
+              className="mobile-refresh-fab"
+              size={54}
+              radius={999}
+              variant="gradient"
+              gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
+              onClick={refreshData}
+              loading={isRefreshing}
+              aria-label="Messwerte neu laden"
+            >
+              <IconRefresh size={22} />
+            </ActionIcon>
+          </Affix>
+        ) : null}
       </AppShell.Main>
     </AppShell>
   )
