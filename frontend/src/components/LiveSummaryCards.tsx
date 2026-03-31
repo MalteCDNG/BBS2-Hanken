@@ -12,7 +12,7 @@ import {
   useComputedColorScheme,
   useMantineTheme,
 } from '@mantine/core'
-import { IconDashboard, IconAlertCircle } from '@tabler/icons-react'
+import { IconAlertCircle, IconDashboard } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
 
 function TemperatureCard({
@@ -29,19 +29,23 @@ function TemperatureCard({
   const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
+
   const accentGradients: Record<string, string> = {
     blue: isDark
-      ? `linear-gradient(135deg, ${theme.colors.ocean[7]}, ${theme.colors.ocean[6]})`
+      ? `linear-gradient(135deg, ${theme.colors.ocean[8]}, ${theme.colors.ocean[6]})`
       : `linear-gradient(135deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]})`,
     teal: isDark
-      ? `linear-gradient(135deg, ${theme.colors.mint[7]}, ${theme.colors.mint[6]})`
+      ? `linear-gradient(135deg, ${theme.colors.mint[8]}, ${theme.colors.mint[6]})`
       : `linear-gradient(135deg, ${theme.colors.mint[0]}, ${theme.colors.mint[1]})`,
     orange: isDark
-      ? `linear-gradient(135deg, ${theme.colors.orange[7]}, ${theme.colors.orange[6]})`
+      ? `linear-gradient(135deg, ${theme.colors.orange[8]}, ${theme.colors.orange[6]})`
       : `linear-gradient(135deg, ${theme.colors.orange[0]}, ${theme.colors.yellow[0]})`,
   }
+
   const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
   const fallbackBackground = isDark ? theme.colors.dark[6] : theme.colors.gray[0]
+  const primaryTextColor = isDark ? theme.white : theme.colors.dark[8]
+  const secondaryTextColor = isDark ? 'rgba(255,255,255,0.84)' : theme.colors.dark[5]
 
   return (
     <Paper
@@ -54,31 +58,34 @@ function TemperatureCard({
     >
       <Badge
         color={accent}
-        variant="light"
+        variant={isDark ? 'filled' : 'light'}
         radius="md"
         size="md"
         px="sm"
         pos="absolute"
         top={16}
         right={16}
-        style={{ boxShadow: `0 0 0 1px var(--mantine-color-${accent}-4)` }}
       >
         Live
       </Badge>
+
       <Group gap="sm" align="flex-start">
-        <ThemeIcon size={44} radius="md" color={accent} variant="light">
+        <ThemeIcon size={44} radius="md" color={accent} variant={isDark ? 'white' : 'light'}>
           <IconDashboard size={24} />
         </ThemeIcon>
+
         <Stack gap={4}>
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c={secondaryTextColor}>
             {label}
           </Text>
-          <Title order={2}>{value.toFixed(1)}°C</Title>
-          {description && (
-            <Text size="sm" c="dimmed">
+          <Title order={2} c={primaryTextColor}>
+            {value.toFixed(1)}°C
+          </Title>
+          {description ? (
+            <Text size="sm" c={secondaryTextColor}>
               {description}
             </Text>
-          )}
+          ) : null}
         </Stack>
       </Group>
     </Paper>
