@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   AppShell,
   Badge,
+  Box,
   Container,
   Grid,
   Tooltip as MantineTooltip,
@@ -239,7 +240,7 @@ function App() {
     : `linear-gradient(180deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]} 45%, ${theme.colors.gray[0]})`
 
   return (
-    <AppShell padding={{ base: 'md', sm: 'lg' }} header={{ height: { base: 148, sm: 72 } }} footer={{ height: { base: 116, sm: 70 } }}>
+    <AppShell padding={{ base: 'md', sm: 'lg' }} header={{ height: { base: 148, sm: 72 } }}>
       <AppShell.Header>
         <HeaderBar
           refreshInterval={refreshInterval}
@@ -289,11 +290,10 @@ function App() {
             </Grid.Col>
           </Grid>
         </Container>
+        <Box mt={{ base: 'lg', sm: 'xl' }} pb={{ base: 'md', sm: 'lg' }}>
+          <FooterBar />
+        </Box>
       </AppShell.Main>
-
-      <AppShell.Footer>
-        <FooterBar />
-      </AppShell.Footer>
     </AppShell>
   )
 }
