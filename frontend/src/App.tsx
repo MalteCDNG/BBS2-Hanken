@@ -304,7 +304,9 @@ function App() {
 
             <Grid.Col span={{ base: 12, lg: 8 }} id="history">
               <HistoryChart
+                error={error}
                 history={chartHistory}
+                loading={loading}
                 chartData={chartData}
                 chartOptions={chartOptions}
                 lastUpdatedAbsolute={lastUpdatedAbsolute}
