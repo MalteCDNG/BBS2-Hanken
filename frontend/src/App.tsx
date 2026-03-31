@@ -62,6 +62,8 @@ function App() {
     smoothingLabel,
   } = useHistoryData(refreshInterval)
 
+  const showChartPoints = chartHistory.length <= 1
+
   const chartData = useMemo<ChartData<'line', { x: string; y: number }[]>>(() => {
     return {
       datasets: [
@@ -72,8 +74,8 @@ function App() {
           backgroundColor: 'rgba(34, 139, 230, 0.1)',
           tension: 0.3,
           fill: true,
-          pointRadius: 0,
-          pointHoverRadius: 4,
+          pointRadius: showChartPoints ? 4 : 0,
+          pointHoverRadius: 6,
           pointHitRadius: 10,
         },
         {
@@ -83,8 +85,8 @@ function App() {
           backgroundColor: 'rgba(18, 184, 134, 0.1)',
           tension: 0.3,
           fill: true,
-          pointRadius: 0,
-          pointHoverRadius: 4,
+          pointRadius: showChartPoints ? 4 : 0,
+          pointHoverRadius: 6,
           pointHitRadius: 10,
         },
         {
@@ -95,13 +97,13 @@ function App() {
           borderDash: [6, 6],
           tension: 0.3,
           fill: false,
-          pointRadius: 0,
-          pointHoverRadius: 4,
+          pointRadius: showChartPoints ? 4 : 0,
+          pointHoverRadius: 6,
           pointHitRadius: 10,
         },
       ],
     }
-  }, [chartHistory])
+  }, [chartHistory, showChartPoints])
 
   const chartOptions = useMemo<ChartOptions<'line'>>(
     () => {
@@ -306,7 +308,7 @@ function App() {
               <HistoryChart
                 error={error}
                 history={chartHistory}
-                loading={loading}
+                loading={loading || isRefreshing}
                 chartData={chartData}
                 chartOptions={chartOptions}
                 lastUpdatedAbsolute={lastUpdatedAbsolute}

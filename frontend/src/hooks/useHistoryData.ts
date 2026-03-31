@@ -94,6 +94,7 @@ function formatTimestamp(timestamp: string) {
 }
 
 export function useHistoryData(refreshInterval: number) {
+  const historyRequestBufferMs = 60 * 1000;
   const [current, setCurrent] = useState<ReadingWithDewPoint | null>(null);
   const [history, setHistory] = useState<ReadingWithDewPoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,17 +152,17 @@ export function useHistoryData(refreshInterval: number) {
 
   const refreshData = useCallback(async () => {
     setIsRefreshing(true);
-    const end = new Date().toISOString();
+    const end = new Date(Date.now() + historyRequestBufferMs).toISOString();
     const start = new Date(
       Date.now() - HISTORY_RANGE_OPTIONS[historyRange].durationMs
     ).toISOString();
 
     try {
-      const [currentReading, historyReadings, currentFanStatus] = await Promise.all([
-        fetchCurrent(),
+      const [historyReadings, currentFanStatus] = await Promise.all([
         fetchHistory(start, end),
         fetchFanStatus(),
       ]);
+      const currentReading = await fetchCurrent();
       setCurrent(currentReading);
       const mergedHistory = [...historyReadings];
       const hasCurrentReading = currentReading
