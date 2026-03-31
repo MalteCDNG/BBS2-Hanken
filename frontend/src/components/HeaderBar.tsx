@@ -5,6 +5,7 @@ import {
   Container,
   Flex,
   Group,
+  NativeSelect,
   Select,
   Stack,
   Text,
@@ -79,7 +80,7 @@ export function HeaderBar({
           </Group>
 
           <Group grow align="stretch" wrap="nowrap">
-            <Select
+            <NativeSelect
               size="sm"
               value={String(refreshInterval)}
               data={[
@@ -88,8 +89,7 @@ export function HeaderBar({
                 { value: '30000', label: 'Refresh 30s' },
                 { value: '60000', label: 'Refresh 60s' },
               ]}
-              allowDeselect={false}
-              onChange={(value) => value && onIntervalChange(parseInt(value, 10))}
+              onChange={(event) => onIntervalChange(parseInt(event.currentTarget.value, 10))}
               aria-label="Aktualisierungsintervall"
             />
 
