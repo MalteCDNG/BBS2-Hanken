@@ -4,9 +4,9 @@ import {
   Divider,
   Group,
   Loader,
+  NativeSelect,
   Paper,
   SegmentedControl,
-  Select,
   Stack,
   Text,
   useComputedColorScheme,
@@ -98,11 +98,10 @@ export function HistoryChart({
           </div>
 
           {isMobile ? (
-            <Select
+            <NativeSelect
               value={selectedRange}
               data={rangeOptions}
-              onChange={(value) => value && onRangeChange(value)}
-              allowDeselect={false}
+              onChange={(event) => onRangeChange(event.currentTarget.value)}
               aria-label="Zeitraum auswählen"
             />
           ) : (
