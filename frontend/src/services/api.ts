@@ -15,8 +15,35 @@ export interface FanStatus {
   updatedAt: string
 }
 
+const API_ROUTES = {
+  auth: {
+    me: '/auth/me/',
+    token: '/auth/token/',
+  },
+  fan: {
+    status: '/fan/',
+    toggle: '/fan/toggle/',
+  },
+  insert: {
+    create: '/insert/',
+  },
+  readings: {
+    current: '/readings/current/',
+    history: '/readings/history/',
+    historyDelta: '/readings/history/delta/',
+  },
+  settings: {
+    root: '/settings/',
+    dht22IndoorAddress: '/settings/dht22_indoor_address/',
+    dht22OutdoorAddress: '/settings/dht22_outdoor_address/',
+  },
+  websocket: '/ws/',
+} as const
+
+const baseURL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/+$/, '')
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000',
+  baseURL,
 })
 
 function isNoContent<T>(
@@ -27,7 +54,7 @@ function isNoContent<T>(
 }
 
 export async function fetchCurrent(): Promise<ReadingWithDewPoint | null> {
-  const response = await api.get<ReadingWithDewPoint | ''>('/readings/current/')
+  const response = await api.get<ReadingWithDewPoint | ''>(API_ROUTES.readings.current)
   if (isNoContent(response.status, response.data)) {
     return null
   }
@@ -39,14 +66,14 @@ export async function fetchHistory(
   start: string,
   end: string
 ): Promise<ReadingWithDewPoint[]> {
-  const { data } = await api.get<ReadingWithDewPoint[]>('/readings/history/', {
+  const { data } = await api.get<ReadingWithDewPoint[]>(API_ROUTES.readings.history, {
     params: { start, end },
   })
   return data
 }
 
 export async function fetchFanStatus(): Promise<FanStatus | null> {
-  const response = await api.get<FanStatus | ''>('/fan/')
+  const response = await api.get<FanStatus | ''>(API_ROUTES.fan.status)
   if (isNoContent(response.status, response.data)) {
     return null
   }
@@ -55,6 +82,8 @@ export async function fetchFanStatus(): Promise<FanStatus | null> {
 }
 
 export async function toggleFan(): Promise<FanStatus> {
-  const { data } = await api.post<FanStatus>('/fan/toggle/')
+  const { data } = await api.post<FanStatus>(API_ROUTES.fan.toggle)
   return data
 }
+
+export { API_ROUTES }
