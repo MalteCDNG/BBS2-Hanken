@@ -44,9 +44,11 @@ export function FanStatusCard({
             </div>
           </Group>
 
-          <Badge color={badgeColor} variant="light" size="lg">
-            {badgeLabel}
-          </Badge>
+          {isRunning ? (
+            <Badge color={badgeColor} variant="light" size="lg">
+              {badgeLabel}
+            </Badge>
+          ) : null}
         </Group>
 
         <div className="metric-pill">

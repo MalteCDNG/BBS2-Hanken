@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Badge,
   Box,
   Button,
   Container,
@@ -15,7 +14,7 @@ import {
   useMantineColorScheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconClock, IconMoonStars, IconRefresh, IconSunHigh } from '@tabler/icons-react'
+import { IconMoonStars, IconRefresh, IconSunHigh } from '@tabler/icons-react'
 
 const intervalOptions = [
   { value: '5000', label: '5s' },
@@ -29,34 +28,18 @@ export function HeaderBar({
   onIntervalChange,
   onManualRefresh,
   isRefreshing,
-  lastUpdatedRelative,
 }: {
   refreshInterval: number
   onIntervalChange: (value: number) => void
   onManualRefresh: () => void
   isRefreshing: boolean
-  lastUpdatedRelative: string
 }) {
-  const refreshSeconds = refreshInterval / 1000
   const isMobile = useMediaQuery('(max-width: 48em)')
   const isNarrowMobile = useMediaQuery('(max-width: 30em)')
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
   const { setColorScheme } = useMantineColorScheme()
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const toggleColorScheme = () => setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark')
-
-  const statusIndicator = (
-    <span
-      style={{
-        width: 8,
-        height: 8,
-        borderRadius: 999,
-        backgroundColor: 'var(--mantine-color-seafoam-5)',
-        boxShadow: '0 0 0 5px rgba(51, 221, 175, 0.18)',
-        display: 'inline-block',
-      }}
-    />
-  )
 
   const brand = (
     <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
@@ -99,15 +82,6 @@ export function HeaderBar({
               </Tooltip>
             </Group>
 
-            <Group gap="xs" wrap="wrap">
-              <Badge color="seafoam" variant="light" leftSection={statusIndicator}>
-                {lastUpdatedRelative}
-              </Badge>
-              <Badge variant="light" color="ocean" leftSection={<IconClock size={14} />}>
-                Auto {refreshSeconds}s
-              </Badge>
-            </Group>
-
             <NativeSelect
               size="sm"
               value={String(refreshInterval)}
@@ -133,18 +107,6 @@ export function HeaderBar({
           </Group>
 
           <Group gap="xs" wrap="nowrap">
-            <Tooltip label="Letzter Eingang von Sensordaten" withArrow>
-              <Badge color="seafoam" variant="light" size="lg" leftSection={statusIndicator}>
-                {lastUpdatedRelative}
-              </Badge>
-            </Tooltip>
-
-            <Tooltip label={`Automatische Synchronisierung alle ${refreshSeconds} Sekunden`} withArrow>
-              <Badge variant="light" color="ocean" size="lg" leftSection={<IconClock size={14} />}>
-                Auto {refreshSeconds}s
-              </Badge>
-            </Tooltip>
-
             <Tooltip label="Aktualisierungsintervall wählen" withArrow>
               <Select
                 size="sm"

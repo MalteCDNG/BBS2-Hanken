@@ -248,7 +248,6 @@ function App() {
             onIntervalChange={setRefreshInterval}
             onManualRefresh={refreshData}
             isRefreshing={isRefreshing}
-            lastUpdatedRelative={lastUpdatedRelative}
           />
         </AppShell.Header>
       ) : null}
@@ -262,7 +261,6 @@ function App() {
                 onIntervalChange={setRefreshInterval}
                 onManualRefresh={refreshData}
                 isRefreshing={isRefreshing}
-                lastUpdatedRelative={lastUpdatedRelative}
               />
             </Box>
           ) : null}
