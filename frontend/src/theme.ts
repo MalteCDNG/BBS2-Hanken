@@ -1,36 +1,54 @@
 import { MantineColorsTuple, createTheme } from '@mantine/core'
 
 const ocean: MantineColorsTuple = [
-  '#edf3ff',
-  '#d7e2ff',
-  '#b0c5ff',
-  '#86a4ff',
-  '#6689fb',
-  '#4f77f0',
-  '#406be0',
-  '#3357c6',
-  '#2d4cae',
-  '#273f8f',
+  '#edf5ff',
+  '#d8e7ff',
+  '#b0ccff',
+  '#84b0ff',
+  '#6297ff',
+  '#4987ff',
+  '#387ceb',
+  '#286bcf',
+  '#1d5fb9',
+  '#0a4f9f',
 ]
 
-const mint: MantineColorsTuple = [
-  '#edfff7',
-  '#d6f9ea',
-  '#adf0d5',
-  '#7fe5bd',
-  '#5adcb0',
-  '#3ed1a2',
-  '#2cc392',
-  '#1ca278',
-  '#168563',
-  '#0d6047',
+const seafoam: MantineColorsTuple = [
+  '#ebfff9',
+  '#d2fbee',
+  '#a4f4dd',
+  '#71ebca',
+  '#4be3bb',
+  '#33ddaf',
+  '#21c89b',
+  '#14b186',
+  '#069b74',
+  '#007d5c',
+]
+
+const amber: MantineColorsTuple = [
+  '#fff8e7',
+  '#ffefc8',
+  '#ffdd8f',
+  '#ffca52',
+  '#ffbb27',
+  '#ffb10a',
+  '#e69a00',
+  '#cc8700',
+  '#b27500',
+  '#986000',
 ]
 
 export const theme = createTheme({
-  fontFamily: 'Inter, system-ui, sans-serif',
+  fontFamily: 'Manrope, system-ui, sans-serif',
+  headings: {
+    fontFamily: '"Space Grotesk", Manrope, system-ui, sans-serif',
+    fontWeight: '700',
+  },
   primaryColor: 'ocean',
-  defaultRadius: 'lg',
-  defaultGradient: { from: 'ocean.6', to: 'mint.5', deg: 135 },
+  defaultRadius: 'xl',
+  cursorType: 'pointer',
+  defaultGradient: { from: 'ocean.7', to: 'seafoam.5', deg: 145 },
   breakpoints: {
     xs: '30em',
     sm: '36em',
@@ -40,16 +58,33 @@ export const theme = createTheme({
   },
   colors: {
     ocean,
-    mint,
+    seafoam,
+    amber,
   },
   shadows: {
-    card: '0 20px 45px rgba(17, 24, 39, 0.08)',
-    soft: '0 10px 25px rgba(17, 24, 39, 0.05)',
+    card: '0 24px 70px rgba(14, 30, 56, 0.14)',
+    soft: '0 16px 40px rgba(14, 30, 56, 0.08)',
+    glass: '0 18px 48px rgba(14, 30, 56, 0.18)',
   },
   components: {
     Paper: {
       defaultProps: {
-        radius: 'lg',
+        radius: 'xl',
+      },
+    },
+    Badge: {
+      defaultProps: {
+        radius: 'xl',
+      },
+    },
+    Button: {
+      defaultProps: {
+        radius: 'xl',
+      },
+    },
+    ActionIcon: {
+      defaultProps: {
+        radius: 'xl',
       },
     },
     AppShell: {

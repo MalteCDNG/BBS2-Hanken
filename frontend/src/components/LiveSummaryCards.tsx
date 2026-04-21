@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import {
   Alert,
   Badge,
@@ -8,11 +9,11 @@ import {
   Stack,
   Text,
   ThemeIcon,
-  Title,
+  alpha,
   useComputedColorScheme,
   useMantineTheme,
 } from '@mantine/core'
-import { IconAlertCircle, IconDashboard } from '@tabler/icons-react'
+import { IconAlertCircle, IconArrowUpRight, IconCloud, IconDroplet, IconHome } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
 
 function TemperatureCard({
@@ -20,74 +21,81 @@ function TemperatureCard({
   value,
   accent,
   description,
+  metaLabel,
+  metaValue,
+  icon,
+  index,
 }: {
   label: string
   value: number
   accent: string
-  description?: string
+  description: string
+  metaLabel: string
+  metaValue: string
+  icon: ReactNode
+  index: number
 }) {
   const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
-
-  const accentGradients: Record<string, string> = {
-    blue: isDark
-      ? `linear-gradient(135deg, ${theme.colors.ocean[8]}, ${theme.colors.ocean[6]})`
-      : `linear-gradient(135deg, ${theme.colors.ocean[0]}, ${theme.colors.ocean[1]})`,
-    teal: isDark
-      ? `linear-gradient(135deg, ${theme.colors.mint[8]}, ${theme.colors.mint[6]})`
-      : `linear-gradient(135deg, ${theme.colors.mint[0]}, ${theme.colors.mint[1]})`,
-    orange: isDark
-      ? `linear-gradient(135deg, ${theme.colors.orange[8]}, ${theme.colors.orange[6]})`
-      : `linear-gradient(135deg, ${theme.colors.orange[0]}, ${theme.colors.yellow[0]})`,
-  }
-
-  const borderColor = isDark ? theme.colors.dark[4] : theme.colors.gray[2]
-  const fallbackBackground = isDark ? theme.colors.dark[6] : theme.colors.gray[0]
-  const primaryTextColor = isDark ? theme.white : theme.colors.dark[8]
-  const secondaryTextColor = isDark ? 'rgba(255,255,255,0.84)' : theme.colors.dark[5]
+  const accentColor = theme.colors[accent]?.[6] ?? theme.colors.blue[6]
+  const accentSoft = theme.colors[accent]?.[1] ?? theme.colors.blue[1]
+  const accentGlow = theme.colors[accent]?.[4] ?? theme.colors.blue[4]
+  const cardBackground = isDark
+    ? `linear-gradient(180deg, ${alpha(accentGlow, 0.18)}, rgba(8, 18, 33, 0.96))`
+    : `linear-gradient(180deg, ${alpha(accentSoft, 0.68)}, ${alpha('#ffffff', 0.92)})`
 
   return (
     <Paper
-      withBorder
-      radius="lg"
+      className="section-card live-card fade-in-up"
+      radius="xl"
       p="lg"
-      shadow="card"
-      bg={accentGradients[accent] ?? fallbackBackground}
-      style={{ position: 'relative', overflow: 'hidden', borderColor }}
+      style={{
+        animationDelay: `${180 + index * 80}ms`,
+        background: cardBackground,
+        borderColor: isDark ? alpha(accentGlow, 0.24) : undefined,
+      }}
     >
-      <Badge
-        color={accent}
-        variant={isDark ? 'filled' : 'light'}
-        radius="md"
-        size="md"
-        px="sm"
-        pos="absolute"
-        top={16}
-        right={16}
-      >
-        Live
-      </Badge>
+      <Stack gap="lg">
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Group gap="sm" align="flex-start" wrap="nowrap">
+            <ThemeIcon size={46} radius="xl" style={{ backgroundColor: alpha(accentColor, 0.14), color: accentColor }}>
+              {icon}
+            </ThemeIcon>
 
-      <Group gap="sm" align="flex-start">
-        <ThemeIcon size={44} radius="md" color={accent} variant={isDark ? 'white' : 'light'}>
-          <IconDashboard size={24} />
-        </ThemeIcon>
+            <div>
+              <Text className="surface-label" c="dimmed">
+                {label}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {description}
+              </Text>
+            </div>
+          </Group>
 
-        <Stack gap={4}>
-          <Text size="sm" c={secondaryTextColor}>
-            {label}
-          </Text>
-          <Title order={2} c={primaryTextColor}>
+          <Badge variant="light" color={accent}>
+            Live
+          </Badge>
+        </Group>
+
+        <Group justify="space-between" align="end" wrap="nowrap">
+          <Text size="2.7rem" fw={800} className="live-card-value">
             {value.toFixed(1)}°C
-          </Title>
-          {description ? (
-            <Text size="sm" c={secondaryTextColor}>
-              {description}
+          </Text>
+
+          <Group gap={6} c={accentColor} wrap="nowrap">
+            <IconArrowUpRight size={16} />
+            <Text fw={700} size="sm">
+              {metaValue}
             </Text>
-          ) : null}
-        </Stack>
-      </Group>
+          </Group>
+        </Group>
+
+        <div className="metric-pill">
+          <Text className="metric-pill-label">{metaLabel}</Text>
+          <Text fw={700}>{metaValue}</Text>
+        </div>
+      </Stack>
     </Paper>
   )
 }
@@ -122,24 +130,34 @@ export function LiveSummaryCards({
       <TemperatureCard
         label="Innenluft"
         value={current?.indoorTemp ?? 0}
-        accent="blue"
-        description={current ? `Luftfeuchte ${current.indoorHumidity.toFixed(0)}%` : undefined}
+        accent="ocean"
+        description="Temperatur und Feuchte im Raum"
+        metaLabel="Relative Feuchte"
+        metaValue={current ? `${current.indoorHumidity.toFixed(0)}%` : '--'}
+        icon={<IconHome size={24} />}
+        index={0}
       />
+
       <TemperatureCard
         label="Außenluft"
         value={current?.outdoorTemp ?? 0}
-        accent="teal"
-        description={current ? `Luftfeuchte ${current.outdoorHumidity.toFixed(0)}%` : undefined}
+        accent="seafoam"
+        description="Vergleichswert für Wetter und Auslüften"
+        metaLabel="Relative Feuchte"
+        metaValue={current ? `${current.outdoorHumidity.toFixed(0)}%` : '--'}
+        icon={<IconCloud size={24} />}
+        index={1}
       />
+
       <TemperatureCard
         label="Taupunkt innen"
         value={current?.dewPointIndoor ?? 0}
-        accent="orange"
-        description={
-          current
-            ? `Außentaupunkt ${current.dewPointOutdoor.toFixed(1)}°C`
-            : 'Relevante Schwelle für Kondensationsgefahr'
-        }
+        accent="amber"
+        description="Relevante Schwelle für Kondensation"
+        metaLabel="Taupunkt außen"
+        metaValue={current ? `${current.dewPointOutdoor.toFixed(1)}°C` : '--'}
+        icon={<IconDroplet size={24} />}
+        index={2}
       />
     </SimpleGrid>
   )
