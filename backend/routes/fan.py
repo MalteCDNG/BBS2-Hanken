@@ -5,6 +5,7 @@ import pymongo
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from starlette import status
 
+from dependencies.app import wsmanager
 import hardware.fan
 import hardware.util
 from dependencies.models import State, FanStatus
@@ -50,5 +51,7 @@ async def fan_toggle(background_tasks: BackgroundTasks) -> FanStatus:
     fan_state = FanStatus(running=new_state.fan_running, updatedAt=new_state.timestamp)
 
     background_tasks.add_task(hardware.util.sync_state, state)
+
+    wsmanager.broadcast(new_state)
 
     return fan_state
