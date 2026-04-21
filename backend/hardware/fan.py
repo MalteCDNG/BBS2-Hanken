@@ -1,4 +1,4 @@
-from hardware.util import is_raspberrypi
+from hardware.check_rpi import is_raspberrypi
 
 if is_raspberrypi():
     import RPi.GPIO as GPIO
@@ -24,11 +24,13 @@ class Fan:
 
     def on(self):
         self.running = True
-        GPIO.output(self.gpio, GPIO.HIGH)
+        if is_raspberrypi():
+            GPIO.output(self.gpio, GPIO.HIGH)
 
     def off(self):
         self.running = False
-        GPIO.output(self.gpio, GPIO.LOW)
+        if is_raspberrypi():
+            GPIO.output(self.gpio, GPIO.LOW)
 
     def toggle(self):
         if self.running:

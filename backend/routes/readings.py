@@ -6,6 +6,7 @@ import pymongo
 from fastapi import APIRouter, HTTPException, status
 
 import dependencies.calculations
+import hardware.check_rpi
 import hardware.util
 from dependencies.models import Reading, ReadingWithDewPoint
 
@@ -33,7 +34,7 @@ async def current() -> ReadingWithDewPoint:
 
 @router.get("/history/")
 async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
-    if not hardware.util.is_raspberrypi():
+    if not hardware.check_rpi.is_raspberrypi():
         new_reading = Reading(
             timestamp=datetime.now(tz=timezone.utc),
             indoorTemp=random.randint(-10, 30),

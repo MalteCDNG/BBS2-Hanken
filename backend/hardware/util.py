@@ -1,19 +1,34 @@
-import io
+import os
+
+from dotenv import load_dotenv
 
 from dependencies.models import State
+from hardware.check_rpi import is_raspberrypi
+from hardware.fan import Fan
 
+load_dotenv()
 
-def is_raspberrypi():
-    try:
-        with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
-            if 'raspberry pi' in m.read().lower(): return True
-    except Exception: pass
-    return False
+fan_gpio = os.getenv("FAN_GPIO")
+try:
+    fan_gpio = int(fan_gpio)
+except ValueError:
+    print("Fan GPIO must be an integer.")
+    exit(1)
+
+fan = Fan(fan_gpio)
+
+if is_raspberrypi():
+    import RPi.GPIO as GPIO
 
 def sync_state(state: State):
-    # TODO: implement function to sync new state to hardware
     print("Syncing state to hardware.")
+    if state.fan_running:
+        fan.on()
+    else:
+        fan.off()
 
 def shutdown():
-    # TODO: Add function to run on shutdown to clear hardware stuff
     print("Shutting down hardware")
+
+    if is_raspberrypi():
+        GPIO.cleanup()

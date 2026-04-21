@@ -1,7 +1,7 @@
 import random
 import time
 
-from hardware.util import is_raspberrypi
+from hardware.check_rpi import is_raspberrypi
 
 
 if is_raspberrypi():
