@@ -1,16 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
-import {
-  ActionIcon,
-  Affix,
-  AppShell,
-  Badge,
-  Box,
-  Container,
-  Grid,
-  Tooltip as MantineTooltip,
-  useComputedColorScheme,
-} from '@mantine/core'
-import { IconRefresh, IconTemperature, IconTemperatureMinus, IconTemperaturePlus } from '@tabler/icons-react'
+import { ActionIcon, Affix, AppShell, Box, Container, Grid, useComputedColorScheme } from '@mantine/core'
+import { IconRefresh } from '@tabler/icons-react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,7 +22,6 @@ import { HeaderBar } from './components/HeaderBar'
 import { HeroSection } from './components/HeroSection'
 import { HistoryChart } from './components/HistoryChart'
 import { FooterBar } from './components/FooterBar'
-import { StatCard } from './components/StatCards'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
 import { toggleFan } from './services/api'
 
@@ -234,54 +223,6 @@ function App() {
     }
   }, [chartPalette, historyRange, isDark])
 
-  const statCards = useMemo<StatCard[]>(
-    () => [
-      {
-        label: 'Innen vs. Außen',
-        value: current ? `${(current.indoorTemp - current.outdoorTemp).toFixed(1)}°C` : '--',
-        hint: 'Temperaturdifferenz im Moment',
-        colors: ['ocean', 'seafoam'] as const,
-        icon: <IconTemperaturePlus size={20} />,
-      },
-      {
-        label: 'Taupunktabstand',
-        value: current ? `${(current.indoorTemp - current.dewPointIndoor).toFixed(1)}°C` : '--',
-        hint: 'Puffer bis zur Kondensation',
-        colors: ['amber', 'yellow'] as const,
-        icon: <IconTemperature size={20} />,
-      },
-      {
-        label: 'Taupunkt innen vs. außen',
-        value: current ? `${(current.dewPointIndoor - current.dewPointOutdoor).toFixed(1)}°C` : '--',
-        hint: 'Positiv bedeutet trockenere Außenluft',
-        colors: ['seafoam', 'teal'] as const,
-        icon: <IconTemperatureMinus size={20} />,
-      },
-    ],
-    [current]
-  )
-
-  const heroHighlights = useMemo(
-    () => [
-      {
-        label: 'Innenfeuchte',
-        value: current ? `${current.indoorHumidity.toFixed(0)}%` : '--',
-        hint: 'Relative Luftfeuchte im Raum',
-      },
-      {
-        label: 'Trocknungspotenzial',
-        value: current ? `${(current.dewPointIndoor - current.dewPointOutdoor).toFixed(1)}°C` : '--',
-        hint: 'Je höher, desto besser fürs Auslüften',
-      },
-      {
-        label: 'Auto-Refresh',
-        value: `${refreshInterval / 1000}s`,
-        hint: 'Intervall für die Live-Synchronisierung',
-      },
-    ],
-    [current, refreshInterval]
-  )
-
   const selectedRangeLabel = HISTORY_RANGE_OPTIONS[historyRange].label
 
   const handleToggleFan = useCallback(async () => {
@@ -297,26 +238,6 @@ function App() {
       setIsTogglingFan(false)
     }
   }, [setFanError, setFanStatus])
-
-  const accentBadges = (
-    <>
-      <MantineTooltip label="Innen- und Außenwerte im direkten Vergleich" withArrow>
-        <Badge size="lg" variant={isDark ? 'filled' : 'light'} color="ocean">
-          Innen und Außen
-        </Badge>
-      </MantineTooltip>
-      <MantineTooltip label="Taupunkt im Blick behalten, um Kondensation früh zu erkennen" withArrow>
-        <Badge size="lg" variant={isDark ? 'filled' : 'light'} color="amber">
-          Taupunktschutz
-        </Badge>
-      </MantineTooltip>
-      <MantineTooltip label="Langzeitverlauf für Muster, Trends und schnelle Entscheidungen" withArrow>
-        <Badge size="lg" variant={isDark ? 'filled' : 'light'} color="seafoam">
-          Verlauf und Trends
-        </Badge>
-      </MantineTooltip>
-    </>
-  )
 
   return (
     <AppShell padding={{ base: 'sm', sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
@@ -348,14 +269,7 @@ function App() {
 
           <Grid gutter={{ base: 'md', md: 'xl' }}>
             <Grid.Col span={12}>
-              <HeroSection
-                current={current}
-                statCards={statCards}
-                lastUpdatedAbsolute={lastUpdatedAbsolute}
-                lastUpdatedRelative={lastUpdatedRelative}
-                accentBadges={accentBadges}
-                highlights={heroHighlights}
-              />
+              <HeroSection current={current} lastUpdatedAbsolute={lastUpdatedAbsolute} lastUpdatedRelative={lastUpdatedRelative} />
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, lg: 8 }} id="history">
