@@ -167,19 +167,6 @@ function FanIndicator({
         }}
       >
         <IconCarFan size={isMobile ? 38 : 46} stroke={1.75} />
-        <Box
-          style={{
-            position: 'absolute',
-            top: isMobile ? 9 : 11,
-            left: '50%',
-            width: isMobile ? 5 : 6,
-            height: isMobile ? 5 : 6,
-            borderRadius: '50%',
-            background: accentColor,
-            boxShadow: `0 0 10px ${alpha(accentColor, isVisuallyActive ? 0.7 : 0.28)}`,
-            transform: 'translateX(-50%)',
-          }}
-        />
       </Box>
       <Box
         style={{
