@@ -17,6 +17,7 @@ import {
 import { useMediaQuery } from '@mantine/hooks'
 import { IconArrowAutofitWidth, IconCloud, IconHome, IconInfoCircle } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
+import { AnimatedText } from '../ui/AnimatedText'
 import { useAppShellStyles } from '../ui/app-shell'
 import { useDashboardTypography } from '../ui/typography'
 
@@ -108,9 +109,12 @@ function ComparisonBand({
                   {leftIcon}
                 </ThemeIcon>
               </Group>
-              <Text style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}>
+              <AnimatedText
+                valueKey={`${title}-${leftLabel}-${leftValue}`}
+                style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}
+              >
                 {leftValue}
-              </Text>
+              </AnimatedText>
             </Stack>
           </Paper>
 
@@ -139,9 +143,15 @@ function ComparisonBand({
                 }}
               />
             </Group>
-            <Text fw={800} ta="center" style={{ ...typography.displayValue, ...compactDeltaValueStyle }}>
+            <AnimatedText
+              valueKey={`${title}-${centerLabel}-${centerValue}`}
+              fw={800}
+              ta="center"
+              style={{ ...typography.displayValue, ...compactDeltaValueStyle }}
+              variant="status"
+            >
               {centerValue}
-            </Text>
+            </AnimatedText>
             {centerHint ? (
               <Text size="xs" c="dimmed" ta="center">
                 {centerHint}
@@ -159,9 +169,12 @@ function ComparisonBand({
                   {rightIcon}
                 </ThemeIcon>
               </Group>
-              <Text style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}>
+              <AnimatedText
+                valueKey={`${title}-${rightLabel}-${rightValue}`}
+                style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}
+              >
                 {rightValue}
-              </Text>
+              </AnimatedText>
             </Stack>
           </Paper>
         </SimpleGrid>
@@ -277,9 +290,15 @@ export function HeroSection({
                   <Text c="dimmed" style={typography.sectionLabel}>
                     Live Snapshot
                   </Text>
-                  <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff={theme.headings.fontFamily}>
+                  <AnimatedText
+                    valueKey={climateLabel}
+                    fw={800}
+                    size={isMobile ? 'lg' : 'xl'}
+                    ff={theme.headings.fontFamily}
+                    variant="status"
+                  >
                     {climateLabel}
-                  </Text>
+                  </AnimatedText>
                 </Stack>
 
                 <Badge

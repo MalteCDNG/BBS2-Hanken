@@ -62,6 +62,40 @@ function AppGlobalStyles() {
             opacity: 1,
           },
         },
+        '@keyframes bbs2-dynamic-text-enter': {
+          '0%': {
+            opacity: 0,
+            transform: 'translateY(0.38em)',
+            filter: 'blur(3px)',
+          },
+          '58%': {
+            opacity: 1,
+            transform: 'translateY(-0.06em)',
+            filter: 'blur(0)',
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'translateY(0)',
+            filter: 'blur(0)',
+          },
+        },
+        '@keyframes bbs2-status-text-enter': {
+          '0%': {
+            opacity: 0,
+            transform: 'translateY(0.32em) scale(0.98)',
+            filter: 'blur(3px)',
+          },
+          '52%': {
+            opacity: 1,
+            transform: 'translateY(-0.05em) scale(1.03)',
+            filter: 'blur(0)',
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'translateY(0) scale(1)',
+            filter: 'blur(0)',
+          },
+        },
       }}
     />
   )

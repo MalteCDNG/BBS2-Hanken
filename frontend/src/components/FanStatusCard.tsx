@@ -3,6 +3,7 @@ import { Box, Button, Group, Paper, Stack, Text, ThemeIcon, alpha, useMantineThe
 import { useMediaQuery, useReducedMotion } from '@mantine/hooks'
 import { IconAlertCircle, IconCarFan, IconPlayerPause, IconPlayerPlay, IconWind } from '@tabler/icons-react'
 import { FanStatus } from '../services/api'
+import { AnimatedText } from '../ui/AnimatedText'
 import { useAppShellStyles } from '../ui/app-shell'
 import { useDashboardTypography } from '../ui/typography'
 
@@ -215,6 +216,7 @@ export function FanStatusCard({
   const shellStyles = useAppShellStyles()
   const typography = useDashboardTypography()
   const isRunning = status?.running ?? false
+  const statusLabel = isRunning ? 'Läuft' : 'Inaktiv'
   const buttonLabel = isRunning ? 'Lüfter stoppen' : 'Lüfter starten'
   const buttonIcon = isRunning ? <IconPlayerPause size={18} /> : <IconPlayerPlay size={18} />
   const updatedAtLabel = status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'
@@ -247,7 +249,9 @@ export function FanStatusCard({
               <Text span style={typography.metricLabel}>
                 Betriebsmodus
               </Text>
-              <Text
+              <AnimatedText
+                valueKey={statusLabel}
+                variant="status"
                 fw={800}
                 style={{
                   fontFamily: theme.headings.fontFamily,
@@ -256,8 +260,8 @@ export function FanStatusCard({
                   letterSpacing: 0,
                 }}
               >
-                {isRunning ? 'Läuft' : 'Inaktiv'}
-              </Text>
+                {statusLabel}
+              </AnimatedText>
               <Text size="sm" c="dimmed" style={{ overflowWrap: 'anywhere' }}>
                 Letzte Rückmeldung: {updatedAtLabel}
               </Text>

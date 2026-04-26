@@ -15,6 +15,7 @@ import {
 } from '@mantine/core'
 import { IconAlertCircle, IconArrowUpRight, IconCloud, IconDroplet, IconHome } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
+import { AnimatedText } from '../ui/AnimatedText'
 import { useAppShellStyles } from '../ui/app-shell'
 import { useDashboardTypography } from '../ui/typography'
 
@@ -48,6 +49,7 @@ function TemperatureCard({
   const cardBackground = isDark
     ? `linear-gradient(180deg, ${alpha(accentGlow, 0.18)}, rgba(8, 18, 33, 0.96))`
     : `linear-gradient(180deg, ${alpha(accentSoft, 0.68)}, ${alpha('#ffffff', 0.92)})`
+  const valueLabel = `${value.toFixed(1)}°C`
 
   return (
     <Paper
@@ -97,15 +99,15 @@ function TemperatureCard({
         </Group>
 
         <Group justify="space-between" align="end" wrap="nowrap">
-          <Text fw={800} style={{ ...typography.displayValue, fontSize: '2.7rem' }}>
-            {value.toFixed(1)}°C
-          </Text>
+          <AnimatedText valueKey={valueLabel} fw={800} style={{ ...typography.displayValue, fontSize: '2.7rem' }}>
+            {valueLabel}
+          </AnimatedText>
 
           <Group gap={6} c={accentColor} wrap="nowrap">
             <IconArrowUpRight size={16} />
-            <Text fw={700} size="sm">
+            <AnimatedText valueKey={metaValue} fw={700} size="sm">
               {metaValue}
-            </Text>
+            </AnimatedText>
           </Group>
         </Group>
 
@@ -113,7 +115,9 @@ function TemperatureCard({
           <Text span style={typography.metricLabel}>
             {metaLabel}
           </Text>
-          <Text fw={700}>{metaValue}</Text>
+          <AnimatedText valueKey={metaValue} fw={700}>
+            {metaValue}
+          </AnimatedText>
         </Paper>
       </Stack>
     </Paper>
