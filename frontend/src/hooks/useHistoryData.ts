@@ -55,7 +55,7 @@ export function useHistoryData(refreshInterval: number) {
   const [fanError, setFanError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [historyRange, setHistoryRange] = useState<HistoryRange>('7d')
-  const [now, setNow] = useState(Date.now())
+  const [now, setNow] = useState(() => Date.now())
 
   const historyRangeOptions = useMemo(
     () =>
@@ -67,9 +67,9 @@ export function useHistoryData(refreshInterval: number) {
   )
 
   const filteredHistory = useMemo(() => {
-    const cutoff = Date.now() - HISTORY_RANGE_OPTIONS[historyRange].durationMs
+    const cutoff = now - HISTORY_RANGE_OPTIONS[historyRange].durationMs
     return history.filter((entry) => new Date(entry.timestamp).getTime() >= cutoff)
-  }, [history, historyRange])
+  }, [history, historyRange, now])
 
   const chartHistory = useMemo(() => {
     const bucketSizeMs = HISTORY_BUCKET_SIZES[historyRange]
@@ -139,7 +139,9 @@ export function useHistoryData(refreshInterval: number) {
   }, [historyRange, historyRequestBufferMs])
 
   useEffect(() => {
-    refreshData()
+    queueMicrotask(() => {
+      void refreshData()
+    })
     const interval = setInterval(refreshData, refreshInterval)
     return () => clearInterval(interval)
   }, [refreshData, refreshInterval])

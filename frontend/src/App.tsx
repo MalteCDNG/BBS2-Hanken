@@ -297,7 +297,7 @@ function App() {
               </Box>
             ) : null}
 
-            <Grid gutter={{ base: 'sm', sm: 'md', md: 'xl' }}>
+            <Grid gap={{ base: 'sm', sm: 'md', md: 'xl' }}>
               <Grid.Col span={12}>
                 <HeroSection
                   current={current}

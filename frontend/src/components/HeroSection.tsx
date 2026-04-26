@@ -223,7 +223,7 @@ export function HeroSection({
 
   return (
     <Paper className="section-card fade-in-up" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'xl' }}>
-      <Grid align="center" gutter={{ base: 'sm', sm: 'lg', md: '2rem' }}>
+      <Grid align="center" gap={{ base: 'sm', sm: 'lg', md: '2rem' }}>
         <Grid.Col span={{ base: 12, lg: 7 }}>
           <Stack gap={isMobile ? 'sm' : 'lg'}>
             <div className="section-kicker">Smart Monitoring</div>

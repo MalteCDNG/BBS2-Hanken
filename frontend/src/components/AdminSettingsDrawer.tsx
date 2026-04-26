@@ -177,7 +177,9 @@ function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onCl
 
   useEffect(() => {
     if (opened && currentUser && !settingsForm && !isLoadingSettings) {
-      loadSettings()
+      queueMicrotask(() => {
+        void loadSettings()
+      })
     }
   }, [currentUser, isLoadingSettings, loadSettings, opened, settingsForm])
 
