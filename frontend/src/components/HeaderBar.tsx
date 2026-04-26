@@ -14,7 +14,7 @@ import {
   useMantineColorScheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconMoonStars, IconRefresh, IconSunHigh } from '@tabler/icons-react'
+import { IconMoonStars, IconRefresh, IconSettings, IconSunHigh } from '@tabler/icons-react'
 
 const intervalOptions = [
   { value: '5000', label: '5s' },
@@ -27,11 +27,13 @@ export function HeaderBar({
   refreshInterval,
   onIntervalChange,
   onManualRefresh,
+  onOpenAdmin,
   isRefreshing,
 }: {
   refreshInterval: number
   onIntervalChange: (value: number) => void
   onManualRefresh: () => void
+  onOpenAdmin: () => void
   isRefreshing: boolean
 }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
@@ -75,11 +77,19 @@ export function HeaderBar({
             <Group justify="space-between" align="flex-start" wrap="nowrap">
               {brand}
 
-              <Tooltip label="Farbschema umschalten" withArrow>
-                <ActionIcon variant="white" size="lg" aria-label="Farbschema umschalten" onClick={toggleColorScheme}>
-                  {computedColorScheme === 'dark' ? <IconSunHigh size={18} /> : <IconMoonStars size={18} />}
-                </ActionIcon>
-              </Tooltip>
+              <Group gap="xs" wrap="nowrap">
+                <Tooltip label="Admin-Einstellungen öffnen" withArrow>
+                  <ActionIcon variant="white" size="lg" aria-label="Admin-Einstellungen öffnen" onClick={onOpenAdmin}>
+                    <IconSettings size={18} />
+                  </ActionIcon>
+                </Tooltip>
+
+                <Tooltip label="Farbschema umschalten" withArrow>
+                  <ActionIcon variant="white" size="lg" aria-label="Farbschema umschalten" onClick={toggleColorScheme}>
+                    {computedColorScheme === 'dark' ? <IconSunHigh size={18} /> : <IconMoonStars size={18} />}
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
             </Group>
 
             <NativeSelect
@@ -130,6 +140,12 @@ export function HeaderBar({
               >
                 Refresh
               </Button>
+            </Tooltip>
+
+            <Tooltip label="Admin-Einstellungen öffnen" withArrow>
+              <ActionIcon variant="white" size="lg" aria-label="Admin-Einstellungen öffnen" onClick={onOpenAdmin}>
+                <IconSettings size={18} />
+              </ActionIcon>
             </Tooltip>
 
             <Tooltip label="Farbschema umschalten" withArrow>

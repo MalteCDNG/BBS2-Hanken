@@ -136,7 +136,7 @@ export function useHistoryData(refreshInterval: number) {
       setLoading(false)
       setIsRefreshing(false)
     }
-  }, [historyRange])
+  }, [historyRange, historyRequestBufferMs])
 
   useEffect(() => {
     refreshData()

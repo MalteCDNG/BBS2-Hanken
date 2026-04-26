@@ -17,6 +17,7 @@ import {
 import 'chartjs-adapter-date-fns'
 import { de } from 'date-fns/locale'
 import { useMediaQuery } from '@mantine/hooks'
+import { AdminSettingsDrawer } from './components/AdminSettingsDrawer'
 import { DewPointInfoDrawer } from './components/DewPointInfoDrawer'
 import { FanStatusCard } from './components/FanStatusCard'
 import { HeaderBar } from './components/HeaderBar'
@@ -32,6 +33,7 @@ function App() {
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
   const [refreshInterval, setRefreshInterval] = useState(10000)
@@ -249,6 +251,14 @@ function App() {
     setIsDewPointGuideOpen(false)
   }, [])
 
+  const openAdminDrawer = useCallback(() => {
+    setIsAdminDrawerOpen(true)
+  }, [])
+
+  const closeAdminDrawer = useCallback(() => {
+    setIsAdminDrawerOpen(false)
+  }, [])
+
   return (
     <>
       <AppShell padding={{ base: 'sm', sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
@@ -258,6 +268,7 @@ function App() {
               refreshInterval={refreshInterval}
               onIntervalChange={setRefreshInterval}
               onManualRefresh={refreshData}
+              onOpenAdmin={openAdminDrawer}
               isRefreshing={isRefreshing}
             />
           </AppShell.Header>
@@ -271,6 +282,7 @@ function App() {
                   refreshInterval={refreshInterval}
                   onIntervalChange={setRefreshInterval}
                   onManualRefresh={refreshData}
+                  onOpenAdmin={openAdminDrawer}
                   isRefreshing={isRefreshing}
                 />
               </Box>
@@ -332,6 +344,7 @@ function App() {
         </AppShell.Main>
       </AppShell>
 
+      <AdminSettingsDrawer opened={isAdminDrawerOpen} onClose={closeAdminDrawer} />
       <DewPointInfoDrawer opened={isDewPointGuideOpen} onClose={closeDewPointGuide} />
     </>
   )

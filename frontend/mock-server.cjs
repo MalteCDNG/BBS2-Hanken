@@ -9,6 +9,7 @@ const port = process.env.MOCK_SERVER_PORT || 4000
 
 app.use(cors())
 app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
 const BASELINE = {
   indoorTemp: 21,
@@ -182,9 +183,69 @@ function seedHistory() {
 seedHistory()
 
 let fanState = null
+let settings = {
+  dht22_indoor_address: 'http://127.0.0.1:8000/get/',
+  dht22_outdoor_address: 'http://127.0.0.1:8001/get/',
+  data_cron: '*/30 * * * *',
+  fan_override_duration: 0,
+}
+
+const mockAuth = {
+  username: process.env.MOCK_ADMIN_USERNAME || 'admin',
+  password: process.env.MOCK_ADMIN_PASSWORD || 'admin',
+  token: 'mock-admin-token',
+}
+
+function requireAuth(req, res, next) {
+  const authorization = req.get('authorization') || ''
+  if (authorization !== `Bearer ${mockAuth.token}`) {
+    res.status(401).json({ detail: 'Could not validate credentials' })
+    return
+  }
+
+  next()
+}
 
 app.get('/', (req, res) => {
   res.json({ Hello: 'World' })
+})
+
+app.post('/auth/token/', (req, res) => {
+  const { username, password } = req.body
+
+  if (username !== mockAuth.username || password !== mockAuth.password) {
+    res.status(401).json({ detail: 'Incorrect username or password' })
+    return
+  }
+
+  res.json({
+    access_token: mockAuth.token,
+    token_type: 'bearer',
+  })
+})
+
+app.get('/auth/me/', requireAuth, (req, res) => {
+  res.json({
+    username: mockAuth.username,
+    email: 'admin@mock.local',
+    full_name: 'Mock Admin',
+    disabled: false,
+  })
+})
+
+app.get('/settings/', requireAuth, (req, res) => {
+  res.json(settings)
+})
+
+app.post('/settings/', requireAuth, (req, res) => {
+  settings = {
+    dht22_indoor_address: String(req.body.dht22_indoor_address || ''),
+    dht22_outdoor_address: String(req.body.dht22_outdoor_address || ''),
+    data_cron: String(req.body.data_cron || ''),
+    fan_override_duration: Number(req.body.fan_override_duration) || 0,
+  }
+
+  res.json('ok')
 })
 
 app.get('/readings/current/', (req, res) => {
