@@ -52,6 +52,16 @@ function AppGlobalStyles() {
           color: 'inherit',
           textDecoration: 'none',
         },
+        '@keyframes bbs2-fan-glow': {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            opacity: 0.72,
+          },
+          '50%': {
+            transform: 'scale(1.08)',
+            opacity: 1,
+          },
+        },
       }}
     />
   )
