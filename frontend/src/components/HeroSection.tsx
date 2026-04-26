@@ -34,24 +34,18 @@ const compactDeltaValueStyle = {
   fontSize: 'clamp(1.35rem, 1.8vw, 1.85rem)',
 }
 
-const prominentAssessmentValueStyle = {
-  fontSize: 'clamp(1.75rem, 2.3vw, 2.5rem)',
-}
-
 type ComparisonBandProps = {
   title: string
   leftLabel: string
   leftValue: string
-  leftHint: string
   leftIcon: React.ReactNode
   leftColor: 'ocean' | 'seafoam'
   centerLabel: string
   centerValue: string
   centerHint: string
-  centerColor: 'teal' | 'orange'
+  centerColor: 'teal' | 'orange' | 'gray'
   rightLabel: string
   rightValue: string
-  rightHint: string
   rightIcon: React.ReactNode
   rightColor: 'ocean' | 'seafoam'
   comparisonSurface: string
@@ -68,7 +62,6 @@ function ComparisonBand({
   title,
   leftLabel,
   leftValue,
-  leftHint,
   leftIcon,
   leftColor,
   centerLabel,
@@ -77,7 +70,6 @@ function ComparisonBand({
   centerColor,
   rightLabel,
   rightValue,
-  rightHint,
   rightIcon,
   rightColor,
   comparisonSurface,
@@ -90,7 +82,7 @@ function ComparisonBand({
   isMobile,
 }: ComparisonBandProps) {
   return (
-    <Stack gap="xs">
+    <Stack gap={isMobile ? 6 : 'xs'}>
       <Text className="surface-label" style={{ color: softText }}>
         {title}
       </Text>
@@ -101,25 +93,22 @@ function ComparisonBand({
         withBorder
         style={{ background: comparisonSurface, borderColor, boxShadow: panelShadow }}
       >
-        <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="sm">
-          <Paper radius="lg" p="sm" withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
-            <Stack gap={4}>
+        <SimpleGrid cols={{ base: 1, xs: 3 }} spacing={{ base: 8, xs: 'sm' }}>
+          <Paper radius={isMobile ? 'md' : 'lg'} p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
+            <Stack gap={3} h="100%">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Text className="metric-pill-label">{leftLabel}</Text>
-                <ThemeIcon radius="xl" size={30} variant="light" color={leftColor}>
+                <ThemeIcon radius="xl" size={isMobile ? 28 : 30} variant="light" color={leftColor}>
                   {leftIcon}
                 </ThemeIcon>
               </Group>
-              <Text className="temperature-value" style={compactMetricValueStyle}>
+              <Text className="temperature-value" style={{ ...compactMetricValueStyle, marginTop: 'auto' }}>
                 {leftValue}
-              </Text>
-              <Text size="sm" c={softText}>
-                {leftHint}
               </Text>
             </Stack>
           </Paper>
 
-          <Stack gap={6} align="center" justify="center" px="xs">
+          <Stack gap={5} align="center" justify="center" px={isMobile ? 4 : 'xs'} py={isMobile ? 2 : 0}>
             <Text className="metric-pill-label" ta="center">
               {centerLabel}
             </Text>
@@ -132,8 +121,8 @@ function ComparisonBand({
                   background: alpha(connectorColor, 0.45),
                 }}
               />
-              <ThemeIcon radius="xl" size={34} variant="filled" color={centerColor}>
-                <IconArrowAutofitWidth size={18} />
+              <ThemeIcon radius="xl" size={isMobile ? 30 : 34} variant="filled" color={centerColor}>
+                <IconArrowAutofitWidth size={isMobile ? 16 : 18} />
               </ThemeIcon>
               <Box
                 style={{
@@ -154,19 +143,16 @@ function ComparisonBand({
             ) : null}
           </Stack>
 
-          <Paper radius="lg" p="sm" withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
-            <Stack gap={4}>
+          <Paper radius={isMobile ? 'md' : 'lg'} p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
+            <Stack gap={3} h="100%">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Text className="metric-pill-label">{rightLabel}</Text>
-                <ThemeIcon radius="xl" size={30} variant="light" color={rightColor}>
+                <ThemeIcon radius="xl" size={isMobile ? 28 : 30} variant="light" color={rightColor}>
                   {rightIcon}
                 </ThemeIcon>
               </Group>
-              <Text className="temperature-value" style={compactMetricValueStyle}>
+              <Text className="temperature-value" style={{ ...compactMetricValueStyle, marginTop: 'auto' }}>
                 {rightValue}
-              </Text>
-              <Text size="sm" c={softText}>
-                {rightHint}
               </Text>
             </Stack>
           </Paper>
@@ -223,27 +209,26 @@ export function HeroSection({
   const borderColor = isDark ? alpha(theme.white, 0.1) : alpha(theme.colors.ocean[8], 0.12)
   const comparisonShadow = isDark ? undefined : `inset 0 1px 0 ${alpha(theme.white, 0.9)}, 0 14px 30px ${alpha(theme.colors.ocean[7], 0.08)}`
   const tileShadow = isDark ? undefined : `0 10px 24px ${alpha(theme.colors.dark[9], 0.05)}, inset 0 1px 0 ${alpha(theme.white, 0.92)}`
-  const assessmentSurface = isDark
-    ? softSurface
-    : `linear-gradient(180deg, ${alpha(theme.white, 0.78)}, ${alpha(theme.colors.gray[0], 0.72)})`
-  const assessmentTileSurface = isDark
-    ? alpha(theme.white, 0.03)
-    : `linear-gradient(180deg, ${alpha(theme.white, 0.94)}, ${alpha(theme.colors.gray[0], 0.86)})`
-  const assessmentTileShadow = isDark ? undefined : `0 8px 18px ${alpha(theme.colors.dark[9], 0.04)}, inset 0 1px 0 ${alpha(theme.white, 0.9)}`
   const temperatureConnectorColor =
     dewPointDelta !== null && dewPointDelta > 0 ? theme.colors.teal[isDark ? 4 : 6] : theme.colors.orange[isDark ? 4 : 6]
   const humidityConnectorColor =
     humidityDelta !== null && humidityDelta <= 0 ? theme.colors.teal[isDark ? 4 : 6] : theme.colors.orange[isDark ? 4 : 6]
+  const recommendationConnectorColor =
+    dewPointDelta === null
+      ? theme.colors.gray[isDark ? 4 : 6]
+      : dewPointDelta > 0
+        ? theme.colors.teal[isDark ? 4 : 6]
+        : theme.colors.orange[isDark ? 4 : 6]
   const softText = isDark ? theme.colors.gray[4] : theme.colors.gray[7]
 
   return (
-    <Paper className="section-card fade-in-up" radius="xl" p={{ base: 'md', sm: 'xl' }}>
-      <Grid align="center" gutter={{ base: 'lg', md: '2rem' }}>
+    <Paper className="section-card fade-in-up" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'xl' }}>
+      <Grid align="center" gutter={{ base: 'sm', sm: 'lg', md: '2rem' }}>
         <Grid.Col span={{ base: 12, lg: 7 }}>
-          <Stack gap={isMobile ? 'md' : 'lg'}>
+          <Stack gap={isMobile ? 'sm' : 'lg'}>
             <div className="section-kicker">Smart Monitoring</div>
 
-            <Stack gap="md">
+            <Stack gap={isMobile ? 'sm' : 'md'}>
               <Title order={1} className="hero-title">
                 Klarer Blick auf
                 <span className="hero-title-accent">Taupunkt und Lüftung.</span>
@@ -257,7 +242,8 @@ export function HeroSection({
                 color="ocean"
                 leftSection={<IconInfoCircle size={18} />}
                 onClick={onOpenDewPointGuide}
-                w="fit-content"
+                w={isMobile ? '100%' : 'fit-content'}
+                size={isMobile ? 'sm' : 'md'}
               >
                 Taupunkt verstehen
               </Button>
@@ -266,19 +252,24 @@ export function HeroSection({
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, lg: 5 }}>
-          <Paper className="glass-panel" radius="xl" p={{ base: 'md', sm: 'lg' }}>
-            <Stack gap="sm">
-              <Group justify="space-between" align="flex-start" wrap="wrap">
-                <Stack gap={2}>
+          <Paper className="glass-panel" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }}>
+            <Stack gap={isMobile ? 'xs' : 'sm'}>
+              <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
+                <Stack gap={2} style={{ flex: 1, minWidth: isMobile ? 0 : undefined }}>
                   <Text className="surface-label" c="dimmed">
                     Live Snapshot
                   </Text>
-                  <Text fw={800} size="xl" ff="var(--app-font-display)">
+                  <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff="var(--app-font-display)">
                     {climateLabel}
                   </Text>
                 </Stack>
 
-                <Badge variant={isDark ? 'filled' : 'light'} color="ocean" title={`Zuletzt aktualisiert um ${lastUpdatedAbsolute}`}>
+                <Badge
+                  variant={isDark ? 'filled' : 'light'}
+                  color="ocean"
+                  className="compact-badge"
+                  title={`Zuletzt aktualisiert um ${lastUpdatedAbsolute}`}
+                >
                   {lastUpdatedRelative}
                 </Badge>
               </Group>
@@ -287,7 +278,6 @@ export function HeroSection({
                 title="Temperatur"
                 leftLabel="Innen"
                 leftValue={formatTemperature(current ? current.indoorTemp : null)}
-                leftHint="Im Raum"
                 leftIcon={<IconHome size={16} />}
                 leftColor="ocean"
                 centerLabel="Differenz"
@@ -296,7 +286,6 @@ export function HeroSection({
                 centerColor={dewPointDelta !== null && dewPointDelta > 0 ? 'teal' : 'orange'}
                 rightLabel="Außen"
                 rightValue={formatTemperature(current ? current.outdoorTemp : null)}
-                rightHint="Vor Ort"
                 rightIcon={<IconCloud size={16} />}
                 rightColor="seafoam"
                 comparisonSurface={comparisonSurface}
@@ -313,7 +302,6 @@ export function HeroSection({
                 title="Luftfeuchte"
                 leftLabel="Innen"
                 leftValue={formatHumidity(current ? current.indoorHumidity : null)}
-                leftHint="Im Raum"
                 leftIcon={<IconHome size={16} />}
                 leftColor="ocean"
                 centerLabel="Differenz"
@@ -322,7 +310,6 @@ export function HeroSection({
                 centerColor={humidityDelta !== null && humidityDelta <= 0 ? 'teal' : 'orange'}
                 rightLabel="Außen"
                 rightValue={formatHumidity(current ? current.outdoorHumidity : null)}
-                rightHint="Vor Ort"
                 rightIcon={<IconCloud size={16} />}
                 rightColor="seafoam"
                 comparisonSurface={comparisonSurface}
@@ -335,73 +322,29 @@ export function HeroSection({
                 isMobile={isMobile}
               />
 
-              <Paper radius="lg" p="sm" withBorder style={{ background: assessmentSurface, borderColor, boxShadow: comparisonShadow }}>
-                <Stack gap="sm">
-                  <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
-                    <Stack gap={4} style={{ flex: 1, minWidth: 220 }}>
-                      <Text className="surface-label" c="dimmed">
-                        Einschätzung
-                      </Text>
-                      {!current ? (
-                        <Text fw={700} size="sm">
-                          {recommendation}
-                        </Text>
-                      ) : null}
-                    </Stack>
-
-                    <Badge color={recommendationColor} variant={isDark ? 'filled' : 'light'}>
-                      {dewPointDelta !== null && dewPointDelta > 0 ? 'Lüften lohnt sich' : 'Lüften lohnt sich nicht'}
-                    </Badge>
-                  </Group>
-
-                  <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="sm">
-                    <Paper radius="md" p="sm" withBorder style={{ background: assessmentTileSurface, borderColor, boxShadow: assessmentTileShadow }}>
-                      <Box
-                        style={{
-                          height: 38,
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Text className="metric-pill-label">Taupunkt innen</Text>
-                      </Box>
-                      <Text fw={800} className="temperature-value" style={prominentAssessmentValueStyle}>
-                        {formatTemperature(current ? current.dewPointIndoor : null)}
-                      </Text>
-                    </Paper>
-
-                    <Paper radius="md" p="sm" withBorder style={{ background: assessmentTileSurface, borderColor, boxShadow: assessmentTileShadow }}>
-                      <Box
-                        style={{
-                          height: 38,
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Text className="metric-pill-label">Differenz</Text>
-                      </Box>
-                      <Text fw={800} className="temperature-value" style={prominentAssessmentValueStyle}>
-                        {formatTemperature(dewPointDelta)}
-                      </Text>
-                    </Paper>
-
-                    <Paper radius="md" p="sm" withBorder style={{ background: assessmentTileSurface, borderColor, boxShadow: assessmentTileShadow }}>
-                      <Box
-                        style={{
-                          height: 38,
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Text className="metric-pill-label">Taupunkt außen</Text>
-                      </Box>
-                      <Text fw={800} className="temperature-value" style={prominentAssessmentValueStyle}>
-                        {formatTemperature(current ? current.dewPointOutdoor : null)}
-                      </Text>
-                    </Paper>
-                  </SimpleGrid>
-                </Stack>
-              </Paper>
+              <ComparisonBand
+                title="Einschätzung"
+                leftLabel="Taupunkt innen"
+                leftValue={formatTemperature(current ? current.dewPointIndoor : null)}
+                leftIcon={<IconHome size={16} />}
+                leftColor="ocean"
+                centerLabel="Empfehlung"
+                centerValue={dewPointDelta !== null && dewPointDelta > 0 ? 'Lüften' : dewPointDelta !== null ? 'Warten' : '--'}
+                centerHint={recommendation}
+                centerColor={recommendationColor}
+                rightLabel="Taupunkt außen"
+                rightValue={formatTemperature(current ? current.dewPointOutdoor : null)}
+                rightIcon={<IconCloud size={16} />}
+                rightColor="seafoam"
+                comparisonSurface={comparisonSurface}
+                softSurface={softSurface}
+                borderColor={borderColor}
+                connectorColor={recommendationConnectorColor}
+                softText={softText}
+                panelShadow={comparisonShadow}
+                tileShadow={tileShadow}
+                isMobile={isMobile}
+              />
             </Stack>
           </Paper>
         </Grid.Col>

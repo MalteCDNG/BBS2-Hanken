@@ -286,14 +286,51 @@ a {
   color: #37506f;
 }
 
-.mobile-refresh-fab {
-  box-shadow: 0 18px 36px rgba(10, 79, 159, 0.28);
+.compact-badge {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.wrap-anywhere {
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 48em) {
+  body::before {
+    opacity: 0.55;
+  }
+
+  .glass-panel {
+    box-shadow: 0 14px 32px rgba(14, 30, 56, 0.11);
+    backdrop-filter: blur(18px);
+  }
+
+  .section-card {
+    box-shadow: 0 14px 34px rgba(14, 30, 56, 0.08);
+    backdrop-filter: blur(14px);
+  }
+
   .hero-title {
     font-size: clamp(2.3rem, 12vw, 4rem);
     line-height: 0.98;
+  }
+
+  .hero-copy {
+    font-size: 0.98rem;
+  }
+
+  .section-kicker {
+    padding: 8px 13px;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .section-kicker::before {
+    width: 7px;
+    height: 7px;
+    box-shadow: 0 0 0 4px rgba(73, 135, 255, 0.1);
   }
 
   .signal-grid {
@@ -302,28 +339,101 @@ a {
 
   .metric-pill,
   .signal-card {
-    padding: 14px;
-    border-radius: 20px;
+    padding: 12px 13px;
+    border-radius: 18px;
   }
 
   .chart-viewport {
-    border-radius: 22px;
+    border-radius: 20px;
   }
+
+  .brand-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    box-shadow: 0 12px 24px rgba(56, 124, 235, 0.2);
+  }
+
+  .brand-mark img {
+    border-radius: 15px;
+  }
+
+  .surface-label,
+  .metric-pill-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+  }
+
+  .temperature-value {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .mobile-header-panel {
+    overflow: visible;
+  }
+
+  .mobile-action-row {
+    flex-shrink: 0;
+  }
+
+  .mobile-refresh-select .mantine-InputWrapper-label {
+    margin-bottom: 4px;
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6880a3;
+  }
+
+  .mobile-refresh-button {
+    min-width: 88px;
+  }
+
+  .chart-badges {
+    width: 100%;
+  }
+
+  .chart-timestamp-badge {
+    flex: 1 1 100%;
+  }
+
 }
 
 @media (max-width: 30em) {
   .brand-mark {
-    width: 50px;
-    height: 50px;
-    border-radius: 17px;
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
   }
 
   .brand-mark img {
-    border-radius: 14px;
+    border-radius: 12px;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 13vw, 2.8rem);
+  }
+
+  .hero-copy {
+    font-size: 0.95rem;
   }
 
   .temperature-value {
-    font-size: clamp(1.45rem, 9vw, 1.95rem);
+    font-size: clamp(1.35rem, 8vw, 1.85rem);
+  }
+
+  .metric-pill,
+  .signal-card {
+    padding: 11px 12px;
+    border-radius: 16px;
+  }
+
+  .chart-viewport {
+    border-radius: 18px;
+  }
+
+  .compact-badge {
+    font-size: 0.72rem;
   }
 
   .live-card::before,
@@ -332,6 +442,10 @@ a {
   .fan-card::before {
     width: 130px;
     height: 130px;
+  }
+
+  .mobile-refresh-button {
+    min-width: 76px;
   }
 }
 

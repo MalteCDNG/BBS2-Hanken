@@ -71,37 +71,55 @@ export function HeaderBar({
 
   if (isMobile) {
     return (
-      <Container size="xl" h="100%" py="xs">
-        <Paper className="glass-panel fade-in-up" px={{ base: 'sm', xs: 'md' }} py="sm" radius="xl">
-          <Stack gap="md">
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
+      <Container size="xl" h="100%" px={0} py={4}>
+        <Paper className="glass-panel fade-in-up mobile-header-panel" px={{ base: 'sm', xs: 'md' }} py={{ base: 'xs', xs: 'sm' }} radius="xl">
+          <Stack gap="sm">
+            <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
               {brand}
 
-              <Group gap="xs" wrap="nowrap">
+              <Group gap={6} wrap="nowrap" className="mobile-action-row">
                 <Tooltip label="Admin-Einstellungen öffnen" withArrow>
-                  <ActionIcon variant="white" size="lg" aria-label="Admin-Einstellungen öffnen" onClick={onOpenAdmin}>
-                    <IconSettings size={18} />
+                  <ActionIcon variant="white" size={isNarrowMobile ? 'md' : 'lg'} aria-label="Admin-Einstellungen öffnen" onClick={onOpenAdmin}>
+                    <IconSettings size={17} />
                   </ActionIcon>
                 </Tooltip>
 
                 <Tooltip label="Farbschema umschalten" withArrow>
-                  <ActionIcon variant="white" size="lg" aria-label="Farbschema umschalten" onClick={toggleColorScheme}>
-                    {computedColorScheme === 'dark' ? <IconSunHigh size={18} /> : <IconMoonStars size={18} />}
+                  <ActionIcon variant="white" size={isNarrowMobile ? 'md' : 'lg'} aria-label="Farbschema umschalten" onClick={toggleColorScheme}>
+                    {computedColorScheme === 'dark' ? <IconSunHigh size={17} /> : <IconMoonStars size={17} />}
                   </ActionIcon>
                 </Tooltip>
               </Group>
             </Group>
 
-            <NativeSelect
-              size="sm"
-              value={String(refreshInterval)}
-              data={intervalOptions.map((option) => ({
-                value: option.value,
-                label: `Refresh ${option.label}`,
-              }))}
-              onChange={(event) => onIntervalChange(parseInt(event.currentTarget.value, 10))}
-              aria-label="Aktualisierungsintervall"
-            />
+            <Group grow align="end" gap="xs" wrap="nowrap">
+              <NativeSelect
+                className="mobile-refresh-select"
+                size="sm"
+                label="Refresh"
+                value={String(refreshInterval)}
+                data={intervalOptions.map((option) => ({
+                  value: option.value,
+                  label: `Alle ${option.label}`,
+                }))}
+                onChange={(event) => onIntervalChange(parseInt(event.currentTarget.value, 10))}
+                aria-label="Aktualisierungsintervall"
+              />
+
+              <Tooltip label="Messwerte manuell neu laden" withArrow>
+                <Button
+                  size="sm"
+                  variant="light"
+                  color="ocean"
+                  leftSection={<IconRefresh size={15} />}
+                  onClick={onManualRefresh}
+                  loading={isRefreshing}
+                  className="mobile-refresh-button"
+                >
+                  Jetzt
+                </Button>
+              </Tooltip>
+            </Group>
           </Stack>
         </Paper>
       </Container>

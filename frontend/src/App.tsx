@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { ActionIcon, Affix, AppShell, Box, Container, Grid, useComputedColorScheme } from '@mantine/core'
-import { IconRefresh } from '@tabler/icons-react'
+import { AppShell, Box, Container, Grid, useComputedColorScheme } from '@mantine/core'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,6 +32,7 @@ function App() {
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const isNarrowMobile = useMediaQuery('(max-width: 30em)')
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
@@ -150,9 +150,12 @@ function App() {
           labels: {
             color: chartPalette.mutedText,
             usePointStyle: true,
-            boxWidth: 8,
-            boxHeight: 8,
-            padding: 18,
+            boxWidth: isMobile ? 7 : 8,
+            boxHeight: isMobile ? 7 : 8,
+            padding: isMobile ? 12 : 18,
+            font: {
+              size: isMobile ? 11 : 12,
+            },
           },
         },
         tooltip: {
@@ -206,11 +209,14 @@ function App() {
             autoSkip: true,
             maxRotation: 0,
             color: chartPalette.mutedText,
+            font: {
+              size: isMobile ? 10 : 12,
+            },
           },
         },
         y: {
           title: {
-            display: true,
+            display: !isNarrowMobile,
             text: 'Temperatur (°C)',
             color: chartPalette.mutedText,
           },
@@ -220,12 +226,15 @@ function App() {
           },
           ticks: {
             color: chartPalette.mutedText,
+            font: {
+              size: isMobile ? 10 : 12,
+            },
             callback: (value: number | string) => `${value}°`,
           },
         },
       },
     }
-  }, [chartPalette, historyRange, isDark])
+  }, [chartPalette, historyRange, isDark, isMobile, isNarrowMobile])
 
   const selectedRangeLabel = HISTORY_RANGE_OPTIONS[historyRange].label
 
@@ -261,7 +270,7 @@ function App() {
 
   return (
     <>
-      <AppShell padding={{ base: 'sm', sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
+      <AppShell padding={{ base: 10, sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
         {!isMobile ? (
           <AppShell.Header className="shell-header" withBorder={false}>
             <HeaderBar
@@ -275,9 +284,9 @@ function App() {
         ) : null}
 
         <AppShell.Main className="app-shell-main">
-          <Container size="xl" py={{ base: 'xs', sm: 'xl' }}>
+          <Container size="xl" py={{ base: 6, sm: 'xl' }} px={{ base: 4, xs: 'sm', sm: 'md' }}>
             {isMobile ? (
-              <Box mb="md">
+              <Box mb="sm">
                 <HeaderBar
                   refreshInterval={refreshInterval}
                   onIntervalChange={setRefreshInterval}
@@ -288,7 +297,7 @@ function App() {
               </Box>
             ) : null}
 
-            <Grid gutter={{ base: 'md', md: 'xl' }}>
+            <Grid gutter={{ base: 'sm', sm: 'md', md: 'xl' }}>
               <Grid.Col span={12}>
                 <HeroSection
                   current={current}
@@ -321,26 +330,9 @@ function App() {
             </Grid>
           </Container>
 
-          <Box mt={{ base: 'lg', sm: 'xl' }} pb={{ base: 'md', sm: 'lg' }}>
+          <Box mt={{ base: 'md', sm: 'xl' }} pb={{ base: 'md', sm: 'lg' }}>
             <FooterBar />
           </Box>
-
-          {isMobile ? (
-            <Affix position={{ bottom: 18, right: 18 }}>
-              <ActionIcon
-                className="mobile-refresh-fab"
-                size={54}
-                radius={999}
-                variant="gradient"
-                gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
-                onClick={refreshData}
-                loading={isRefreshing}
-                aria-label="Messwerte neu laden"
-              >
-                <IconRefresh size={22} />
-              </ActionIcon>
-            </Affix>
-          ) : null}
         </AppShell.Main>
       </AppShell>
 

@@ -77,19 +77,19 @@ export function HistoryChart({
     : `Zeitraum ${rangeLabel}`
 
   return (
-    <Paper className="section-card chart-card fade-in-up" radius="xl" p={{ base: 'md', sm: 'lg' }}>
+    <Paper className="section-card chart-card fade-in-up" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }}>
       <Stack gap={isMobile ? 'md' : 'lg'}>
-        <Group justify="space-between" align="flex-start" wrap="wrap">
-          <Group gap="sm" wrap="nowrap" align="flex-start" style={{ minWidth: 0 }}>
-            <ThemeIcon size={46} radius="xl" variant="light" color="ocean">
-              <IconChartLine size={24} />
+        <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
+          <Group gap="sm" wrap="nowrap" align="flex-start" style={{ minWidth: 0, flex: 1 }}>
+            <ThemeIcon size={isMobile ? 42 : 46} radius="xl" variant="light" color="ocean">
+              <IconChartLine size={isMobile ? 22 : 24} />
             </ThemeIcon>
 
             <div style={{ minWidth: 0 }}>
               <Text className="surface-label" c="dimmed">
                 Historie
               </Text>
-              <Text fw={800} size="xl" ff="var(--app-font-display)">
+              <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff="var(--app-font-display)">
                 Verlauf im Zeitfenster
               </Text>
               <Text size="sm" c="dimmed">
@@ -98,11 +98,11 @@ export function HistoryChart({
             </div>
           </Group>
 
-          <Group gap="xs" wrap="wrap">
-            <Badge variant="light" color="ocean">
+          <Group gap={6} wrap="wrap" className="chart-badges">
+            <Badge variant="light" color="ocean" className="compact-badge">
               {rangeLabel}
             </Badge>
-            <Badge variant="light" color="seafoam" leftSection={<IconClock size={14} />}>
+            <Badge variant="light" color="seafoam" leftSection={<IconClock size={13} />} className="compact-badge chart-timestamp-badge">
               {lastUpdatedAbsolute}
             </Badge>
           </Group>
@@ -110,6 +110,7 @@ export function HistoryChart({
 
         {isMobile ? (
           <NativeSelect
+            size="sm"
             value={selectedRange}
             data={rangeOptions}
             onChange={(event) => onRangeChange(event.currentTarget.value)}
@@ -119,7 +120,7 @@ export function HistoryChart({
           <SegmentedControl data={rangeOptions} value={selectedRange} onChange={onRangeChange} aria-label="Zeitraum auswählen" />
         )}
 
-        <Box className="chart-viewport" p={{ base: 'sm', sm: 'md' }}>
+        <Box className="chart-viewport" p={{ base: 'xs', xs: 'sm', sm: 'md' }}>
           {loading ? (
             <HistoryState
               loading
@@ -134,12 +135,11 @@ export function HistoryChart({
               description="Sobald das Backend Messwerte für den gewählten Zeitraum liefert, erscheint hier die Chart."
             />
           ) : (
-            <Box h={{ base: 240, sm: 380 }} w="100%" style={{ position: 'relative' }}>
+            <Box h={{ base: 220, xs: 240, sm: 380 }} w="100%" style={{ position: 'relative' }}>
               <Line data={chartData} options={chartOptions} aria-label="Langzeitmessungen" style={{ width: '100%' }} />
             </Box>
           )}
         </Box>
-
       </Stack>
     </Paper>
   )

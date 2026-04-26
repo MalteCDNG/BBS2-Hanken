@@ -21,18 +21,18 @@ export function FanStatusCard({
   const updatedAtLabel = status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'
 
   return (
-    <Paper className="section-card fan-card fade-in-up" radius="xl" p={{ base: 'md', sm: 'lg' }}>
+    <Paper className="section-card fan-card fade-in-up" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }}>
       <Stack gap={isMobile ? 'md' : 'lg'}>
         <Group gap="sm" align="flex-start" wrap="nowrap" style={{ minWidth: 0 }}>
-          <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}>
-            <IconWind size={24} />
+          <ThemeIcon size={isMobile ? 42 : 48} radius="xl" variant="gradient" gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}>
+            <IconWind size={isMobile ? 22 : 24} />
           </ThemeIcon>
 
           <div style={{ minWidth: 0 }}>
             <Text className="surface-label" c="dimmed">
               Steuerung
             </Text>
-            <Text fw={800} size="xl" ff="var(--app-font-display)">
+            <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff="var(--app-font-display)">
               Lüfterstatus
             </Text>
             <Text size="sm" c="dimmed" maw={isMobile ? undefined : 320}>
@@ -46,13 +46,13 @@ export function FanStatusCard({
           <Text fw={800} size="xl" className="live-card-value">
             {isRunning ? 'Läuft' : 'Inaktiv'}
           </Text>
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c="dimmed" className="wrap-anywhere">
             Letzte Rückmeldung: {updatedAtLabel}
           </Text>
         </div>
 
         {error ? (
-          <Group gap="xs" c="red" wrap="nowrap">
+          <Group gap="xs" c="red" wrap={isMobile ? 'wrap' : 'nowrap'}>
             <IconAlertCircle size={16} />
             <Text size="sm">{error}</Text>
           </Group>
