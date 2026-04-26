@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Button,
   Grid,
   Group,
   Paper,
@@ -14,7 +15,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconArrowAutofitWidth, IconCloud, IconHome } from '@tabler/icons-react'
+import { IconArrowAutofitWidth, IconCloud, IconHome, IconInfoCircle } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
 
 function formatTemperature(value: number | null) {
@@ -179,10 +180,12 @@ export function HeroSection({
   current,
   lastUpdatedAbsolute,
   lastUpdatedRelative,
+  onOpenDewPointGuide,
 }: {
   current: ReadingWithDewPoint | null
   lastUpdatedAbsolute: string
   lastUpdatedRelative: string
+  onOpenDewPointGuide: () => void
 }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const theme = useMantineTheme()
@@ -249,6 +252,15 @@ export function HeroSection({
                 Live-Werte für innen und außen, Taupunktvergleich und eine schnelle Einschätzung fürs Auslüften in einer
                 ruhigeren Übersicht.
               </Text>
+              <Button
+                variant="light"
+                color="ocean"
+                leftSection={<IconInfoCircle size={18} />}
+                onClick={onOpenDewPointGuide}
+                w="fit-content"
+              >
+                Taupunkt verstehen
+              </Button>
             </Stack>
           </Stack>
         </Grid.Col>

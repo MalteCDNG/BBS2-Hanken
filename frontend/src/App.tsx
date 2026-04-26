@@ -17,6 +17,7 @@ import {
 import 'chartjs-adapter-date-fns'
 import { de } from 'date-fns/locale'
 import { useMediaQuery } from '@mantine/hooks'
+import { DewPointInfoDrawer } from './components/DewPointInfoDrawer'
 import { FanStatusCard } from './components/FanStatusCard'
 import { HeaderBar } from './components/HeaderBar'
 import { HeroSection } from './components/HeroSection'
@@ -31,6 +32,7 @@ function App() {
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
   const [refreshInterval, setRefreshInterval] = useState(10000)
   const {
@@ -239,82 +241,99 @@ function App() {
     }
   }, [setFanError, setFanStatus])
 
+  const openDewPointGuide = useCallback(() => {
+    setIsDewPointGuideOpen(true)
+  }, [])
+
+  const closeDewPointGuide = useCallback(() => {
+    setIsDewPointGuideOpen(false)
+  }, [])
+
   return (
-    <AppShell padding={{ base: 'sm', sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
-      {!isMobile ? (
-        <AppShell.Header className="shell-header" withBorder={false}>
-          <HeaderBar
-            refreshInterval={refreshInterval}
-            onIntervalChange={setRefreshInterval}
-            onManualRefresh={refreshData}
-            isRefreshing={isRefreshing}
-          />
-        </AppShell.Header>
-      ) : null}
-
-      <AppShell.Main className="app-shell-main">
-        <Container size="xl" py={{ base: 'xs', sm: 'xl' }}>
-          {isMobile ? (
-            <Box mb="md">
-              <HeaderBar
-                refreshInterval={refreshInterval}
-                onIntervalChange={setRefreshInterval}
-                onManualRefresh={refreshData}
-                isRefreshing={isRefreshing}
-              />
-            </Box>
-          ) : null}
-
-          <Grid gutter={{ base: 'md', md: 'xl' }}>
-            <Grid.Col span={12}>
-              <HeroSection current={current} lastUpdatedAbsolute={lastUpdatedAbsolute} lastUpdatedRelative={lastUpdatedRelative} />
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, lg: 8 }} id="history">
-              <HistoryChart
-                error={error}
-                history={chartHistory}
-                loading={loading || isRefreshing}
-                chartData={chartData}
-                chartOptions={chartOptions}
-                lastUpdatedAbsolute={lastUpdatedAbsolute}
-                lastUpdatedRelative={lastUpdatedRelative}
-                selectedRange={historyRange}
-                onRangeChange={(value) => setHistoryRange(value as HistoryRange)}
-                rangeLabel={selectedRangeLabel}
-                rangeOptions={historyRangeOptions}
-                smoothingLabel={smoothingLabel}
-              />
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, lg: 4 }} id="controls">
-              <FanStatusCard status={fanStatus} loading={isTogglingFan} error={fanError} onToggle={handleToggleFan} />
-            </Grid.Col>
-          </Grid>
-        </Container>
-
-        <Box mt={{ base: 'lg', sm: 'xl' }} pb={{ base: 'md', sm: 'lg' }}>
-          <FooterBar />
-        </Box>
-
-        {isMobile ? (
-          <Affix position={{ bottom: 18, right: 18 }}>
-            <ActionIcon
-              className="mobile-refresh-fab"
-              size={54}
-              radius={999}
-              variant="gradient"
-              gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
-              onClick={refreshData}
-              loading={isRefreshing}
-              aria-label="Messwerte neu laden"
-            >
-              <IconRefresh size={22} />
-            </ActionIcon>
-          </Affix>
+    <>
+      <AppShell padding={{ base: 'sm', sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
+        {!isMobile ? (
+          <AppShell.Header className="shell-header" withBorder={false}>
+            <HeaderBar
+              refreshInterval={refreshInterval}
+              onIntervalChange={setRefreshInterval}
+              onManualRefresh={refreshData}
+              isRefreshing={isRefreshing}
+            />
+          </AppShell.Header>
         ) : null}
-      </AppShell.Main>
-    </AppShell>
+
+        <AppShell.Main className="app-shell-main">
+          <Container size="xl" py={{ base: 'xs', sm: 'xl' }}>
+            {isMobile ? (
+              <Box mb="md">
+                <HeaderBar
+                  refreshInterval={refreshInterval}
+                  onIntervalChange={setRefreshInterval}
+                  onManualRefresh={refreshData}
+                  isRefreshing={isRefreshing}
+                />
+              </Box>
+            ) : null}
+
+            <Grid gutter={{ base: 'md', md: 'xl' }}>
+              <Grid.Col span={12}>
+                <HeroSection
+                  current={current}
+                  lastUpdatedAbsolute={lastUpdatedAbsolute}
+                  lastUpdatedRelative={lastUpdatedRelative}
+                  onOpenDewPointGuide={openDewPointGuide}
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, lg: 8 }} id="history">
+                <HistoryChart
+                  error={error}
+                  history={chartHistory}
+                  loading={loading || isRefreshing}
+                  chartData={chartData}
+                  chartOptions={chartOptions}
+                  lastUpdatedAbsolute={lastUpdatedAbsolute}
+                  lastUpdatedRelative={lastUpdatedRelative}
+                  selectedRange={historyRange}
+                  onRangeChange={(value) => setHistoryRange(value as HistoryRange)}
+                  rangeLabel={selectedRangeLabel}
+                  rangeOptions={historyRangeOptions}
+                  smoothingLabel={smoothingLabel}
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, lg: 4 }} id="controls">
+                <FanStatusCard status={fanStatus} loading={isTogglingFan} error={fanError} onToggle={handleToggleFan} />
+              </Grid.Col>
+            </Grid>
+          </Container>
+
+          <Box mt={{ base: 'lg', sm: 'xl' }} pb={{ base: 'md', sm: 'lg' }}>
+            <FooterBar />
+          </Box>
+
+          {isMobile ? (
+            <Affix position={{ bottom: 18, right: 18 }}>
+              <ActionIcon
+                className="mobile-refresh-fab"
+                size={54}
+                radius={999}
+                variant="gradient"
+                gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
+                onClick={refreshData}
+                loading={isRefreshing}
+                aria-label="Messwerte neu laden"
+              >
+                <IconRefresh size={22} />
+              </ActionIcon>
+            </Affix>
+          ) : null}
+        </AppShell.Main>
+      </AppShell>
+
+      <DewPointInfoDrawer opened={isDewPointGuideOpen} onClose={closeDewPointGuide} />
+    </>
   )
 }
 
