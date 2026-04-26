@@ -1,4 +1,4 @@
-import { Badge, Button, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core'
+import { Button, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconAlertCircle, IconPlayerPause, IconPlayerPlay, IconWind } from '@tabler/icons-react'
 import { FanStatus } from '../services/api'
@@ -16,8 +16,6 @@ export function FanStatusCard({
 }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const isRunning = status?.running ?? false
-  const badgeColor = isRunning ? 'seafoam' : 'gray'
-  const badgeLabel = isRunning ? 'Aktiv' : 'Aus'
   const buttonLabel = isRunning ? 'Lüfter stoppen' : 'Lüfter starten'
   const buttonIcon = isRunning ? <IconPlayerPause size={18} /> : <IconPlayerPlay size={18} />
   const updatedAtLabel = status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'
@@ -25,30 +23,22 @@ export function FanStatusCard({
   return (
     <Paper className="section-card fan-card fade-in-up" radius="xl" p={{ base: 'md', sm: 'lg' }}>
       <Stack gap={isMobile ? 'md' : 'lg'}>
-        <Group justify="space-between" align="flex-start" wrap="wrap">
-          <Group gap="sm" align="flex-start" wrap="nowrap" style={{ minWidth: 0 }}>
-            <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}>
-              <IconWind size={24} />
-            </ThemeIcon>
+        <Group gap="sm" align="flex-start" wrap="nowrap" style={{ minWidth: 0 }}>
+          <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'ocean.7', to: 'seafoam.5', deg: 145 }}>
+            <IconWind size={24} />
+          </ThemeIcon>
 
-            <div style={{ minWidth: 0 }}>
-              <Text className="surface-label" c="dimmed">
-                Steuerung
-              </Text>
-              <Text fw={800} size="xl" ff="var(--app-font-display)">
-                Lüfterstatus
-              </Text>
-              <Text size="sm" c="dimmed" maw={isMobile ? undefined : 320}>
-                Manueller Eingriff für das Sensorboard und die aktuelle Ventilation.
-              </Text>
-            </div>
-          </Group>
-
-          {isRunning ? (
-            <Badge color={badgeColor} variant="light" size="lg">
-              {badgeLabel}
-            </Badge>
-          ) : null}
+          <div style={{ minWidth: 0 }}>
+            <Text className="surface-label" c="dimmed">
+              Steuerung
+            </Text>
+            <Text fw={800} size="xl" ff="var(--app-font-display)">
+              Lüfterstatus
+            </Text>
+            <Text size="sm" c="dimmed" maw={isMobile ? undefined : 320}>
+              Manueller Eingriff für das Sensorboard und die aktuelle Ventilation.
+            </Text>
+          </div>
         </Group>
 
         <div className="metric-pill">
