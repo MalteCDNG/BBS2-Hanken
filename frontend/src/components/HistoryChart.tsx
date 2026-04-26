@@ -9,12 +9,15 @@ import {
   Stack,
   Text,
   ThemeIcon,
+  useMantineTheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconChartLine, IconClock } from '@tabler/icons-react'
 import { ChartData, ChartOptions } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { type ReadingWithDewPoint } from '../services/api'
+import { useAppShellStyles } from '../ui/app-shell'
+import { useDashboardTypography } from '../ui/typography'
 
 type HistoryChartProps = {
   error: string | null
@@ -68,6 +71,9 @@ export function HistoryChart({
   smoothingLabel,
 }: HistoryChartProps) {
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const theme = useMantineTheme()
+  const shellStyles = useAppShellStyles()
+  const typography = useDashboardTypography()
 
   const hasData = history.length > 0
   const summary = hasData
@@ -77,7 +83,8 @@ export function HistoryChart({
     : `Zeitraum ${rangeLabel}`
 
   return (
-    <Paper className="section-card chart-card fade-in-up" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }}>
+    <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={shellStyles.sectionPanel}>
+      <Box style={shellStyles.sectionOverlay} />
       <Stack gap={isMobile ? 'md' : 'lg'}>
         <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
           <Group gap="sm" wrap="nowrap" align="flex-start" style={{ minWidth: 0, flex: 1 }}>
@@ -85,24 +92,24 @@ export function HistoryChart({
               <IconChartLine size={isMobile ? 22 : 24} />
             </ThemeIcon>
 
-            <div style={{ minWidth: 0 }}>
-              <Text className="surface-label" c="dimmed">
+            <Box style={{ minWidth: 0 }}>
+              <Text c="dimmed" style={typography.sectionLabel}>
                 Historie
               </Text>
-              <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff="var(--app-font-display)">
+              <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff={theme.headings.fontFamily}>
                 Verlauf im Zeitfenster
               </Text>
               <Text size="sm" c="dimmed">
                 {summary}
               </Text>
-            </div>
+            </Box>
           </Group>
 
-          <Group gap={6} wrap="wrap" className="chart-badges">
-            <Badge variant="light" color="ocean" className="compact-badge">
+          <Group gap={6} wrap="wrap" maw={{ base: '100%', sm: 320 }}>
+            <Badge variant="light" color="ocean" style={typography.compactBadge}>
               {rangeLabel}
             </Badge>
-            <Badge variant="light" color="seafoam" leftSection={<IconClock size={13} />} className="compact-badge chart-timestamp-badge">
+            <Badge variant="light" color="seafoam" leftSection={<IconClock size={13} />} style={typography.compactBadge}>
               {lastUpdatedAbsolute}
             </Badge>
           </Group>
@@ -120,7 +127,7 @@ export function HistoryChart({
           <SegmentedControl data={rangeOptions} value={selectedRange} onChange={onRangeChange} aria-label="Zeitraum auswählen" />
         )}
 
-        <Box className="chart-viewport" p={{ base: 'xs', xs: 'sm', sm: 'md' }}>
+        <Box p={{ base: 'xs', xs: 'sm', sm: 'md' }} style={shellStyles.chartViewport}>
           {loading ? (
             <HistoryState
               loading

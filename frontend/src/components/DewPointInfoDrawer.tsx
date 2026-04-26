@@ -1,6 +1,8 @@
-import { Badge, Box, Code, Drawer, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core'
+import { Badge, Code, Drawer, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title, useMantineTheme } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconCalculator, IconDroplet, IconShieldCheck, IconWind } from '@tabler/icons-react'
+import { useAppShellStyles } from '../ui/app-shell'
+import { useDashboardTypography } from '../ui/typography'
 
 const guideCards = [
   {
@@ -32,6 +34,9 @@ Taupunkt = (b * v) / (a - v)`
 
 export function DewPointInfoDrawer({ opened, onClose }: { opened: boolean; onClose: () => void }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const theme = useMantineTheme()
+  const shellStyles = useAppShellStyles()
+  const typography = useDashboardTypography()
 
   return (
     <Drawer
@@ -43,10 +48,10 @@ export function DewPointInfoDrawer({ opened, onClose }: { opened: boolean; onClo
       overlayProps={{ backgroundOpacity: 0.35, blur: 4 }}
       title={
         <Stack gap={4}>
-          <Text className="surface-label" c="dimmed">
+          <Text c="dimmed" style={typography.sectionLabel}>
             Wissen
           </Text>
-          <Title order={2} ff="var(--app-font-display)">
+          <Title order={2} ff={theme.headings.fontFamily}>
             Taupunkt kurz erklärt
           </Title>
         </Stack>
@@ -105,15 +110,17 @@ export function DewPointInfoDrawer({ opened, onClose }: { opened: boolean; onClo
           </Stack>
         </Paper>
 
-        <Box className="metric-pill">
-          <Text className="metric-pill-label">Merksatz</Text>
-          <Text fw={800} ff="var(--app-font-display)">
+        <Paper component="div" style={shellStyles.metricPanel}>
+          <Text span style={typography.metricLabel}>
+            Merksatz
+          </Text>
+          <Text fw={800} ff={theme.headings.fontFamily}>
             Innen-Taupunkt höher als außen: Lüften kann Feuchte rausbringen.
           </Text>
           <Text size="sm" c="dimmed" mt={4}>
             Innen-Taupunkt niedriger oder gleich: Lüften ist für Entfeuchtung meist weniger wirksam.
           </Text>
-        </Box>
+        </Paper>
       </Stack>
     </Drawer>
   )

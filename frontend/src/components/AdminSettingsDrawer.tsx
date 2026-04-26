@@ -17,6 +17,7 @@ import {
   TextInput,
   ThemeIcon,
   Title,
+  useMantineTheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import {
@@ -38,6 +39,7 @@ import {
   type AppSettings,
   type CurrentUser,
 } from '../services/api'
+import { useDashboardTypography } from '../ui/typography'
 
 class AdminDrawerErrorBoundary extends Component<
   { children: ReactNode; onReset: () => void },
@@ -105,6 +107,8 @@ export function AdminSettingsDrawer({ opened, onClose }: { opened: boolean; onCl
 
 function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onClose: () => void }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const theme = useMantineTheme()
+  const typography = useDashboardTypography()
   const [authChecked, setAuthChecked] = useState(false)
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
   const [settingsForm, setSettingsForm] = useState<AppSettings | null>(null)
@@ -254,10 +258,10 @@ function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onCl
 
   const title = (
     <Stack gap={4}>
-      <Text className="surface-label" c="dimmed">
+      <Text c="dimmed" style={typography.sectionLabel}>
         Admin
       </Text>
-      <Title order={2} ff="var(--app-font-display)">
+      <Title order={2} ff={theme.headings.fontFamily}>
         Einstellungen
       </Title>
     </Stack>

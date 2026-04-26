@@ -17,6 +17,8 @@ import {
 import { useMediaQuery } from '@mantine/hooks'
 import { IconArrowAutofitWidth, IconCloud, IconHome, IconInfoCircle } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
+import { useAppShellStyles } from '../ui/app-shell'
+import { useDashboardTypography } from '../ui/typography'
 
 function formatTemperature(value: number | null) {
   return value === null ? '--' : `${value.toFixed(1)}°C`
@@ -81,9 +83,11 @@ function ComparisonBand({
   tileShadow,
   isMobile,
 }: ComparisonBandProps) {
+  const typography = useDashboardTypography()
+
   return (
     <Stack gap={isMobile ? 6 : 'xs'}>
-      <Text className="surface-label" style={{ color: softText }}>
+      <Text style={{ ...typography.sectionLabel, color: softText }}>
         {title}
       </Text>
 
@@ -97,19 +101,21 @@ function ComparisonBand({
           <Paper radius={isMobile ? 'md' : 'lg'} p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
             <Stack gap={3} h="100%">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
-                <Text className="metric-pill-label">{leftLabel}</Text>
+                <Text span style={typography.metricLabel}>
+                  {leftLabel}
+                </Text>
                 <ThemeIcon radius="xl" size={isMobile ? 28 : 30} variant="light" color={leftColor}>
                   {leftIcon}
                 </ThemeIcon>
               </Group>
-              <Text className="temperature-value" style={{ ...compactMetricValueStyle, marginTop: 'auto' }}>
+              <Text style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}>
                 {leftValue}
               </Text>
             </Stack>
           </Paper>
 
           <Stack gap={5} align="center" justify="center" px={isMobile ? 4 : 'xs'} py={isMobile ? 2 : 0}>
-            <Text className="metric-pill-label" ta="center">
+            <Text span ta="center" style={typography.metricLabel}>
               {centerLabel}
             </Text>
             <Group gap={8} wrap="nowrap" align="center">
@@ -133,7 +139,7 @@ function ComparisonBand({
                 }}
               />
             </Group>
-            <Text fw={800} className="live-card-value" ta="center" style={compactDeltaValueStyle}>
+            <Text fw={800} ta="center" style={{ ...typography.displayValue, ...compactDeltaValueStyle }}>
               {centerValue}
             </Text>
             {centerHint ? (
@@ -146,12 +152,14 @@ function ComparisonBand({
           <Paper radius={isMobile ? 'md' : 'lg'} p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
             <Stack gap={3} h="100%">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
-                <Text className="metric-pill-label">{rightLabel}</Text>
+                <Text span style={typography.metricLabel}>
+                  {rightLabel}
+                </Text>
                 <ThemeIcon radius="xl" size={isMobile ? 28 : 30} variant="light" color={rightColor}>
                   {rightIcon}
                 </ThemeIcon>
               </Group>
-              <Text className="temperature-value" style={{ ...compactMetricValueStyle, marginTop: 'auto' }}>
+              <Text style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}>
                 {rightValue}
               </Text>
             </Stack>
@@ -177,6 +185,8 @@ export function HeroSection({
   const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
+  const shellStyles = useAppShellStyles()
+  const typography = useDashboardTypography()
 
   const temperatureDelta = current ? current.indoorTemp - current.outdoorTemp : null
   const humidityDelta = current ? current.indoorHumidity - current.outdoorHumidity : null
@@ -222,18 +232,26 @@ export function HeroSection({
   const softText = isDark ? theme.colors.gray[4] : theme.colors.gray[7]
 
   return (
-    <Paper className="section-card fade-in-up" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'xl' }}>
+    <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'xl' }} style={shellStyles.sectionPanel}>
+      <Box style={shellStyles.sectionOverlay} />
       <Grid align="center" gap={{ base: 'sm', sm: 'lg', md: '2rem' }}>
         <Grid.Col span={{ base: 12, lg: 7 }}>
           <Stack gap={isMobile ? 'sm' : 'lg'}>
-            <div className="section-kicker">Smart Monitoring</div>
+            <Group gap="sm" wrap="nowrap" style={typography.kicker}>
+              <Box style={typography.kickerDot} />
+              <Text span inherit>
+                Smart Monitoring
+              </Text>
+            </Group>
 
             <Stack gap={isMobile ? 'sm' : 'md'}>
-              <Title order={1} className="hero-title">
+              <Title order={1} style={typography.heroTitle}>
                 Klarer Blick auf
-                <span className="hero-title-accent">Taupunkt und Lüftung.</span>
+                <Text span inherit style={typography.heroAccent}>
+                  Taupunkt und Lüftung.
+                </Text>
               </Title>
-              <Text className="hero-copy" c="dimmed" maw={isMobile ? undefined : 560}>
+              <Text maw={isMobile ? undefined : 560} style={typography.heroCopy}>
                 Live-Werte für innen und außen, Taupunktvergleich und eine schnelle Einschätzung fürs Auslüften in einer
                 ruhigeren Übersicht.
               </Text>
@@ -252,14 +270,14 @@ export function HeroSection({
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, lg: 5 }}>
-          <Paper className="glass-panel" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }}>
+          <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={shellStyles.glassPanel}>
             <Stack gap={isMobile ? 'xs' : 'sm'}>
               <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
                 <Stack gap={2} style={{ flex: 1, minWidth: isMobile ? 0 : undefined }}>
-                  <Text className="surface-label" c="dimmed">
+                  <Text c="dimmed" style={typography.sectionLabel}>
                     Live Snapshot
                   </Text>
-                  <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff="var(--app-font-display)">
+                  <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff={theme.headings.fontFamily}>
                     {climateLabel}
                   </Text>
                 </Stack>
@@ -267,7 +285,7 @@ export function HeroSection({
                 <Badge
                   variant={isDark ? 'filled' : 'light'}
                   color="ocean"
-                  className="compact-badge"
+                  style={typography.compactBadge}
                   title={`Zuletzt aktualisiert um ${lastUpdatedAbsolute}`}
                 >
                   {lastUpdatedRelative}

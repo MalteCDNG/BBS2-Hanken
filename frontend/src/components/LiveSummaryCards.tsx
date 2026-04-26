@@ -15,6 +15,8 @@ import {
 } from '@mantine/core'
 import { IconAlertCircle, IconArrowUpRight, IconCloud, IconDroplet, IconHome } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
+import { useAppShellStyles } from '../ui/app-shell'
+import { useDashboardTypography } from '../ui/typography'
 
 function TemperatureCard({
   label,
@@ -38,6 +40,8 @@ function TemperatureCard({
   const theme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
+  const shellStyles = useAppShellStyles()
+  const typography = useDashboardTypography()
   const accentColor = theme.colors[accent]?.[6] ?? theme.colors.blue[6]
   const accentSoft = theme.colors[accent]?.[1] ?? theme.colors.blue[1]
   const accentGlow = theme.colors[accent]?.[4] ?? theme.colors.blue[4]
@@ -47,15 +51,29 @@ function TemperatureCard({
 
   return (
     <Paper
-      className="section-card live-card fade-in-up"
       radius="xl"
       p="lg"
       style={{
+        ...shellStyles.sectionPanel,
         animationDelay: `${180 + index * 80}ms`,
         background: cardBackground,
         borderColor: isDark ? alpha(accentGlow, 0.24) : undefined,
       }}
     >
+      <Paper
+        component="div"
+        radius="xl"
+        style={{
+          position: 'absolute',
+          inset: 'auto -15% 78% auto',
+          width: 180,
+          height: 180,
+          pointerEvents: 'none',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${alpha(theme.white, 0.36)}, transparent 62%)`,
+        }}
+      />
+      <Paper component="div" radius="xl" style={shellStyles.sectionOverlay} />
       <Stack gap="lg">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Group gap="sm" align="flex-start" wrap="nowrap">
@@ -63,14 +81,14 @@ function TemperatureCard({
               {icon}
             </ThemeIcon>
 
-            <div>
-              <Text className="surface-label" c="dimmed">
+            <Paper component="div" bg="transparent">
+              <Text c="dimmed" style={typography.sectionLabel}>
                 {label}
               </Text>
               <Text size="sm" c="dimmed">
                 {description}
               </Text>
-            </div>
+            </Paper>
           </Group>
 
           <Badge variant="light" color={accent}>
@@ -79,7 +97,7 @@ function TemperatureCard({
         </Group>
 
         <Group justify="space-between" align="end" wrap="nowrap">
-          <Text size="2.7rem" fw={800} className="live-card-value">
+          <Text fw={800} style={{ ...typography.displayValue, fontSize: '2.7rem' }}>
             {value.toFixed(1)}°C
           </Text>
 
@@ -91,10 +109,12 @@ function TemperatureCard({
           </Group>
         </Group>
 
-        <div className="metric-pill">
-          <Text className="metric-pill-label">{metaLabel}</Text>
+        <Paper component="div" style={shellStyles.metricPanel}>
+          <Text span style={typography.metricLabel}>
+            {metaLabel}
+          </Text>
           <Text fw={700}>{metaValue}</Text>
-        </div>
+        </Paper>
       </Stack>
     </Paper>
   )

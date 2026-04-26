@@ -10,11 +10,16 @@ import {
   Stack,
   Text,
   Tooltip,
+  UnstyledButton,
+  alpha,
   useComputedColorScheme,
   useMantineColorScheme,
+  useMantineTheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconMoonStars, IconRefresh, IconSettings, IconSunHigh } from '@tabler/icons-react'
+import { useAppShellStyles } from '../ui/app-shell'
+import { useDashboardTypography } from '../ui/typography'
 
 const intervalOptions = [
   { value: '5000', label: '5s' },
@@ -41,43 +46,69 @@ export function HeaderBar({
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
   const { setColorScheme } = useMantineColorScheme()
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+  const theme = useMantineTheme()
+  const shellStyles = useAppShellStyles()
+  const typography = useDashboardTypography()
   const toggleColorScheme = () => setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark')
 
   const brand = (
     <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
       <Tooltip label="Nach oben scrollen" withArrow>
-        <Box
-          className="brand-mark"
+        <UnstyledButton
           onClick={scrollToTop}
           style={{
-            cursor: 'pointer',
             flexShrink: 0,
+            width: isNarrowMobile ? 48 : 58,
+            height: isNarrowMobile ? 48 : 58,
+            padding: 3,
+            borderRadius: isNarrowMobile ? 16 : 20,
+            background: 'linear-gradient(160deg, rgba(73, 135, 255, 0.95), rgba(51, 221, 175, 0.9))',
+            boxShadow: `0 18px 30px ${alpha(theme.colors.ocean[6], 0.28)}`,
           }}
         >
-          <img src="/Logo.png" alt="Taupunktmonitor Logo" />
-        </Box>
+          <Box
+            component="img"
+            src="/Logo.png"
+            alt="Taupunktmonitor Logo"
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: isNarrowMobile ? 13 : 17,
+              objectFit: 'cover',
+              background: alpha(theme.white, computedColorScheme === 'dark' ? 0.16 : 0.82),
+            }}
+          />
+        </UnstyledButton>
       </Tooltip>
 
-      <div style={{ minWidth: 0 }}>
-        <Text fw={800} size={isNarrowMobile ? 'md' : 'lg'} ff="var(--app-font-display)">
+      <Box style={{ minWidth: 0 }}>
+        <Text fw={800} size={isNarrowMobile ? 'md' : 'lg'} ff={theme.headings.fontFamily}>
           Taupunktmonitor
         </Text>
         <Text size="sm" c="dimmed" maw={340}>
           {isNarrowMobile ? 'Taupunkt und Lüftersteuerung.' : 'Live-Dashboard für Sensorwerte, Taupunkt und Lüftersteuerung.'}
         </Text>
-      </div>
+      </Box>
     </Group>
   )
 
   if (isMobile) {
     return (
       <Container size="xl" h="100%" px={0} py={4}>
-        <Paper className="glass-panel fade-in-up mobile-header-panel" px={{ base: 'sm', xs: 'md' }} py={{ base: 'xs', xs: 'sm' }} radius="xl">
+        <Paper
+          px={{ base: 'sm', xs: 'md' }}
+          py={{ base: 'xs', xs: 'sm' }}
+          radius="xl"
+          style={{
+            ...shellStyles.glassPanel,
+            paddingBottom: theme.spacing.sm,
+          }}
+        >
           <Stack gap="sm">
             <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
               {brand}
 
-              <Group gap={6} wrap="nowrap" className="mobile-action-row">
+              <Group gap={6} wrap="nowrap" align="center">
                 <Tooltip label="Admin-Einstellungen öffnen" withArrow>
                   <ActionIcon variant="white" size={isNarrowMobile ? 'md' : 'lg'} aria-label="Admin-Einstellungen öffnen" onClick={onOpenAdmin}>
                     <IconSettings size={17} />
@@ -94,7 +125,6 @@ export function HeaderBar({
 
             <Group grow align="end" gap="xs" wrap="nowrap">
               <NativeSelect
-                className="mobile-refresh-select"
                 size="sm"
                 label="Refresh"
                 value={String(refreshInterval)}
@@ -104,6 +134,13 @@ export function HeaderBar({
                 }))}
                 onChange={(event) => onIntervalChange(parseInt(event.currentTarget.value, 10))}
                 aria-label="Aktualisierungsintervall"
+                styles={{
+                  label: {
+                    ...typography.sectionLabel,
+                    marginBottom: 6,
+                    color: computedColorScheme === 'dark' ? theme.colors.gray[4] : theme.colors.gray[6],
+                  },
+                }}
               />
 
               <Tooltip label="Messwerte manuell neu laden" withArrow>
@@ -114,7 +151,7 @@ export function HeaderBar({
                   leftSection={<IconRefresh size={15} />}
                   onClick={onManualRefresh}
                   loading={isRefreshing}
-                  className="mobile-refresh-button"
+                  fullWidth
                 >
                   Jetzt
                 </Button>
@@ -128,7 +165,7 @@ export function HeaderBar({
 
   return (
     <Container size="xl" h="100%" py="sm">
-      <Paper className="glass-panel fade-in-up" px="lg" py="sm" radius="xl">
+      <Paper px="lg" py="sm" radius="xl" style={shellStyles.glassPanel}>
         <Group justify="space-between" align="center" wrap="nowrap">
           <Group gap="lg" wrap="nowrap" style={{ minWidth: 0 }}>
             {brand}

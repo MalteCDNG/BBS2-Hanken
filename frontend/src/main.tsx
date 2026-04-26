@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import '@mantine/core/styles.css'
 import { Global } from '@emotion/react'
-import './index.css'
 import {
   ColorSchemeScript,
   MantineProvider,
@@ -36,10 +35,22 @@ function AppGlobalStyles() {
           minHeight: '100vh',
           backgroundColor: bodyBackground,
           color: bodyColor,
-          fontFamily: 'var(--app-font-body)',
+          fontFamily: mantineTheme.fontFamily,
+        },
+        html: {
+          scrollBehavior: 'smooth',
+        },
+        '#root': {
+          minHeight: '100vh',
+          isolation: 'isolate',
+        },
+        img: {
+          display: 'block',
+          maxWidth: '100%',
         },
         a: {
           color: 'inherit',
+          textDecoration: 'none',
         },
       }}
     />

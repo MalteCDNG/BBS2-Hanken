@@ -25,6 +25,7 @@ import { HistoryChart } from './components/HistoryChart'
 import { FooterBar } from './components/FooterBar'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
 import { toggleFan } from './services/api'
+import { useAppShellStyles } from './ui/app-shell'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler, TimeScale)
 
@@ -33,6 +34,7 @@ function App() {
   const isDark = colorScheme === 'dark'
   const isMobile = useMediaQuery('(max-width: 48em)')
   const isNarrowMobile = useMediaQuery('(max-width: 30em)')
+  const shellStyles = useAppShellStyles()
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
@@ -272,7 +274,7 @@ function App() {
     <>
       <AppShell padding={{ base: 10, sm: 'lg' }} header={isMobile ? undefined : { height: 108 }}>
         {!isMobile ? (
-          <AppShell.Header className="shell-header" withBorder={false}>
+          <AppShell.Header withBorder={false} bg="transparent">
             <HeaderBar
               refreshInterval={refreshInterval}
               onIntervalChange={setRefreshInterval}
@@ -283,10 +285,23 @@ function App() {
           </AppShell.Header>
         ) : null}
 
-        <AppShell.Main className="app-shell-main">
+        <AppShell.Main
+          style={{
+            position: 'relative',
+            background: shellStyles.shellBackground,
+          }}
+        >
+          <Box
+            style={{
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              background: shellStyles.shellOverlay,
+            }}
+          />
           <Container size="xl" py={{ base: 6, sm: 'xl' }} px={{ base: 4, xs: 'sm', sm: 'md' }}>
             {isMobile ? (
-              <Box mb="sm">
+              <Box mb="sm" pos="relative">
                 <HeaderBar
                   refreshInterval={refreshInterval}
                   onIntervalChange={setRefreshInterval}
@@ -297,7 +312,7 @@ function App() {
               </Box>
             ) : null}
 
-            <Grid gap={{ base: 'sm', sm: 'md', md: 'xl' }}>
+            <Grid gap={{ base: 'sm', sm: 'md', md: 'xl' }} pos="relative">
               <Grid.Col span={12}>
                 <HeroSection
                   current={current}
