@@ -1,0 +1,8 @@
+{
+  "Logs.RetentionTimeInHrs": 336,
+  "Security.AuditLog.Compress": true,
+  "Security.AuditLog.RetentionTimeInHrs": "52560",
+  "License.Eula.Accepted": true,
+  "Setup.Mode": "None",
+  "Security.UnsecuredAccessAllowed": "PublicNetwork"
+}
