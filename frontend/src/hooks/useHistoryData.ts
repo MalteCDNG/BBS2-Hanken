@@ -26,17 +26,6 @@ export const HISTORY_RANGE_OPTIONS: Record<HistoryRange, HistoryRangeOption> = {
   '1y': { label: '1 Jahr', durationMs: 365 * 24 * 60 * 60 * 1000, timeUnit: 'month' },
 }
 
-const HISTORY_BUCKET_SIZES: Record<HistoryRange, number> = {
-  '1m': 10 * 1000,
-  '1h': 5 * 60 * 1000,
-  '6h': 5 * 60 * 1000,
-  '24h': 5 * 60 * 1000,
-  '7d': 5 * 60 * 1000,
-  '30d': 5 * 60 * 1000,
-  '90d': 5 * 60 * 1000,
-  '1y': 5 * 60 * 1000,
-}
-
 function formatTimestamp(timestamp: string) {
   return new Intl.DateTimeFormat('de-DE', {
     hour: '2-digit',
@@ -71,33 +60,10 @@ export function useHistoryData(refreshInterval: number) {
     return history.filter((entry) => new Date(entry.timestamp).getTime() >= cutoff)
   }, [history, historyRange, now])
 
-  const chartHistory = useMemo(() => {
-    const bucketSizeMs = HISTORY_BUCKET_SIZES[historyRange]
-    const buckets = new Map<number, ReadingWithDewPoint>()
-
-    filteredHistory.forEach((entry) => {
-      const time = new Date(entry.timestamp).getTime()
-      const bucketKey = Math.floor(time / bucketSizeMs) * bucketSizeMs
-      const existing = buckets.get(bucketKey)
-
-      if (!existing || new Date(existing.timestamp).getTime() < time) {
-        buckets.set(bucketKey, entry)
-      }
-    })
-
-    return Array.from(buckets.entries())
-      .sort((a, b) => a[0] - b[0])
-      .map(([, value]) => value)
-  }, [filteredHistory, historyRange])
-
-  const smoothingLabel = useMemo(() => {
-    const bucketMs = HISTORY_BUCKET_SIZES[historyRange]
-    if (bucketMs < 60 * 1000) {
-      return `${bucketMs / 1000} Sekunden`
-    }
-
-    return `${bucketMs / (60 * 1000)} Minuten`
-  }, [historyRange])
+  const chartHistory = useMemo(
+    () => [...filteredHistory].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+    [filteredHistory]
+  )
 
   const refreshData = useCallback(async () => {
     setIsRefreshing(true)
@@ -181,7 +147,6 @@ export function useHistoryData(refreshInterval: number) {
     setFanError,
     setFanStatus,
     setHistoryRange,
-    smoothingLabel,
   }
 }
 
