@@ -9,3 +9,18 @@ services:
       - ./db:/data/db
     ports:
       - "27017:27017"
+
+  raven:
+    image: ravendb/ravendb:ubuntu-latest
+    restart: always
+
+    ports:
+      - 38888:38888
+      - 8080:8080
+      - 53700:53700
+    volumes:
+      - ./raven/config:/etc/ravendb
+      - raven_data:/var/lib/ravendb/data
+
+volumes:
+  raven_data:
