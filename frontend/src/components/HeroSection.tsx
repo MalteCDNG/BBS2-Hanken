@@ -77,6 +77,13 @@ function ComparisonBand({
   isMobile,
 }: ComparisonBandProps) {
   const typography = useDashboardTypography()
+  const metricTileStyle = {
+    background: softSurface,
+    borderColor,
+    boxShadow: tileShadow,
+    justifySelf: isMobile ? 'center' : undefined,
+    width: isMobile ? 'min(100%, 326px)' : undefined,
+  }
 
   return (
     <Stack gap={isMobile ? 6 : 'xs'}>
@@ -91,15 +98,14 @@ function ComparisonBand({
         style={{ background: comparisonSurface, borderColor, boxShadow: panelShadow }}
       >
         <SimpleGrid cols={{ base: 1, xs: 3 }} spacing={{ base: 8, xs: 'sm' }}>
-          <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
-            <Stack gap={3} h="100%">
-              <Group justify="space-between" align="flex-start" wrap="nowrap">
-                <Text span style={typography.metricLabel}>
-                  {leftLabel}
-                </Text>
-              </Group>
+          <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={metricTileStyle}>
+            <Stack gap={3} h="100%" align={isMobile ? 'center' : 'stretch'}>
+              <Text span ta={isMobile ? 'center' : undefined} style={typography.metricLabel}>
+                {leftLabel}
+              </Text>
               <AnimatedText
                 valueKey={`${title}-${leftLabel}-${leftValue}`}
+                ta={isMobile ? 'center' : undefined}
                 style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}
               >
                 {leftValue}
@@ -148,15 +154,14 @@ function ComparisonBand({
             ) : null}
           </Stack>
 
-          <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
-            <Stack gap={3} h="100%">
-              <Group justify="space-between" align="flex-start" wrap="nowrap">
-                <Text span style={typography.metricLabel}>
-                  {rightLabel}
-                </Text>
-              </Group>
+          <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={metricTileStyle}>
+            <Stack gap={3} h="100%" align={isMobile ? 'center' : 'stretch'}>
+              <Text span ta={isMobile ? 'center' : undefined} style={typography.metricLabel}>
+                {rightLabel}
+              </Text>
               <AnimatedText
                 valueKey={`${title}-${rightLabel}-${rightValue}`}
+                ta={isMobile ? 'center' : undefined}
                 style={{ ...typography.displayValue, ...compactMetricValueStyle, marginTop: 'auto' }}
               >
                 {rightValue}

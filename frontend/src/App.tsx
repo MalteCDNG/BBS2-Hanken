@@ -29,6 +29,10 @@ import { useAppShellStyles } from './ui/app-shell'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler, TimeScale)
 
+type ChartSeriesKey = 'indoor' | 'outdoor' | 'dewPointIndoor'
+
+const CHART_SERIES_KEYS: ChartSeriesKey[] = ['indoor', 'outdoor', 'dewPointIndoor']
+
 function App() {
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
   const isDark = colorScheme === 'dark'
@@ -40,6 +44,7 @@ function App() {
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
   const [refreshInterval, setRefreshInterval] = useState(10000)
+  const [visibleChartSeries, setVisibleChartSeries] = useState<ChartSeriesKey[]>(CHART_SERIES_KEYS)
   const {
     chartHistory,
     current,
@@ -108,6 +113,7 @@ function App() {
         {
           label: 'Innen',
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.indoorTemp })),
+          hidden: !visibleChartSeries.includes('indoor'),
           borderColor: chartPalette.indoor,
           backgroundColor: chartPalette.indoorFill,
           pointBackgroundColor: chartPalette.indoor,
@@ -122,6 +128,7 @@ function App() {
         {
           label: 'Außen',
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.outdoorTemp })),
+          hidden: !visibleChartSeries.includes('outdoor'),
           borderColor: chartPalette.outdoor,
           backgroundColor: chartPalette.outdoorFill,
           pointBackgroundColor: chartPalette.outdoor,
@@ -136,6 +143,7 @@ function App() {
         {
           label: 'Taupunkt innen',
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.dewPointIndoor })),
+          hidden: !visibleChartSeries.includes('dewPointIndoor'),
           borderColor: chartPalette.dew,
           backgroundColor: 'transparent',
           pointBackgroundColor: chartPalette.dew,
@@ -150,7 +158,7 @@ function App() {
         },
       ],
     }),
-    [chartHistory, chartPalette, chartPointHoverRadius, chartPointRadius]
+    [chartHistory, chartPalette, chartPointHoverRadius, chartPointRadius, visibleChartSeries]
   )
 
   const chartOptions = useMemo<ChartOptions<'line'>>(() => {
@@ -177,6 +185,22 @@ function App() {
       plugins: {
         legend: {
           position: 'bottom',
+          onClick: (_event, legendItem) => {
+            const seriesKey = CHART_SERIES_KEYS[legendItem.datasetIndex ?? -1]
+            if (!seriesKey) {
+              return
+            }
+
+            setVisibleChartSeries((current) => {
+              const isVisible = current.includes(seriesKey)
+
+              if (isVisible && current.length === 1) {
+                return current
+              }
+
+              return isVisible ? current.filter((key) => key !== seriesKey) : [...current, seriesKey]
+            })
+          },
           labels: {
             color: chartPalette.mutedText,
             usePointStyle: true,
