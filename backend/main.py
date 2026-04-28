@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
 from dependencies.app import app, crons_app, wsmanager
-from dependencies.models import Reading
+from dependencies.models import Reading, Settings
 from routes import readings, fan, settings, auth, insert
 
 load_dotenv()
@@ -41,8 +41,10 @@ async def read_root():
 async def get_data_cron():
     print("Daten werden geholt")
 
-    indoor = requests.get(os.environ["MEASURE_STATION_URL_INDOOR"]+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
-    outdoor = requests.get(os.environ["MEASURE_STATION_URL_OUTDOOR"]+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
+    db_settings = await Settings.find_one()
+
+    indoor = requests.get(db_settings.dht22_indoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
+    outdoor = requests.get(db_settings.dht22_outdoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
 
     reading = Reading(
         timestamp=datetime.now(tz=timezone.utc),
