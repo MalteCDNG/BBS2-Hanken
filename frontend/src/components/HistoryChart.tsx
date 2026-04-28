@@ -31,7 +31,6 @@ type HistoryChartProps = {
   onRangeChange: (value: string) => void
   rangeLabel: string
   rangeOptions: { label: string; value: string }[]
-  smoothingLabel: string
 }
 
 function HistoryState({
@@ -68,7 +67,6 @@ export function HistoryChart({
   onRangeChange,
   rangeLabel,
   rangeOptions,
-  smoothingLabel,
 }: HistoryChartProps) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const theme = useMantineTheme()
@@ -79,7 +77,7 @@ export function HistoryChart({
   const summary = hasData
     ? isMobile
       ? `${history.length} Punkte, zuletzt ${lastUpdatedRelative}`
-      : `${history.length} Messpunkte, ${smoothingLabel} geglättet, zuletzt ${lastUpdatedRelative}`
+      : `${history.length} Messpunkte, alle Rohwerte, zuletzt ${lastUpdatedRelative}`
     : `Zeitraum ${rangeLabel}`
 
   return (
