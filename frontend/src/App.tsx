@@ -55,10 +55,24 @@ function App() {
     setFanError,
     setFanStatus,
     setHistoryRange,
-    smoothingLabel,
   } = useHistoryData(refreshInterval)
 
-  const showChartPoints = chartHistory.length <= 1
+  const chartPointRadius = useMemo(() => {
+    if (chartHistory.length <= 1) {
+      return 4
+    }
+
+    if (chartHistory.length <= 200) {
+      return isMobile ? 2 : 2.6
+    }
+
+    if (chartHistory.length <= 1000) {
+      return isMobile ? 1.3 : 1.8
+    }
+
+    return isMobile ? 0.8 : 1.2
+  }, [chartHistory.length, isMobile])
+  const chartPointHoverRadius = Math.max(chartPointRadius + 3, 5)
 
   const chartPalette = useMemo(
     () =>
@@ -97,8 +111,8 @@ function App() {
           tension: 0.38,
           fill: true,
           borderWidth: 3,
-          pointRadius: showChartPoints ? 4 : 0,
-          pointHoverRadius: 6,
+          pointRadius: chartPointRadius,
+          pointHoverRadius: chartPointHoverRadius,
           pointHitRadius: 12,
         },
         {
@@ -109,8 +123,8 @@ function App() {
           tension: 0.38,
           fill: true,
           borderWidth: 3,
-          pointRadius: showChartPoints ? 4 : 0,
-          pointHoverRadius: 6,
+          pointRadius: chartPointRadius,
+          pointHoverRadius: chartPointHoverRadius,
           pointHitRadius: 12,
         },
         {
@@ -122,13 +136,13 @@ function App() {
           tension: 0.34,
           fill: false,
           borderWidth: 2,
-          pointRadius: showChartPoints ? 4 : 0,
-          pointHoverRadius: 6,
+          pointRadius: chartPointRadius,
+          pointHoverRadius: chartPointHoverRadius,
           pointHitRadius: 12,
         },
       ],
     }),
-    [chartHistory, chartPalette, showChartPoints]
+    [chartHistory, chartPalette, chartPointHoverRadius, chartPointRadius]
   )
 
   const chartOptions = useMemo<ChartOptions<'line'>>(() => {
@@ -335,7 +349,6 @@ function App() {
                   onRangeChange={(value) => setHistoryRange(value as HistoryRange)}
                   rangeLabel={selectedRangeLabel}
                   rangeOptions={historyRangeOptions}
-                  smoothingLabel={smoothingLabel}
                 />
               </Grid.Col>
 
