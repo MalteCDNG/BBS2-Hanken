@@ -1,0 +1,68 @@
+@keyframes bbs2-panel-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.992);
+    filter: blur(5px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes bbs2-chart-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    clip-path: inset(0 0 18% 0 round 18px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0 round 18px);
+  }
+}
+
+.bbs2-motion-panel {
+  position: relative;
+  overflow: hidden;
+  animation: bbs2-panel-enter 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.bbs2-motion-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.bbs2-chart-motion {
+  animation: bbs2-chart-enter 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center bottom;
+}
+
+.bbs2-hover-lift {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+@media (hover: hover) {
+  .bbs2-hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bbs2-motion-panel,
+  .bbs2-chart-motion,
+  .bbs2-hover-lift {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}

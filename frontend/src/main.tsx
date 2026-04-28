@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import '@mantine/core/styles.css'
+import './app-motion.css'
 import { Global } from '@emotion/react'
 import {
   ColorSchemeScript,
@@ -16,8 +17,8 @@ function AppGlobalStyles() {
   const mantineTheme = useMantineTheme()
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
 
-  const bodyBackground = colorScheme === 'dark' ? mantineTheme.colors.dark[7] : mantineTheme.colors.gray[0]
-  const bodyColor = colorScheme === 'dark' ? mantineTheme.colors.gray[0] : mantineTheme.colors.dark[9]
+  const bodyBackground = colorScheme === 'dark' ? mantineTheme.colors.dark[7] : '#f6f9fe'
+  const bodyColor = colorScheme === 'dark' ? mantineTheme.colors.gray[0] : '#10233f'
 
   return (
     <Global
@@ -106,9 +107,9 @@ const colorSchemeManager = localStorageColorSchemeManager({ key: 'bbs2-hanken-co
 function Root() {
   return (
     <React.StrictMode>
-      <ColorSchemeScript defaultColorScheme="auto" />
+      <ColorSchemeScript defaultColorScheme="light" />
       <MantineProvider
-        defaultColorScheme="auto"
+        defaultColorScheme="light"
         theme={theme}
         colorSchemeManager={colorSchemeManager}
       >

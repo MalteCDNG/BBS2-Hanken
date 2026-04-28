@@ -3,9 +3,9 @@ import { formatDistance } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { fetchCurrent, fetchFanStatus, fetchHistory, type FanStatus, type ReadingWithDewPoint } from '../services/api'
 
-type TimeUnit = 'second' | 'minute' | 'hour' | 'day' | 'month'
+type TimeUnit = 'hour' | 'day' | 'month'
 
-export type HistoryRange = '1m' | '1h' | '6h' | '24h' | '7d' | '30d' | '90d' | '1y'
+export type HistoryRange = '6h' | '24h' | '7d' | '30d' | '90d' | '1y'
 
 export type HistoryRangeOption = {
   label: string
@@ -13,17 +13,28 @@ export type HistoryRangeOption = {
   timeUnit: TimeUnit
 }
 
-const HISTORY_RANGE_ORDER: HistoryRange[] = ['1m', '1h', '6h', '24h', '7d', '30d', '90d', '1y']
+const MEASUREMENT_INTERVAL_MS = 30 * 60 * 1000
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
+
+const HISTORY_RANGE_ORDER: HistoryRange[] = ['6h', '24h', '7d', '30d', '90d', '1y']
 
 export const HISTORY_RANGE_OPTIONS: Record<HistoryRange, HistoryRangeOption> = {
-  '1m': { label: '1 Minute', durationMs: 60 * 1000, timeUnit: 'second' },
-  '1h': { label: '1 Stunde', durationMs: 60 * 60 * 1000, timeUnit: 'minute' },
-  '6h': { label: '6 Stunden', durationMs: 6 * 60 * 60 * 1000, timeUnit: 'hour' },
-  '24h': { label: '24 Stunden', durationMs: 24 * 60 * 60 * 1000, timeUnit: 'hour' },
-  '7d': { label: '7 Tage', durationMs: 7 * 24 * 60 * 60 * 1000, timeUnit: 'day' },
-  '30d': { label: '30 Tage', durationMs: 30 * 24 * 60 * 60 * 1000, timeUnit: 'day' },
-  '90d': { label: '90 Tage', durationMs: 90 * 24 * 60 * 60 * 1000, timeUnit: 'day' },
-  '1y': { label: '1 Jahr', durationMs: 365 * 24 * 60 * 60 * 1000, timeUnit: 'month' },
+  '6h': { label: '6 Stunden', durationMs: 6 * HOUR_MS, timeUnit: 'hour' },
+  '24h': { label: '24 Stunden', durationMs: DAY_MS, timeUnit: 'hour' },
+  '7d': { label: '7 Tage', durationMs: 7 * DAY_MS, timeUnit: 'day' },
+  '30d': { label: '30 Tage', durationMs: 30 * DAY_MS, timeUnit: 'day' },
+  '90d': { label: '90 Tage', durationMs: 90 * DAY_MS, timeUnit: 'day' },
+  '1y': { label: '1 Jahr', durationMs: 365 * DAY_MS, timeUnit: 'month' },
+}
+
+const HISTORY_RESOLUTION: Record<HistoryRange, { bucketMs: number; label: string }> = {
+  '6h': { bucketMs: MEASUREMENT_INTERVAL_MS, label: '30-Minuten-Messpunkte' },
+  '24h': { bucketMs: MEASUREMENT_INTERVAL_MS, label: '30-Minuten-Messpunkte' },
+  '7d': { bucketMs: 2 * HOUR_MS, label: '2-Stunden-Mittelwerte' },
+  '30d': { bucketMs: 6 * HOUR_MS, label: '6-Stunden-Mittelwerte' },
+  '90d': { bucketMs: 12 * HOUR_MS, label: '12-Stunden-Mittelwerte' },
+  '1y': { bucketMs: 3 * DAY_MS, label: '3-Tage-Mittelwerte' },
 }
 
 function formatTimestamp(timestamp: string) {
@@ -32,6 +43,45 @@ function formatTimestamp(timestamp: string) {
     minute: '2-digit',
     second: '2-digit',
   }).format(new Date(timestamp))
+}
+
+function averageReadings(readings: ReadingWithDewPoint[]): ReadingWithDewPoint {
+  if (readings.length === 1) {
+    return readings[0]
+  }
+
+  const totals = readings.reduce(
+    (acc, entry) => ({
+      timestamp: acc.timestamp + new Date(entry.timestamp).getTime(),
+      indoorTemp: acc.indoorTemp + entry.indoorTemp,
+      outdoorTemp: acc.outdoorTemp + entry.outdoorTemp,
+      indoorHumidity: acc.indoorHumidity + entry.indoorHumidity,
+      outdoorHumidity: acc.outdoorHumidity + entry.outdoorHumidity,
+      dewPointIndoor: acc.dewPointIndoor + entry.dewPointIndoor,
+      dewPointOutdoor: acc.dewPointOutdoor + entry.dewPointOutdoor,
+    }),
+    {
+      timestamp: 0,
+      indoorTemp: 0,
+      outdoorTemp: 0,
+      indoorHumidity: 0,
+      outdoorHumidity: 0,
+      dewPointIndoor: 0,
+      dewPointOutdoor: 0,
+    }
+  )
+
+  const count = readings.length
+
+  return {
+    timestamp: new Date(totals.timestamp / count).toISOString(),
+    indoorTemp: totals.indoorTemp / count,
+    outdoorTemp: totals.outdoorTemp / count,
+    indoorHumidity: totals.indoorHumidity / count,
+    outdoorHumidity: totals.outdoorHumidity / count,
+    dewPointIndoor: totals.dewPointIndoor / count,
+    dewPointOutdoor: totals.dewPointOutdoor / count,
+  }
 }
 
 export function useHistoryData(refreshInterval: number) {
@@ -60,10 +110,24 @@ export function useHistoryData(refreshInterval: number) {
     return history.filter((entry) => new Date(entry.timestamp).getTime() >= cutoff)
   }, [history, historyRange, now])
 
-  const chartHistory = useMemo(
-    () => [...filteredHistory].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
-    [filteredHistory]
-  )
+  const chartHistory = useMemo(() => {
+    const bucketSizeMs = HISTORY_RESOLUTION[historyRange].bucketMs
+    const buckets = new Map<number, ReadingWithDewPoint[]>()
+
+    filteredHistory.forEach((entry) => {
+      const time = new Date(entry.timestamp).getTime()
+      const bucketKey = Math.floor(time / bucketSizeMs) * bucketSizeMs
+      const bucket = buckets.get(bucketKey) ?? []
+      bucket.push(entry)
+      buckets.set(bucketKey, bucket)
+    })
+
+    return Array.from(buckets.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, values]) => averageReadings(values))
+  }, [filteredHistory, historyRange])
+
+  const resolutionLabel = HISTORY_RESOLUTION[historyRange].label
 
   const refreshData = useCallback(async () => {
     setIsRefreshing(true)
@@ -147,6 +211,7 @@ export function useHistoryData(refreshInterval: number) {
     setFanError,
     setFanStatus,
     setHistoryRange,
+    resolutionLabel,
   }
 }
 

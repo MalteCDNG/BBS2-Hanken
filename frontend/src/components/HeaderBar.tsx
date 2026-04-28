@@ -58,11 +58,11 @@ export function HeaderBar({
           onClick={scrollToTop}
           style={{
             flexShrink: 0,
-            width: isNarrowMobile ? 48 : 58,
-            height: isNarrowMobile ? 48 : 58,
+            width: isNarrowMobile ? 44 : 52,
+            height: isNarrowMobile ? 44 : 52,
             padding: 3,
-            borderRadius: isNarrowMobile ? 16 : 20,
-            background: 'linear-gradient(160deg, rgba(73, 135, 255, 0.95), rgba(51, 221, 175, 0.9))',
+            borderRadius: isNarrowMobile ? 14 : 18,
+            background: `linear-gradient(160deg, ${theme.colors.ocean[6]}, ${theme.colors.seafoam[5]})`,
             boxShadow: `0 18px 30px ${alpha(theme.colors.ocean[6], 0.28)}`,
           }}
         >
@@ -73,7 +73,7 @@ export function HeaderBar({
             style={{
               width: '100%',
               height: '100%',
-              borderRadius: isNarrowMobile ? 13 : 17,
+              borderRadius: isNarrowMobile ? 11 : 15,
               objectFit: 'cover',
               background: alpha(theme.white, computedColorScheme === 'dark' ? 0.16 : 0.82),
             }}
@@ -96,15 +96,16 @@ export function HeaderBar({
     return (
       <Container size="xl" h="100%" px={0} py={4}>
         <Paper
+          className="bbs2-motion-panel"
           px={{ base: 'sm', xs: 'md' }}
           py={{ base: 'xs', xs: 'sm' }}
-          radius="xl"
+          radius="lg"
           style={{
             ...shellStyles.glassPanel,
             paddingBottom: theme.spacing.sm,
           }}
         >
-          <Stack gap="sm">
+          <Stack gap="xs">
             <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
               {brand}
 
@@ -165,7 +166,7 @@ export function HeaderBar({
 
   return (
     <Container size="xl" h="100%" py="sm">
-      <Paper px="lg" py="sm" radius="xl" style={shellStyles.glassPanel}>
+      <Paper className="bbs2-motion-panel" px="lg" py="sm" radius="lg" style={shellStyles.glassPanel}>
         <Group justify="space-between" align="center" wrap="nowrap">
           <Group gap="lg" wrap="nowrap" style={{ minWidth: 0 }}>
             {brand}

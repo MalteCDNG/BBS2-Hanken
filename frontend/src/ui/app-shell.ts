@@ -38,7 +38,7 @@ export function useAppShellStyles() {
     position: 'relative' as const,
     overflow: 'hidden' as const,
     background: isDark ? alpha(theme.colors.dark[6], 0.82) : alpha(theme.white, 0.78),
-    border: `1px solid ${isDark ? alpha(theme.white, 0.09) : alpha(theme.colors.ocean[8], 0.12)}`,
+    border: `1px solid ${isDark ? alpha(theme.white, 0.09) : alpha(theme.colors.ocean[8], 0.11)}`,
     backdropFilter: 'blur(18px)',
     boxShadow: isDark ? theme.shadows.soft : '0 18px 50px rgba(14, 30, 56, 0.09)',
   }

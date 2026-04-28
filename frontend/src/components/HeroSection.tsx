@@ -15,7 +15,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconArrowAutofitWidth, IconCloud, IconHome, IconInfoCircle } from '@tabler/icons-react'
+import { IconArrowAutofitWidth, IconInfoCircle } from '@tabler/icons-react'
 import { type ReadingWithDewPoint } from '../services/api'
 import { AnimatedText } from '../ui/AnimatedText'
 import { useAppShellStyles } from '../ui/app-shell'
@@ -41,16 +41,12 @@ type ComparisonBandProps = {
   title: string
   leftLabel: string
   leftValue: string
-  leftIcon: React.ReactNode
-  leftColor: 'ocean' | 'seafoam'
   centerLabel: string
   centerValue: string
   centerHint: string
-  centerColor: 'teal' | 'orange' | 'gray'
+  centerColor: 'seafoam' | 'amber' | 'gray'
   rightLabel: string
   rightValue: string
-  rightIcon: React.ReactNode
-  rightColor: 'ocean' | 'seafoam'
   comparisonSurface: string
   softSurface: string
   borderColor: string
@@ -65,16 +61,12 @@ function ComparisonBand({
   title,
   leftLabel,
   leftValue,
-  leftIcon,
-  leftColor,
   centerLabel,
   centerValue,
   centerHint,
   centerColor,
   rightLabel,
   rightValue,
-  rightIcon,
-  rightColor,
   comparisonSurface,
   softSurface,
   borderColor,
@@ -93,21 +85,18 @@ function ComparisonBand({
       </Text>
 
       <Paper
-        radius="xl"
+        radius="lg"
         p={{ base: 'sm', sm: 'md' }}
         withBorder
         style={{ background: comparisonSurface, borderColor, boxShadow: panelShadow }}
       >
         <SimpleGrid cols={{ base: 1, xs: 3 }} spacing={{ base: 8, xs: 'sm' }}>
-          <Paper radius={isMobile ? 'md' : 'lg'} p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
+          <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
             <Stack gap={3} h="100%">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Text span style={typography.metricLabel}>
                   {leftLabel}
                 </Text>
-                <ThemeIcon radius="xl" size={isMobile ? 28 : 30} variant="light" color={leftColor}>
-                  {leftIcon}
-                </ThemeIcon>
               </Group>
               <AnimatedText
                 valueKey={`${title}-${leftLabel}-${leftValue}`}
@@ -131,7 +120,7 @@ function ComparisonBand({
                   background: alpha(connectorColor, 0.45),
                 }}
               />
-              <ThemeIcon radius="xl" size={isMobile ? 30 : 34} variant="filled" color={centerColor}>
+              <ThemeIcon radius="md" size={isMobile ? 30 : 34} variant="filled" color={centerColor}>
                 <IconArrowAutofitWidth size={isMobile ? 16 : 18} />
               </ThemeIcon>
               <Box
@@ -159,15 +148,12 @@ function ComparisonBand({
             ) : null}
           </Stack>
 
-          <Paper radius={isMobile ? 'md' : 'lg'} p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
+          <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={{ background: softSurface, borderColor, boxShadow: tileShadow }}>
             <Stack gap={3} h="100%">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Text span style={typography.metricLabel}>
                   {rightLabel}
                 </Text>
-                <ThemeIcon radius="xl" size={isMobile ? 28 : 30} variant="light" color={rightColor}>
-                  {rightIcon}
-                </ThemeIcon>
               </Group>
               <AnimatedText
                 valueKey={`${title}-${rightLabel}-${rightValue}`}
@@ -220,42 +206,76 @@ export function HeroSection({
     : 'Sobald Messwerte eintreffen, erscheint hier die Einschätzung.'
 
   const recommendationColor =
-    dewPointDelta !== null ? (dewPointDelta > 0 ? 'teal' : dewPointDelta < 0 ? 'orange' : 'gray') : 'gray'
+    dewPointDelta !== null ? (dewPointDelta > 0 ? 'seafoam' : dewPointDelta < 0 ? 'amber' : 'gray') : 'gray'
 
   const comparisonSurface = isDark
-    ? `linear-gradient(145deg, ${alpha(theme.colors.ocean[9], 0.34)}, ${alpha(theme.colors.seafoam[9], 0.14)})`
-    : `linear-gradient(145deg, ${alpha(theme.colors.ocean[1], 0.98)}, ${alpha(theme.colors.seafoam[1], 0.88)})`
+    ? `linear-gradient(145deg, ${alpha(theme.colors.ocean[9], 0.38)}, ${alpha(theme.colors.seafoam[9], 0.16)})`
+    : `linear-gradient(145deg, ${alpha(theme.colors.ocean[1], 0.95)}, ${alpha(theme.colors.seafoam[1], 0.72)})`
 
   const softSurface = isDark
     ? alpha(theme.white, 0.04)
     : `linear-gradient(180deg, ${alpha(theme.white, 0.94)}, ${alpha(theme.colors.gray[0], 0.9)})`
-  const borderColor = isDark ? alpha(theme.white, 0.1) : alpha(theme.colors.ocean[8], 0.12)
-  const comparisonShadow = isDark ? undefined : `inset 0 1px 0 ${alpha(theme.white, 0.9)}, 0 14px 30px ${alpha(theme.colors.ocean[7], 0.08)}`
+  const borderColor = isDark ? alpha(theme.white, 0.1) : alpha(theme.colors.ocean[8], 0.11)
+  const comparisonShadow = isDark ? undefined : `inset 0 1px 0 ${alpha(theme.white, 0.9)}, 0 14px 30px ${alpha(theme.colors.ocean[7], 0.07)}`
   const tileShadow = isDark ? undefined : `0 10px 24px ${alpha(theme.colors.dark[9], 0.05)}, inset 0 1px 0 ${alpha(theme.white, 0.92)}`
   const temperatureConnectorColor =
-    dewPointDelta !== null && dewPointDelta > 0 ? theme.colors.teal[isDark ? 4 : 6] : theme.colors.orange[isDark ? 4 : 6]
+    dewPointDelta !== null && dewPointDelta > 0 ? theme.colors.seafoam[isDark ? 4 : 6] : theme.colors.amber[isDark ? 4 : 6]
   const humidityConnectorColor =
-    humidityDelta !== null && humidityDelta <= 0 ? theme.colors.teal[isDark ? 4 : 6] : theme.colors.orange[isDark ? 4 : 6]
+    humidityDelta !== null && humidityDelta <= 0 ? theme.colors.seafoam[isDark ? 4 : 6] : theme.colors.amber[isDark ? 4 : 6]
   const recommendationConnectorColor =
     dewPointDelta === null
       ? theme.colors.gray[isDark ? 4 : 6]
       : dewPointDelta > 0
-        ? theme.colors.teal[isDark ? 4 : 6]
-        : theme.colors.orange[isDark ? 4 : 6]
+        ? theme.colors.seafoam[isDark ? 4 : 6]
+        : theme.colors.amber[isDark ? 4 : 6]
   const softText = isDark ? theme.colors.gray[4] : theme.colors.gray[7]
 
   return (
-    <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'xl' }} style={shellStyles.sectionPanel}>
+    <Paper className="bbs2-motion-panel" radius="lg" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={shellStyles.sectionPanel}>
       <Box style={shellStyles.sectionOverlay} />
-      <Grid align="center" gap={{ base: 'sm', sm: 'lg', md: '2rem' }}>
+      <Grid align="center" gap={{ base: 'sm', sm: 'lg', md: '1.5rem' }}>
         <Grid.Col span={{ base: 12, lg: 7 }}>
-          <Stack gap={isMobile ? 'sm' : 'lg'}>
+          <Stack gap={isMobile ? 'sm' : 'md'}>
             <Group gap="sm" wrap="nowrap" style={typography.kicker}>
               <Box style={typography.kickerDot} />
               <Text span inherit>
                 Smart Monitoring
               </Text>
             </Group>
+
+              <Paper
+                className="bbs2-hover-lift"
+                radius="lg"
+                withBorder
+                p={{ base: 'xs', sm: 'sm' }}
+              style={{
+                maxWidth: 560,
+                background: isDark ? alpha(theme.colors.ocean[9], 0.28) : alpha(theme.white, 0.78),
+                borderColor,
+                boxShadow: isDark ? undefined : `inset 0 1px 0 ${alpha(theme.white, 0.85)}`,
+              }}
+            >
+              <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
+                <Stack gap={1} style={{ minWidth: 0 }}>
+                  <Text c="dimmed" style={typography.sectionLabel}>
+                    Aktuell
+                  </Text>
+                  <AnimatedText
+                    valueKey={`hero-status-${climateLabel}`}
+                    fw={800}
+                    size={isMobile ? 'md' : 'lg'}
+                    ff={theme.headings.fontFamily}
+                    variant="status"
+                    style={{ lineHeight: 1.1 }}
+                  >
+                    {climateLabel}
+                  </AnimatedText>
+                </Stack>
+                <Badge variant="light" color={recommendationColor} style={{ ...typography.compactBadge, flexShrink: 0 }}>
+                  {dewPointDelta !== null && dewPointDelta > 0 ? 'Lüften' : dewPointDelta !== null ? 'Warten' : '--'}
+                </Badge>
+              </Group>
+            </Paper>
 
             <Stack gap={isMobile ? 'sm' : 'md'}>
               <Title order={1} style={typography.heroTitle}>
@@ -274,7 +294,7 @@ export function HeroSection({
                 leftSection={<IconInfoCircle size={18} />}
                 onClick={onOpenDewPointGuide}
                 w={isMobile ? '100%' : 'fit-content'}
-                size={isMobile ? 'sm' : 'md'}
+                size="sm"
               >
                 Taupunkt verstehen
               </Button>
@@ -283,21 +303,21 @@ export function HeroSection({
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, lg: 5 }}>
-          <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={shellStyles.glassPanel}>
+          <Paper className="bbs2-motion-panel" radius="lg" p={{ base: 'sm', xs: 'md', sm: 'md' }} style={{ ...shellStyles.glassPanel, animationDelay: '90ms' }}>
             <Stack gap={isMobile ? 'xs' : 'sm'}>
               <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
                 <Stack gap={2} style={{ flex: 1, minWidth: isMobile ? 0 : undefined }}>
                   <Text c="dimmed" style={typography.sectionLabel}>
-                    Live Snapshot
+                    Empfehlung
                   </Text>
                   <AnimatedText
-                    valueKey={climateLabel}
+                    valueKey={recommendation}
                     fw={800}
                     size={isMobile ? 'lg' : 'xl'}
                     ff={theme.headings.fontFamily}
                     variant="status"
                   >
-                    {climateLabel}
+                    {recommendation}
                   </AnimatedText>
                 </Stack>
 
@@ -315,16 +335,12 @@ export function HeroSection({
                 title="Temperatur"
                 leftLabel="Innen"
                 leftValue={formatTemperature(current ? current.indoorTemp : null)}
-                leftIcon={<IconHome size={16} />}
-                leftColor="ocean"
                 centerLabel="Differenz"
                 centerValue={formatTemperature(temperatureDelta)}
                 centerHint=""
-                centerColor={dewPointDelta !== null && dewPointDelta > 0 ? 'teal' : 'orange'}
+                centerColor={dewPointDelta !== null && dewPointDelta > 0 ? 'seafoam' : 'amber'}
                 rightLabel="Außen"
                 rightValue={formatTemperature(current ? current.outdoorTemp : null)}
-                rightIcon={<IconCloud size={16} />}
-                rightColor="seafoam"
                 comparisonSurface={comparisonSurface}
                 softSurface={softSurface}
                 borderColor={borderColor}
@@ -339,16 +355,12 @@ export function HeroSection({
                 title="Luftfeuchte"
                 leftLabel="Innen"
                 leftValue={formatHumidity(current ? current.indoorHumidity : null)}
-                leftIcon={<IconHome size={16} />}
-                leftColor="ocean"
                 centerLabel="Differenz"
                 centerValue={formatHumidity(humidityDelta)}
                 centerHint=""
-                centerColor={humidityDelta !== null && humidityDelta <= 0 ? 'teal' : 'orange'}
+                centerColor={humidityDelta !== null && humidityDelta <= 0 ? 'seafoam' : 'amber'}
                 rightLabel="Außen"
                 rightValue={formatHumidity(current ? current.outdoorHumidity : null)}
-                rightIcon={<IconCloud size={16} />}
-                rightColor="seafoam"
                 comparisonSurface={comparisonSurface}
                 softSurface={softSurface}
                 borderColor={borderColor}
@@ -363,16 +375,12 @@ export function HeroSection({
                 title="Einschätzung"
                 leftLabel="Taupunkt innen"
                 leftValue={formatTemperature(current ? current.dewPointIndoor : null)}
-                leftIcon={<IconHome size={16} />}
-                leftColor="ocean"
                 centerLabel="Empfehlung"
                 centerValue={dewPointDelta !== null && dewPointDelta > 0 ? 'Lüften' : dewPointDelta !== null ? 'Warten' : '--'}
                 centerHint={recommendation}
                 centerColor={recommendationColor}
                 rightLabel="Taupunkt außen"
                 rightValue={formatTemperature(current ? current.dewPointOutdoor : null)}
-                rightIcon={<IconCloud size={16} />}
-                rightColor="seafoam"
                 comparisonSurface={comparisonSurface}
                 softSurface={softSurface}
                 borderColor={borderColor}

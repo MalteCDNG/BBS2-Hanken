@@ -15,7 +15,7 @@ import {
 } from 'chart.js'
 import 'chartjs-adapter-date-fns'
 import { de } from 'date-fns/locale'
-import { useMediaQuery } from '@mantine/hooks'
+import { useMediaQuery, useReducedMotion } from '@mantine/hooks'
 import { AdminSettingsDrawer } from './components/AdminSettingsDrawer'
 import { DewPointInfoDrawer } from './components/DewPointInfoDrawer'
 import { FanStatusCard } from './components/FanStatusCard'
@@ -34,6 +34,7 @@ function App() {
   const isDark = colorScheme === 'dark'
   const isMobile = useMediaQuery('(max-width: 48em)')
   const isNarrowMobile = useMediaQuery('(max-width: 30em)')
+  const reduceMotion = useReducedMotion()
   const shellStyles = useAppShellStyles()
   const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
@@ -55,6 +56,7 @@ function App() {
     setFanError,
     setFanStatus,
     setHistoryRange,
+    resolutionLabel,
   } = useHistoryData(refreshInterval)
 
   const chartPointRadius = useMemo(() => {
@@ -78,21 +80,21 @@ function App() {
     () =>
       isDark
         ? {
-            indoor: '#84b0ff',
-            indoorFill: 'rgba(132, 176, 255, 0.18)',
-            outdoor: '#71ebca',
-            outdoorFill: 'rgba(113, 235, 202, 0.16)',
-            dew: '#ffca52',
+            indoor: '#74a6ff',
+            indoorFill: 'rgba(116, 166, 255, 0.18)',
+            outdoor: '#38d5f4',
+            outdoorFill: 'rgba(56, 213, 244, 0.14)',
+            dew: '#b29cff',
             grid: 'rgba(216, 231, 255, 0.12)',
             text: '#d8e7ff',
             mutedText: '#a8bfdc',
           }
         : {
-            indoor: '#0a4f9f',
-            indoorFill: 'rgba(10, 79, 159, 0.14)',
-            outdoor: '#069b74',
-            outdoorFill: 'rgba(6, 155, 116, 0.14)',
-            dew: '#cc8700',
+            indoor: '#064da6',
+            indoorFill: 'rgba(6, 77, 166, 0.14)',
+            outdoor: '#008cad',
+            outdoorFill: 'rgba(0, 140, 173, 0.12)',
+            dew: '#5a46d6',
             grid: 'rgba(16, 35, 63, 0.08)',
             text: '#10233f',
             mutedText: '#5a6c86',
@@ -108,6 +110,8 @@ function App() {
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.indoorTemp })),
           borderColor: chartPalette.indoor,
           backgroundColor: chartPalette.indoorFill,
+          pointBackgroundColor: chartPalette.indoor,
+          pointHoverBackgroundColor: chartPalette.indoor,
           tension: 0.38,
           fill: true,
           borderWidth: 3,
@@ -120,6 +124,8 @@ function App() {
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.outdoorTemp })),
           borderColor: chartPalette.outdoor,
           backgroundColor: chartPalette.outdoorFill,
+          pointBackgroundColor: chartPalette.outdoor,
+          pointHoverBackgroundColor: chartPalette.outdoor,
           tension: 0.38,
           fill: true,
           borderWidth: 3,
@@ -132,6 +138,8 @@ function App() {
           data: chartHistory.map((entry) => ({ x: entry.timestamp, y: entry.dewPointIndoor })),
           borderColor: chartPalette.dew,
           backgroundColor: 'transparent',
+          pointBackgroundColor: chartPalette.dew,
+          pointHoverBackgroundColor: chartPalette.dew,
           borderDash: [8, 8],
           tension: 0.34,
           fill: false,
@@ -151,6 +159,12 @@ function App() {
     return {
       responsive: true,
       maintainAspectRatio: false,
+      animation: reduceMotion
+        ? false
+        : {
+            duration: 850,
+            easing: 'easeOutQuart',
+          },
       interaction: {
         mode: 'nearest',
         intersect: false,
@@ -250,7 +264,7 @@ function App() {
         },
       },
     }
-  }, [chartPalette, historyRange, isDark, isMobile, isNarrowMobile])
+  }, [chartPalette, historyRange, isDark, isMobile, isNarrowMobile, reduceMotion])
 
   const selectedRangeLabel = HISTORY_RANGE_OPTIONS[historyRange].label
 
@@ -349,6 +363,7 @@ function App() {
                   onRangeChange={(value) => setHistoryRange(value as HistoryRange)}
                   rangeLabel={selectedRangeLabel}
                   rangeOptions={historyRangeOptions}
+                  resolutionLabel={resolutionLabel}
                 />
               </Grid.Col>
 

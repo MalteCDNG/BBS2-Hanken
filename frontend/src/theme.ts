@@ -14,29 +14,29 @@ const ocean: MantineColorsTuple = [
 ]
 
 const seafoam: MantineColorsTuple = [
-  '#ebfff9',
-  '#d2fbee',
-  '#a4f4dd',
-  '#71ebca',
-  '#4be3bb',
-  '#33ddaf',
-  '#21c89b',
-  '#14b186',
-  '#069b74',
-  '#007d5c',
+  '#effbff',
+  '#d9f3ff',
+  '#b5e6fb',
+  '#8bd8f4',
+  '#68cceb',
+  '#4fc4e6',
+  '#2daed2',
+  '#1f91b3',
+  '#1d7591',
+  '#185f77',
 ]
 
 const amber: MantineColorsTuple = [
-  '#fff8e7',
-  '#ffefc8',
-  '#ffdd8f',
-  '#ffca52',
-  '#ffbb27',
-  '#ffb10a',
-  '#e69a00',
-  '#cc8700',
-  '#b27500',
-  '#986000',
+  '#f1f5ff',
+  '#dfe8ff',
+  '#bdceff',
+  '#98b2ff',
+  '#7b9cff',
+  '#688cff',
+  '#5276ea',
+  '#4262cc',
+  '#364fa5',
+  '#2f4585',
 ]
 
 export const theme = createTheme({
@@ -46,7 +46,7 @@ export const theme = createTheme({
     fontWeight: '700',
   },
   primaryColor: 'ocean',
-  defaultRadius: 'xl',
+  defaultRadius: 'lg',
   cursorType: 'pointer',
   defaultGradient: { from: 'ocean.7', to: 'seafoam.5', deg: 145 },
   breakpoints: {
@@ -69,22 +69,22 @@ export const theme = createTheme({
   components: {
     Paper: {
       defaultProps: {
-        radius: 'xl',
+        radius: 'lg',
       },
     },
     Badge: {
       defaultProps: {
-        radius: 'xl',
+        radius: 'md',
       },
     },
     Button: {
       defaultProps: {
-        radius: 'xl',
+        radius: 'md',
       },
     },
     ActionIcon: {
       defaultProps: {
-        radius: 'xl',
+        radius: 'md',
       },
     },
     AppShell: {

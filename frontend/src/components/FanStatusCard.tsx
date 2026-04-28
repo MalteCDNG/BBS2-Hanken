@@ -147,7 +147,6 @@ function FanIndicator({
         }}
       />
       <Box
-        ref={rotorRef}
         style={{
           position: 'absolute',
           inset: innerInset,
@@ -160,13 +159,23 @@ function FanIndicator({
           boxShadow: isVisuallyActive
             ? `0 10px 28px ${alpha(theme.colors.seafoam[6], isDark ? 0.22 : 0.18)}`
             : `inset 0 1px 0 ${alpha(theme.white, isDark ? 0.08 : 0.58)}`,
-          transform: 'rotate(0deg)',
-          transformOrigin: 'center',
           transition: 'background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease',
-          willChange: isVisuallyActive && allowMotion ? 'transform' : undefined,
         }}
       >
-        <IconCarFan size={isMobile ? 38 : 46} stroke={1.75} />
+        <Box
+          ref={rotorRef}
+          style={{
+            display: 'grid',
+            placeItems: 'center',
+            width: '100%',
+            height: '100%',
+            transform: 'rotate(0deg)',
+            transformOrigin: 'center',
+            willChange: isVisuallyActive && allowMotion ? 'transform' : undefined,
+          }}
+        >
+          <IconCarFan size={isMobile ? 38 : 46} stroke={1.75} />
+        </Box>
       </Box>
       <Box
         style={{
@@ -209,7 +218,7 @@ export function FanStatusCard({
   const updatedAtLabel = status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'
 
   return (
-    <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={shellStyles.sectionPanel}>
+    <Paper className="bbs2-motion-panel" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={{ ...shellStyles.sectionPanel, animationDelay: '180ms' }}>
       <Box style={shellStyles.sectionOverlay} />
       <Stack gap={isMobile ? 'md' : 'lg'}>
         <Group gap="sm" align="flex-start" wrap="nowrap" style={{ minWidth: 0 }}>
@@ -230,7 +239,7 @@ export function FanStatusCard({
           </Box>
         </Group>
 
-        <Paper component="div" style={shellStyles.metricPanel}>
+        <Paper className="bbs2-hover-lift" component="div" style={shellStyles.metricPanel}>
           <Group justify="space-between" align="center" wrap="nowrap" gap="md">
             <Box style={{ minWidth: 0 }}>
               <Text span style={typography.metricLabel}>
@@ -268,7 +277,7 @@ export function FanStatusCard({
         <Button
           color={isRunning ? 'amber' : 'seafoam'}
           variant="gradient"
-          gradient={isRunning ? { from: 'amber.6', to: 'orange.5', deg: 145 } : { from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
+          gradient={isRunning ? { from: 'ocean.8', to: 'amber.5', deg: 145 } : { from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
           leftSection={buttonIcon}
           loading={loading}
           onClick={onToggle}

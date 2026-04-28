@@ -31,6 +31,7 @@ type HistoryChartProps = {
   onRangeChange: (value: string) => void
   rangeLabel: string
   rangeOptions: { label: string; value: string }[]
+  resolutionLabel: string
 }
 
 function HistoryState({
@@ -67,6 +68,7 @@ export function HistoryChart({
   onRangeChange,
   rangeLabel,
   rangeOptions,
+  resolutionLabel,
 }: HistoryChartProps) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const theme = useMantineTheme()
@@ -77,11 +79,11 @@ export function HistoryChart({
   const summary = hasData
     ? isMobile
       ? `${history.length} Punkte, zuletzt ${lastUpdatedRelative}`
-      : `${history.length} Messpunkte, alle Rohwerte, zuletzt ${lastUpdatedRelative}`
+      : `${history.length} Punkte, ${resolutionLabel}, zuletzt ${lastUpdatedRelative}`
     : `Zeitraum ${rangeLabel}`
 
   return (
-    <Paper radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={shellStyles.sectionPanel}>
+    <Paper className="bbs2-motion-panel" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={{ ...shellStyles.sectionPanel, animationDelay: '130ms' }}>
       <Box style={shellStyles.sectionOverlay} />
       <Stack gap={isMobile ? 'md' : 'lg'}>
         <Group justify="space-between" align="flex-start" wrap="wrap" gap="xs">
@@ -104,9 +106,6 @@ export function HistoryChart({
           </Group>
 
           <Group gap={6} wrap="wrap" maw={{ base: '100%', sm: 320 }}>
-            <Badge variant="light" color="ocean" style={typography.compactBadge}>
-              {rangeLabel}
-            </Badge>
             <Badge variant="light" color="seafoam" leftSection={<IconClock size={13} />} style={typography.compactBadge}>
               {lastUpdatedAbsolute}
             </Badge>
@@ -125,7 +124,7 @@ export function HistoryChart({
           <SegmentedControl data={rangeOptions} value={selectedRange} onChange={onRangeChange} aria-label="Zeitraum auswählen" />
         )}
 
-        <Box p={{ base: 'xs', xs: 'sm', sm: 'md' }} style={shellStyles.chartViewport}>
+        <Box className="bbs2-hover-lift" p={{ base: 'xs', xs: 'sm', sm: 'md' }} style={shellStyles.chartViewport}>
           {loading ? (
             <HistoryState
               loading
@@ -140,7 +139,7 @@ export function HistoryChart({
               description="Sobald das Backend Messwerte für den gewählten Zeitraum liefert, erscheint hier die Chart."
             />
           ) : (
-            <Box h={{ base: 220, xs: 240, sm: 380 }} w="100%" style={{ position: 'relative' }}>
+            <Box className="bbs2-chart-motion" h={{ base: 220, xs: 240, sm: 380 }} w="100%" style={{ position: 'relative' }}>
               <Line data={chartData} options={chartOptions} aria-label="Langzeitmessungen" style={{ width: '100%' }} />
             </Box>
           )}

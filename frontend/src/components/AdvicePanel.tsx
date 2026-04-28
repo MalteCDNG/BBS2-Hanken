@@ -58,7 +58,7 @@ export function AdvicePanel({
                   : '—'}
               </Text>
             </div>
-            <Badge color="blue" variant="light">
+            <Badge color="ocean" variant="light">
               Differenz {current ? (current.indoorTemp - current.outdoorTemp).toFixed(1) : '—'}°C
             </Badge>
           </Group>
@@ -69,7 +69,7 @@ export function AdvicePanel({
               </Text>
               <Text fw={600}>{current ? (current.indoorTemp - current.dewPointIndoor).toFixed(1) : '—'}°C</Text>
             </div>
-            <Badge color="orange" variant="light">
+            <Badge color="amber" variant="light">
               Innen {current ? current.dewPointIndoor.toFixed(1) : '—'}°C · Außen {current ? current.dewPointOutdoor.toFixed(1) : '—'}°C
             </Badge>
           </Group>
