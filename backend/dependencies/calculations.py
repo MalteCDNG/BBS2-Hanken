@@ -21,7 +21,11 @@ def dampfdruck(temp, humid):
     return (humid / 100) * saettigungsdampfdruck(temp)
 
 def v(temp, humid):
-    return math.log10(dampfdruck(temp, humid) / 6.1078)
+    try:
+        return math.log10(dampfdruck(temp, humid) / 6.1078)
+    except ValueError:
+        print(temp, humid)
+        raise ValueError
 
 def taupunkt(temp, humid) -> float:
     a, b = params(temp)
