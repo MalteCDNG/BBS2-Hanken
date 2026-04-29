@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import { Box, alpha, Paper, SimpleGrid, Stack, Text, ThemeIcon, useComputedColorScheme, useMantineTheme } from '@mantine/core'
+import { AnimatedText } from '../ui/AnimatedText'
 import { useDashboardTypography } from '../ui/typography'
 
 export type StatCard = {
@@ -59,9 +60,9 @@ export function StatCards({ cards }: { cards: StatCard[] }) {
                 {stat.label}
               </Text>
 
-              <Text fw={800} style={{ ...typography.displayValue, fontSize: '2rem' }}>
+              <AnimatedText valueKey={stat.value} fw={800} style={{ ...typography.displayValue, fontSize: '2rem' }}>
                 {stat.value}
-              </Text>
+              </AnimatedText>
 
               <Text size="sm" c="rgba(255,255,255,0.84)">
                 {stat.hint}
