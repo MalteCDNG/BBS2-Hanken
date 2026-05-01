@@ -1,5 +1,8 @@
 import math
 
+from dependencies.models import Reading, ReadingWithDewPoint
+
+
 # https://www.wetterochs.de/wetter/feuchte.html
 
 def params(t):
@@ -31,3 +34,14 @@ def taupunkt(temp, humid) -> float:
     a, b = params(temp)
     res = b*v(temp, humid) / (a-v(temp, humid))
     return round(res, 2)
+
+def append_dew_points(data: Reading) -> ReadingWithDewPoint:
+    reading_with_dewpoint = ReadingWithDewPoint(
+        dew_point_indoor=taupunkt(data.indoor_temp, data.indoor_humidity),
+        dew_point_outdoor=taupunkt(data.outdoor_temp, data.outdoor_humidity),
+        **data.__dict__,
+    )
+    return reading_with_dewpoint
+
+def should_fan_run(indoor_taupunkt, outdoor_taupunkt):
+    return indoor_taupunkt > outdoor_taupunkt

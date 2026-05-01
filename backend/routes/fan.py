@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, BackgroundTasks
 
@@ -16,21 +16,27 @@ router = APIRouter()
 @router.get("/")
 async def fan_status():
     state = await get_state()
-    return FanStatus(Id=state.Id, running=state.fan_running, updatedAt=state.timestamp)
+    return FanStatus(Id=state.Id, running=state.fan_running, updatedAt=state.timestamp, override=state.fan_override)
 
 @router.post("/toggle/")
-async def fan_toggle(background_tasks: BackgroundTasks) -> FanStatus:
+async def fan_toggle(background_tasks: BackgroundTasks, duration: timedelta=timedelta(minutes=30)) -> FanStatus:
+    """
+    :param background_tasks: Autopopulated by fastapi
+    :param duration: How long the fan should ignore calculated state.
+        P[n]Y[n]M[n]DT[n]H[n]M[n]S -> PT2H30M: 2 hours and 30 minutes.
+    :return:
+    """
     # noinspection PyTypeChecker
     state = await get_state()
 
     new_state = State(
         timestamp=datetime.now(tz=timezone.utc),
         fan_running=not state.fan_running,
-        fan_override=datetime.now(tz=timezone.utc),
+        fan_override=datetime.now(tz=timezone.utc) + duration,
     )
     await raven_db.store_object(new_state)
 
-    fan_state = FanStatus(running=new_state.fan_running, updatedAt=new_state.timestamp)
+    fan_state = FanStatus(running=new_state.fan_running, updatedAt=new_state.timestamp, override=new_state.fan_override)
 
     background_tasks.add_task(hardware.util.sync_state, new_state)
 

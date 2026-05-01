@@ -27,6 +27,7 @@ class State(BaseRavenDoc):
 class FanStatus(BaseRavenDoc):
     running: bool
     updatedAt: datetime
+    override: datetime | None
 
 class Settings(BaseRavenDoc):
     """

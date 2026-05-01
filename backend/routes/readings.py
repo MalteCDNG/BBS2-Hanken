@@ -5,9 +5,8 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from starlette import status
 
-import dependencies.calculations
 import hardware.check_rpi
-from dependencies import raven_db
+from dependencies import raven_db, calculations
 from dependencies.models import Reading, ReadingWithDewPoint
 
 router = APIRouter()
@@ -19,12 +18,7 @@ async def current() -> ReadingWithDewPoint:
         if data is None:
             raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
 
-    reading = ReadingWithDewPoint(
-        dew_point_indoor=dependencies.calculations.taupunkt(data.indoor_temp, data.indoor_humidity),
-        dew_point_outdoor=dependencies.calculations.taupunkt(data.outdoor_temp, data.outdoor_humidity),
-        **data.__dict__,
-    )
-
+    reading = calculations.append_dew_points(data)
     return reading
 
 @router.get("/history/")
@@ -48,11 +42,7 @@ async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
 
     readings: list[ReadingWithDewPoint] = []
     for data in _data:
-        reading = ReadingWithDewPoint(
-            dew_point_indoor=dependencies.calculations.taupunkt(data.indoor_temp, data.indoor_humidity),
-            dew_point_outdoor=dependencies.calculations.taupunkt(data.outdoor_temp, data.outdoor_humidity),
-            **data.__dict__,
-        )
+        reading = calculations.append_dew_points(data)
         readings.append(reading.model_dump(by_alias=True))
 
     return readings

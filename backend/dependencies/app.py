@@ -8,6 +8,7 @@ from fastapi_crons import Crons, get_cron_router
 import dependencies.globals
 import hardware.util
 from dependencies import raven_db
+from dependencies.models import State
 
 
 async def update_get_data_cron():
@@ -17,6 +18,18 @@ async def update_get_data_cron():
     get_data_job.update_next_run()
     await crons_app.stop()
     await crons_app.start()
+
+async def update_fan_override_cron(state: State):
+    fan_override_job = crons_app.get_job("fan-override")
+
+    if state.fan_override:
+        expression = state.fan_override.strftime('%M %H %d %m %w')
+    else:
+        expression = "* * * * *"
+
+    fan_override_job.expr = expression
+    fan_override_job._cron_iter = croniter(fan_override_job.expr, datetime.now())
+    fan_override_job.update_next_run()
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
