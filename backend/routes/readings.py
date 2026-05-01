@@ -59,7 +59,10 @@ async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
     return readings
 
 @router.get("/history/delta/")
-async def history_delta(days: int, end: datetime=datetime.now()) -> List[ReadingWithDewPoint]:
+async def history_delta(days: int, end: datetime=None) -> List[ReadingWithDewPoint]:
+    if end is None:
+        end = datetime.now()
+
     start = end - timedelta(days=days)
     end = end + timedelta(days=1)
     return await history(start, end)
