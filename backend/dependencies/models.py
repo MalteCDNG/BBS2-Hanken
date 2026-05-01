@@ -11,7 +11,7 @@ class BaseRavenDoc(BaseModel):
 class Reading(BaseRavenDoc):
     timestamp: datetime
     indoor_temp: float = Field(validation_alias="indoorTemp", serialization_alias="indoorTemp")
-    outdoor_temp: float = Field(validation_alias="indoorTemp", serialization_alias="outdoorTemp")
+    outdoor_temp: float = Field(validation_alias="outdoorTemp", serialization_alias="outdoorTemp")
     indoor_humidity: float = Field(validation_alias="indoorHumidity", serialization_alias="indoorHumidity")
     outdoor_humidity: float = Field(validation_alias="outdoorHumidity", serialization_alias="outdoorHumidity")
 
