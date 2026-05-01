@@ -7,7 +7,6 @@ from starlette import status
 
 import dependencies.calculations
 import hardware.check_rpi
-import hardware.util
 from dependencies import raven_db
 from dependencies.models import Reading, ReadingWithDewPoint
 
