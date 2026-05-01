@@ -3,12 +3,14 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 import jwt
-from beanie import Document, Indexed
 from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from pydantic import BaseModel
+
+from dependencies import raven_db
+from dependencies.models import BaseRavenDoc
 
 
 def init():
@@ -30,13 +32,13 @@ class TokenData(BaseModel):
 
 
 class UserData(BaseModel):
-    username: Annotated[str, Indexed(unique=True)]
+    username: str
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
 
 
-class User(UserData, Document):
+class User(UserData, BaseRavenDoc):
     hashed_password: str
 
 
@@ -53,7 +55,8 @@ async def get_password_hash(password):
 
 
 async def get_user(username: str):
-    user = await User.find_one({"username": username})
+    with raven_db.store.open_session() as db:
+        user = db.query(object_type=User).where_equals("username", username).first()
     return user
 
 async def authenticate_user(username: str, password: str):

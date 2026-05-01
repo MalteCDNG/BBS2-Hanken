@@ -1,11 +1,19 @@
+name: Taupunktlueftung
 services:
-  mongo:
-    image: mongo:4.4.18
+  raven:
+    image: ravendb/ravendb
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: YOURUSERNAME
-      MONGO_INITDB_ROOT_PASSWORD: YOURPASS
-    volumes:
-      - ./db:/data/db
+      RAVEN_SETTINGS: "{}"
+      RAVEN_Setup_Mode: None
+      RAVEN_Security_UnsecuredAccessAllowed: PublicNetwork
+      RAVEN_ServerUrl: http://0.0.0.0:8080
     ports:
-      - "27017:27017"
+      - 38888:38888
+      - 8080:8080
+      - 53700:53700
+    volumes:
+      - raven_data:/var/lib/ravendb/data
+
+volumes:
+  raven_data:

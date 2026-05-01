@@ -7,8 +7,9 @@ from fastapi import WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
+from dependencies import raven_db
 from dependencies.app import app, crons_app, wsmanager
-from dependencies.models import Reading, Settings
+from dependencies.models import Reading
 from routes import readings, fan, settings, auth, insert
 
 load_dotenv()
@@ -41,19 +42,20 @@ async def read_root():
 async def get_data_cron():
     print("Daten werden geholt")
 
-    db_settings = await Settings.find_one()
+    db_settings = await raven_db.get_app_settings()
 
     indoor = requests.get(db_settings.dht22_indoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
     outdoor = requests.get(db_settings.dht22_outdoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
 
     reading = Reading(
         timestamp=datetime.now(tz=timezone.utc),
-        indoorTemp=indoor["temp"],
-        outdoorTemp=outdoor["temp"],
-        indoorHumidity=indoor["humid"],
-        outdoorHumidity=outdoor["humid"],
+        indoor_temp=indoor["temp"],
+        outdoor_temp=outdoor["temp"],
+        indoor_humidity=indoor["humid"],
+        outdoor_humidity=outdoor["humid"],
     )
-    await reading.insert()
+
+    await raven_db.store_object(reading)
 
 @app.websocket("/ws/")
 async def websocket_endpoint(websocket: WebSocket):

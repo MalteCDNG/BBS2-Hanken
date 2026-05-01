@@ -1,14 +1,13 @@
-import os
 from datetime import datetime, timezone
 
-import pymongo
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from starlette import status
+from fastapi import APIRouter, BackgroundTasks
 
-from dependencies.app import wsmanager
 import hardware.fan
 import hardware.util
+from dependencies import raven_db
+from dependencies.app import wsmanager
 from dependencies.models import State, FanStatus
+from dependencies.raven_db import get_state
 
 router = APIRouter()
 
@@ -16,42 +15,27 @@ router = APIRouter()
 
 @router.get("/")
 async def fan_status():
-    # noinspection PyTypeChecker
-    state = await State.find().sort([
-        (State.timestamp, pymongo.DESCENDING)
-    ]).limit(1).to_list()
-
-    try:
-        state = state[0]
-    except IndexError:
-        raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="No active state")
-
-    return FanStatus(running=state.fan_running, updatedAt=state.timestamp)
+    state = await get_state()
+    return FanStatus(Id=state.Id, running=state.fan_running, updatedAt=state.timestamp)
 
 @router.post("/toggle/")
 async def fan_toggle(background_tasks: BackgroundTasks) -> FanStatus:
     # noinspection PyTypeChecker
-    state = await State.find().sort([
-        (State.timestamp, pymongo.DESCENDING)
-    ]).limit(1).to_list()
-
-    try:
-        state = state[0]
-        running = state.fan_running
-    except IndexError:
-        running = False
+    state = await get_state()
 
     new_state = State(
         timestamp=datetime.now(tz=timezone.utc),
-        fan_running=not running,
+        fan_running=not state.fan_running,
         fan_override=datetime.now(tz=timezone.utc),
     )
-    await new_state.insert()
+    await raven_db.store_object(new_state)
 
     fan_state = FanStatus(running=new_state.fan_running, updatedAt=new_state.timestamp)
 
-    background_tasks.add_task(hardware.util.sync_state, state)
+    background_tasks.add_task(hardware.util.sync_state, new_state)
 
-    wsmanager.broadcast(new_state)
+    await wsmanager.broadcast(new_state.model_dump_json(by_alias=True))
 
     return fan_state
+
+#TODO: Endpunkt für Aufhebung des Overrides
