@@ -2,69 +2,65 @@ import random
 from datetime import datetime, timedelta, timezone
 from typing import List
 
-import pymongo
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
+from starlette import status
 
 import dependencies.calculations
 import hardware.check_rpi
 import hardware.util
+from dependencies import raven_db
 from dependencies.models import Reading, ReadingWithDewPoint
 
 router = APIRouter()
 
 @router.get("/current/")
 async def current() -> ReadingWithDewPoint:
-    # noinspection PyTypeChecker
-    data: list[Reading] = await Reading.find().sort([
-        (Reading.timestamp, pymongo.DESCENDING)
-    ]).limit(1).to_list()
+    with raven_db.store.open_session() as db:
+        try:
+            data = db.query(object_type=Reading).order_by_descending("timestamp").first()
+        except IndexError:
+            raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
 
-    if len(data) < 1:
-        raise HTTPException(
-            status_code=status.HTTP_204_NO_CONTENT,
-            detail="No measurement taken yet."
-        )
     reading = ReadingWithDewPoint(
-        dewPointIndoor=dependencies.calculations.taupunkt(data[0].indoorTemp, data[0].indoorHumidity),
-        dewPointOutdoor = dependencies.calculations.taupunkt(data[0].outdoorTemp, data[0].outdoorHumidity),
-        **data[0].__dict__,
+        dew_point_indoor=dependencies.calculations.taupunkt(data.indoor_temp, data.indoor_humidity),
+        dew_point_outdoor = dependencies.calculations.taupunkt(data.outdoor_temp, data.outdoor_humidity),
+        **data.__dict__,
     )
 
-    return reading
+    return reading.model_dump(by_alias=True)
 
 @router.get("/history/")
 async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
     if not hardware.check_rpi.is_raspberrypi():
         new_reading = Reading(
             timestamp=datetime.now(tz=timezone.utc),
-            indoorTemp=random.randint(-10, 30),
-            outdoorTemp=random.randint(-10, 30),
-            indoorHumidity=random.randint(1, 100),
-            outdoorHumidity=random.randint(1, 100),
+            indoor_temp=random.randint(-10, 30),
+            outdoor_temp=random.randint(-10, 30),
+            indoor_humidity=random.randint(1, 100),
+            outdoor_humidity=random.randint(1, 100),
         )
-        await Reading.insert(new_reading)
+        await raven_db.store_object(new_reading)
 
-    query = {
-        "timestamp": {"$gt": start, "$lt": end}
-    }
-    _data = await Reading.find(query).sort([
-        ("Reading.timestamp", pymongo.DESCENDING)
-    ]).to_list()
+    with raven_db.store.open_session() as db:
+        _data: List[Reading] = list(
+            db.query(object_type=Reading)
+            .where_between("timestamp", start, end)
+            .order_by("timestamp")
+        )
 
     readings: list[ReadingWithDewPoint] = []
     for data in _data:
         reading = ReadingWithDewPoint(
-            dewPointIndoor=dependencies.calculations.taupunkt(data.indoorTemp, data.indoorHumidity),
-            dewPointOutdoor=dependencies.calculations.taupunkt(data.outdoorTemp, data.outdoorHumidity),
+            dew_point_indoor=dependencies.calculations.taupunkt(data.indoor_temp, data.indoor_humidity),
+            dew_point_outdoor=dependencies.calculations.taupunkt(data.outdoor_temp, data.outdoor_humidity),
             **data.__dict__,
         )
-        readings.append(reading)
+        readings.append(reading.model_dump(by_alias=True))
 
-    print(len(readings))
     return readings
 
 @router.get("/history/delta/")
-async def history_delta(end: datetime, days: int) -> List[ReadingWithDewPoint]:
+async def history_delta(days: int, end: datetime=datetime.now()) -> List[ReadingWithDewPoint]:
     start = end - timedelta(days=days)
     end = end + timedelta(days=1)
     return await history(start, end)

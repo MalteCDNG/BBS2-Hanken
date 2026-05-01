@@ -1,30 +1,34 @@
 from datetime import datetime
+from typing import Optional
 
-from beanie import Document
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
 
 
-class Reading(Document):
+class BaseRavenDoc(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    Id: Optional[str] = Field(None)
+
+class Reading(BaseRavenDoc):
     timestamp: datetime
-    indoorTemp: float
-    outdoorTemp: float
-    indoorHumidity: float
-    outdoorHumidity: float
+    indoor_temp: float = Field(validation_alias="indoorTemp", serialization_alias="indoorTemp")
+    outdoor_temp: float = Field(validation_alias="indoorTemp", serialization_alias="outdoorTemp")
+    indoor_humidity: float = Field(validation_alias="indoorHumidity", serialization_alias="indoorHumidity")
+    outdoor_humidity: float = Field(validation_alias="outdoorHumidity", serialization_alias="outdoorHumidity")
 
 class ReadingWithDewPoint(Reading):
-    dewPointIndoor: float
-    dewPointOutdoor: float
+    dew_point_indoor: float = Field(validation_alias="dewPointIndoor", serialization_alias="dewPointIndoor")
+    dew_point_outdoor: float = Field(validation_alias="dewPointOutdoor", serialization_alias="dewPointOutdoor")
 
-class State(Document):
+class State(BaseRavenDoc):
     timestamp: datetime
     fan_running: bool
     fan_override: datetime | None
 
-class FanStatus(BaseModel):
+class FanStatus(BaseRavenDoc):
     running: bool
     updatedAt: datetime
 
-class Settings(Document):
+class Settings(BaseRavenDoc):
     """
     Einstellungen der App
 

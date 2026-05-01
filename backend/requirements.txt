@@ -1,4 +1,4 @@
-beanie~=2.1.0
+ravendb~=7.2.1
 pydantic~=2.12.4
 python-dotenv~=1.2.1
 fastapi~=0.123.4
