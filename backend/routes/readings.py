@@ -15,18 +15,17 @@ router = APIRouter()
 @router.get("/current/")
 async def current() -> ReadingWithDewPoint:
     with raven_db.store.open_session() as db:
-        try:
-            data = db.query(object_type=Reading).order_by_descending("timestamp").first()
-        except IndexError:
+        data = db.query(object_type=Reading).order_by_descending("timestamp").first()
+        if data is None:
             raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
 
     reading = ReadingWithDewPoint(
         dew_point_indoor=dependencies.calculations.taupunkt(data.indoor_temp, data.indoor_humidity),
-        dew_point_outdoor = dependencies.calculations.taupunkt(data.outdoor_temp, data.outdoor_humidity),
+        dew_point_outdoor=dependencies.calculations.taupunkt(data.outdoor_temp, data.outdoor_humidity),
         **data.__dict__,
     )
 
-    return reading.model_dump(by_alias=True)
+    return reading
 
 @router.get("/history/")
 async def history(start: datetime, end: datetime) -> List[ReadingWithDewPoint]:
