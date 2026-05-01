@@ -34,7 +34,7 @@ async def fan_toggle(background_tasks: BackgroundTasks) -> FanStatus:
 
     background_tasks.add_task(hardware.util.sync_state, new_state)
 
-    await wsmanager.broadcast(new_state)
+    await wsmanager.broadcast(new_state.model_dump_json(by_alias=True))
 
     return fan_state
 
