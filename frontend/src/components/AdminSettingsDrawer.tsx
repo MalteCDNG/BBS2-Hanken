@@ -35,6 +35,7 @@ import {
   fetchSettings,
   getStoredAuthToken,
   login,
+  setStoredFanOverrideDuration,
   updateSettings,
   type AppSettings,
   type CurrentUser,
@@ -97,15 +98,21 @@ function getApiErrorMessage(error: unknown, fallback: string) {
   return fallback
 }
 
-export function AdminSettingsDrawer({ opened, onClose }: { opened: boolean; onClose: () => void }) {
+type AdminSettingsDrawerProps = {
+  opened: boolean
+  onClose: () => void
+  onSettingsChange?: (settings: AppSettings) => void
+}
+
+export function AdminSettingsDrawer({ opened, onClose, onSettingsChange }: AdminSettingsDrawerProps) {
   return (
     <AdminDrawerErrorBoundary onReset={onClose}>
-      <AdminSettingsDrawerContent opened={opened} onClose={onClose} />
+      <AdminSettingsDrawerContent opened={opened} onClose={onClose} onSettingsChange={onSettingsChange} />
     </AdminDrawerErrorBoundary>
   )
 }
 
-function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onClose: () => void }) {
+function AdminSettingsDrawerContent({ opened, onClose, onSettingsChange }: AdminSettingsDrawerProps) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const theme = useMantineTheme()
   const typography = useDashboardTypography()
@@ -127,7 +134,10 @@ function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onCl
 
     try {
       const settings = await fetchSettings()
-      setSettingsForm(normalizeSettings(settings))
+      const normalizedSettings = normalizeSettings(settings)
+      setSettingsForm(normalizedSettings)
+      setStoredFanOverrideDuration(normalizedSettings.fan_override_duration)
+      onSettingsChange?.(normalizedSettings)
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         clearAuthToken()
@@ -139,7 +149,7 @@ function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onCl
     } finally {
       setIsLoadingSettings(false)
     }
-  }, [])
+  }, [onSettingsChange])
 
   useEffect(() => {
     let cancelled = false
@@ -242,6 +252,8 @@ function AdminSettingsDrawerContent({ opened, onClose }: { opened: boolean; onCl
     try {
       await updateSettings(nextSettings)
       setSettingsForm(nextSettings)
+      setStoredFanOverrideDuration(nextSettings.fan_override_duration)
+      onSettingsChange?.(nextSettings)
       setSettingsSuccess('Einstellungen wurden gespeichert.')
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {

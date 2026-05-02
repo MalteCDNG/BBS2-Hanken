@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const AUTH_TOKEN_STORAGE_KEY = 'bbs2-hanken-auth-token'
+const FAN_OVERRIDE_DURATION_STORAGE_KEY = 'bbs2-hanken-fan-override-duration'
 
 export interface ReadingWithDewPoint {
   timestamp: string
@@ -15,6 +16,7 @@ export interface ReadingWithDewPoint {
 export interface FanStatus {
   running: boolean
   updatedAt: string
+  override: string | null
 }
 
 export interface AuthToken {
@@ -104,7 +106,35 @@ function normalizeFanStatus<T extends FanStatus>(status: T): T {
   return {
     ...status,
     updatedAt: normalizeApiTimestamp(status.updatedAt),
+    override: status.override ? normalizeApiTimestamp(status.override) : null,
   }
+}
+
+export function normalizeFanOverrideDuration(duration: unknown): number | null {
+  const value = typeof duration === 'number' ? duration : Number(duration)
+  if (!Number.isFinite(value) || value <= 0) {
+    return null
+  }
+
+  return Math.floor(value)
+}
+
+export function getStoredFanOverrideDuration(): number | null {
+  return normalizeFanOverrideDuration(localStorage.getItem(FAN_OVERRIDE_DURATION_STORAGE_KEY))
+}
+
+export function setStoredFanOverrideDuration(duration: number) {
+  const normalizedDuration = normalizeFanOverrideDuration(duration)
+  if (normalizedDuration === null) {
+    localStorage.removeItem(FAN_OVERRIDE_DURATION_STORAGE_KEY)
+    return
+  }
+
+  localStorage.setItem(FAN_OVERRIDE_DURATION_STORAGE_KEY, String(normalizedDuration))
+}
+
+function formatDurationSecondsForApi(durationSeconds: number): string {
+  return `PT${durationSeconds}S`
 }
 
 function isNoContent<T>(
@@ -142,8 +172,10 @@ export async function fetchFanStatus(): Promise<FanStatus | null> {
   return normalizeFanStatus(response.data)
 }
 
-export async function toggleFan(): Promise<FanStatus> {
-  const { data } = await api.post<FanStatus>(API_ROUTES.fan.toggle)
+export async function toggleFan(durationSeconds?: number | null): Promise<FanStatus> {
+  const normalizedDuration = normalizeFanOverrideDuration(durationSeconds)
+  const params = normalizedDuration === null ? undefined : { duration: formatDurationSecondsForApi(normalizedDuration) }
+  const { data } = await api.post<FanStatus>(API_ROUTES.fan.toggle, undefined, { params })
   return normalizeFanStatus(data)
 }
 

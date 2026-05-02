@@ -216,6 +216,9 @@ export function FanStatusCard({
   const buttonLabel = isRunning ? 'Lüfter stoppen' : 'Lüfter starten'
   const buttonIcon = isRunning ? <IconPlayerPause size={18} /> : <IconPlayerPlay size={18} />
   const updatedAtLabel = status ? new Date(status.updatedAt).toLocaleString('de-DE') : 'unbekannt'
+  const overrideUntil = status?.override ? new Date(status.override) : null
+  const hasOverride = overrideUntil !== null && Number.isFinite(overrideUntil.getTime())
+  const overrideLabel = hasOverride ? overrideUntil.toLocaleString('de-DE') : null
 
   return (
     <Paper className="bbs2-motion-panel" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={{ ...shellStyles.sectionPanel, animationDelay: '180ms' }}>
@@ -261,6 +264,11 @@ export function FanStatusCard({
               <Text size="sm" c="dimmed" style={{ overflowWrap: 'anywhere' }}>
                 Letzte Rückmeldung: {updatedAtLabel}
               </Text>
+              {overrideLabel ? (
+                <Text size="sm" c="amber.7" style={{ overflowWrap: 'anywhere' }}>
+                  Manuell bis: {overrideLabel}
+                </Text>
+              ) : null}
             </Box>
 
             <FanIndicator isRunning={isRunning} isMobile={isMobile} isDark={shellStyles.isDark} allowMotion={!reduceMotion} />

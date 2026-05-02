@@ -24,7 +24,7 @@ import { HeroSection } from './components/HeroSection'
 import { HistoryChart } from './components/HistoryChart'
 import { FooterBar } from './components/FooterBar'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
-import { toggleFan } from './services/api'
+import { getStoredFanOverrideDuration, toggleFan, type AppSettings } from './services/api'
 import { useAppShellStyles } from './ui/app-shell'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler, TimeScale)
@@ -44,6 +44,7 @@ function App() {
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
   const [refreshInterval, setRefreshInterval] = useState(10000)
+  const [fanOverrideDurationSeconds, setFanOverrideDurationSeconds] = useState(() => getStoredFanOverrideDuration())
   const [visibleChartSeries, setVisibleChartSeries] = useState<ChartSeriesKey[]>(CHART_SERIES_KEYS)
   const {
     chartHistory,
@@ -295,7 +296,7 @@ function App() {
   const handleToggleFan = useCallback(async () => {
     setIsTogglingFan(true)
     try {
-      const updatedStatus = await toggleFan()
+      const updatedStatus = await toggleFan(fanOverrideDurationSeconds)
       setFanStatus(updatedStatus)
       setFanError(null)
     } catch (err) {
@@ -304,7 +305,11 @@ function App() {
     } finally {
       setIsTogglingFan(false)
     }
-  }, [setFanError, setFanStatus])
+  }, [fanOverrideDurationSeconds, setFanError, setFanStatus])
+
+  const handleSettingsChange = useCallback((settings: AppSettings) => {
+    setFanOverrideDurationSeconds(settings.fan_override_duration)
+  }, [])
 
   const openDewPointGuide = useCallback(() => {
     setIsDewPointGuideOpen(true)
@@ -403,7 +408,7 @@ function App() {
         </AppShell.Main>
       </AppShell>
 
-      <AdminSettingsDrawer opened={isAdminDrawerOpen} onClose={closeAdminDrawer} />
+      <AdminSettingsDrawer opened={isAdminDrawerOpen} onClose={closeAdminDrawer} onSettingsChange={handleSettingsChange} />
       <DewPointInfoDrawer opened={isDewPointGuideOpen} onClose={closeDewPointGuide} />
     </>
   )

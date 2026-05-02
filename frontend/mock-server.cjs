@@ -47,6 +47,26 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
 }
 
+function parseDurationSeconds(value) {
+  if (typeof value !== 'string' || value.length === 0) {
+    return 30 * 60
+  }
+
+  const numericDuration = Number(value)
+  if (Number.isFinite(numericDuration) && numericDuration > 0) {
+    return Math.floor(numericDuration)
+  }
+
+  const match = value.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/)
+  if (!match) {
+    return 30 * 60
+  }
+
+  const [, hours = '0', minutes = '0', seconds = '0'] = match
+  const durationSeconds = Number(hours) * 60 * 60 + Number(minutes) * 60 + Number(seconds)
+  return durationSeconds > 0 ? durationSeconds : 30 * 60
+}
+
 function getSeasonalShift(date) {
   const startOfYear = new Date(date.getFullYear(), 0, 1)
   const millisPerYear = 365 * 24 * 60 * 60 * 1000
@@ -312,9 +332,11 @@ app.get('/fan/', (req, res) => {
 })
 
 app.post('/fan/toggle/', (req, res) => {
+  const durationSeconds = parseDurationSeconds(req.query.duration)
   fanState = {
     running: !(fanState?.running ?? false),
     updatedAt: new Date().toISOString(),
+    override: new Date(Date.now() + durationSeconds * 1000).toISOString(),
   }
 
   res.json(fanState)
