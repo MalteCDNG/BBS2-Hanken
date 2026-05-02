@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 import dependencies.app
 import dependencies.globals
+from dependencies import raven_db
 from dependencies.models import Settings
 from routes.auth import User, get_current_active_user
 
@@ -12,14 +13,12 @@ router = APIRouter()
 
 @router.get("/")
 async def get_settings(current_user: Annotated[User, Depends(get_current_active_user)]) -> Settings:
-    from_db = await Settings.find_one()
+    from_db = await raven_db.get_create_app_settings()
     return from_db
 
 @router.post("/")
 async def update_settings(settings: Settings, current_user: Annotated[User, Depends(get_current_active_user)]):
-    from_db = await Settings.find_one()
-    settings.id = from_db.id
-    await settings.save()
+    await raven_db.save_settings(settings)
 
     dependencies.globals.settings = settings
     await dependencies.app.update_get_data_cron()
@@ -37,9 +36,9 @@ async def set_dht22_indoor_address(address: str, current_user: Annotated[User, D
             detail="Invalid URL",
         )
 
-    settings = await Settings.find_one()
+    settings = await raven_db.get_create_app_settings()
     settings.dht22_indoor_address = address
-    await settings.save()
+    await raven_db.save_settings(settings)
 
     return "ok"
 
@@ -51,8 +50,8 @@ async def set_dht22_outdoor_address(address: str, current_user: Annotated[User, 
             detail="Invalid URL",
         )
 
-    settings = await Settings.find_one()
+    settings = await raven_db.get_create_app_settings()
     settings.dht22_outdoor_address = address
-    await settings.save()
+    await raven_db.save_settings(settings)
 
     return "ok"
