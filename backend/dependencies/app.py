@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 
@@ -9,6 +10,8 @@ import dependencies.globals
 import hardware.util
 from dependencies import raven_db
 from dependencies.models import State
+from routes import auth
+from routes.auth import User
 
 
 async def update_get_data_cron():
@@ -40,6 +43,16 @@ async def lifespan(fastapi_app: FastAPI):
     dependencies.globals.settings = db_settings
 
     await update_get_data_cron()
+
+    with raven_db.store.open_session() as session:
+        amount_users = session.query(object_type=User).count()
+        if amount_users == 0:
+            await raven_db.add_user(
+                os.environ.get("INIT_ADMIN_USER"),
+                auth.password_hash.hash(os.environ.get("INIT_ADMIN_PASS")),
+                "Default User",
+                "",
+            )
 
     yield
     hardware.util.shutdown()
