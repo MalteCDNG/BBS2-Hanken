@@ -56,7 +56,10 @@ async def get_password_hash(password):
 
 async def get_user(username: str):
     with raven_db.store.open_session() as db:
-        user = db.query(object_type=User).where_equals("username", username).first()
+        try:
+            user = db.query(object_type=User).where_equals("username", username).first()
+        except IndexError:
+            return None
     return user
 
 async def authenticate_user(username: str, password: str):
