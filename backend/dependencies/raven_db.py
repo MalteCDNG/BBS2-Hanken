@@ -5,6 +5,7 @@ from ravendb import DocumentStore, CreateDatabaseOperation
 from ravendb.serverwide.database_record import DatabaseRecord
 
 from dependencies.models import Settings, State
+from routes.auth import User
 
 store: DocumentStore
 
@@ -81,6 +82,17 @@ async def get_create_app_settings() -> Settings:
 
     return settings
 
+async def save_settings(new_settings: Settings):
+    global store
+    with store.open_session() as session:
+        old_settings = await get_create_app_settings()
+        if old_settings.Id is None:
+            raise RuntimeError("Settings Error")
+
+        new_settings.Id = old_settings.Id
+        session.store(new_settings)
+        session.save_changes()
+
 async def get_state() -> State:
     with (store.open_session() as session):
         res = (
@@ -96,3 +108,13 @@ async def store_object(db_object):
     with store.open_session() as db:
         db.store(db_object)
         db.save_changes()
+
+async def add_user(username, password_hash, full_name, email):
+    user = User(
+        username=username,
+        hashed_password=password_hash,
+        full_name=full_name,
+        disabled=False,
+        email=email,
+    )
+    await store_object(user)
