@@ -42,6 +42,8 @@ async def lifespan(fastapi_app: FastAPI):
     print(db_settings)
     dependencies.globals.settings = db_settings
 
+    hardware.util.start_hotspot()
+
     await update_get_data_cron()
 
     with raven_db.store.open_session() as session:

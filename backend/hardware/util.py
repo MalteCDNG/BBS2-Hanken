@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from dependencies.models import State
 from hardware.check_rpi import is_raspberrypi
 from hardware.fan import Fan
+from hardware.hotspot import ensure_hotspot_started
 
 load_dotenv()
 
@@ -26,6 +27,9 @@ def sync_state(state: State):
         fan.on()
     else:
         fan.off()
+
+def start_hotspot():
+    return ensure_hotspot_started()
 
 def shutdown():
     print("Shutting down hardware")

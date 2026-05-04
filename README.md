@@ -63,12 +63,21 @@ JWT_ALGO=HS256
 
 FAN_GPIO=17
 
+HOTSPOT_ENABLED=true
+HOTSPOT_SSID=BBS2-Hanken
+HOTSPOT_PASSWORD=change-me-hotspot
+HOTSPOT_INTERFACE=wlan0
+HOTSPOT_CONNECTION_NAME=bbs2-hotspot
+HOTSPOT_ADDRESS=10.42.0.1/24
+
 MEASURE_STATION_URL_INDOOR=http://127.0.0.1:8000/get/
 MEASURE_STATION_URL_OUTDOOR=http://127.0.0.1:8001/get/
 MEASURE_STATION_AUTHENTICATION=secret
 ```
 
 Beim Start initialisiert das Backend die MongoDB-Dokumente für Messwerte, Lüfterstatus, Einstellungen und Benutzer. Für den Login muss ein passender Benutzer in der Datenbank vorhanden sein.
+
+Auf einem Raspberry Pi versucht das Backend beim Start zusätzlich, per `nmcli` einen WLAN-Hotspot zu aktivieren. `HOTSPOT_SSID` und `HOTSPOT_PASSWORD` steuern Name und WPA-Kennwort, `HOTSPOT_PASSWORD` muss mindestens 8 Zeichen lang sein. Mit `HOTSPOT_ADDRESS` wird die feste Adresse des Raspberry Pi im Hotspot-Netz gesetzt, standardmäßig `10.42.0.1/24`. NetworkManager übernimmt mit `ipv4.method=shared` DHCP für verbundene Geräte, sodass das Backend im Hotspot z. B. unter `http://10.42.0.1:9000` erreichbar ist. Lokal oder auf Nicht-Pi-Systemen wird der Hotspot-Start übersprungen.
 
 ## Frontend starten
 
