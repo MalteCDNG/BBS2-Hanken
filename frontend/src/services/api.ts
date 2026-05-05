@@ -2,6 +2,9 @@ import axios from 'axios'
 
 const AUTH_TOKEN_STORAGE_KEY = 'bbs2-hanken-auth-token'
 const FAN_OVERRIDE_DURATION_STORAGE_KEY = 'bbs2-hanken-fan-override-duration'
+export const DEFAULT_FAN_OVERRIDE_DURATION_SECONDS = 30 * 60
+export const MIN_FAN_OVERRIDE_DURATION_SECONDS = 60
+export const MAX_FAN_OVERRIDE_DURATION_SECONDS = 24 * 60 * 60
 
 export interface ReadingWithDewPoint {
   timestamp: string
@@ -116,7 +119,28 @@ export function normalizeFanOverrideDuration(duration: unknown): number | null {
     return null
   }
 
-  return Math.floor(value)
+  return Math.min(
+    Math.max(Math.floor(value), MIN_FAN_OVERRIDE_DURATION_SECONDS),
+    MAX_FAN_OVERRIDE_DURATION_SECONDS
+  )
+}
+
+export function normalizeFanOverrideSettingsDuration(duration: unknown): number {
+  return normalizeFanOverrideDuration(duration) ?? DEFAULT_FAN_OVERRIDE_DURATION_SECONDS
+}
+
+export function formatFanOverrideDuration(durationSeconds: number): string {
+  const minutes = Math.max(1, Math.round(durationSeconds / 60))
+
+  if (minutes < 60) {
+    return `${minutes} ${minutes === 1 ? 'Minute' : 'Minuten'}`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+  const hourLabel = `${hours} ${hours === 1 ? 'Stunde' : 'Stunden'}`
+
+  return remainingMinutes === 0 ? hourLabel : `${hourLabel} ${remainingMinutes} Minuten`
 }
 
 export function getStoredFanOverrideDuration(): number | null {

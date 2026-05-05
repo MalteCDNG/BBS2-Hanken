@@ -241,18 +241,11 @@ export function HeroSection({
       <Grid align="center" gap={{ base: 'sm', sm: 'lg', md: '1.5rem' }}>
         <Grid.Col span={{ base: 12, lg: 7 }}>
           <Stack gap={isMobile ? 'sm' : 'md'}>
-            <Group gap="sm" wrap="nowrap" style={typography.kicker}>
-              <Box style={typography.kickerDot} />
-              <Text span inherit>
-                Smart Monitoring
-              </Text>
-            </Group>
-
-              <Paper
-                className="bbs2-hover-lift"
-                radius="lg"
-                withBorder
-                p={{ base: 'xs', sm: 'sm' }}
+            <Paper
+              className="bbs2-hover-lift"
+              radius="lg"
+              withBorder
+              p={{ base: 'xs', sm: 'sm' }}
               style={{
                 maxWidth: 560,
                 background: isDark ? alpha(theme.colors.ocean[9], 0.28) : alpha(theme.white, 0.78),

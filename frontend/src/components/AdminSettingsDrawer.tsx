@@ -12,6 +12,7 @@ import {
   NumberInput,
   Paper,
   PasswordInput,
+  SegmentedControl,
   Stack,
   Text,
   TextInput,
@@ -31,16 +32,29 @@ import {
 } from '@tabler/icons-react'
 import {
   clearAuthToken,
+  DEFAULT_FAN_OVERRIDE_DURATION_SECONDS,
   fetchCurrentUser,
   fetchSettings,
+  formatFanOverrideDuration,
   getStoredAuthToken,
   login,
+  normalizeFanOverrideSettingsDuration,
   setStoredFanOverrideDuration,
   updateSettings,
   type AppSettings,
   type CurrentUser,
 } from '../services/api'
 import { useDashboardTypography } from '../ui/typography'
+
+const FAN_OVERRIDE_PRESETS = [
+  { label: '5 min', value: '300' },
+  { label: '15 min', value: '900' },
+  { label: '30 min', value: '1800' },
+  { label: '60 min', value: '3600' },
+  { label: 'Eigene', value: 'custom' },
+]
+
+const FAN_OVERRIDE_MINUTES_STEP = 5
 
 class AdminDrawerErrorBoundary extends Component<
   { children: ReactNode; onReset: () => void },
@@ -86,8 +100,26 @@ function normalizeSettings(settings: AppSettings): AppSettings {
     dht22_indoor_address: settings.dht22_indoor_address ?? '',
     dht22_outdoor_address: settings.dht22_outdoor_address ?? '',
     data_cron: settings.data_cron ?? '',
-    fan_override_duration: Number(settings.fan_override_duration) || 0,
+    fan_override_duration: normalizeFanOverrideSettingsDuration(settings.fan_override_duration),
   }
+}
+
+function secondsToWholeMinutes(durationSeconds: number): number {
+  return Math.max(1, Math.round(durationSeconds / 60))
+}
+
+function minutesToSeconds(durationMinutes: unknown): number {
+  const value = typeof durationMinutes === 'number' ? durationMinutes : Number(durationMinutes)
+  if (!Number.isFinite(value) || value <= 0) {
+    return DEFAULT_FAN_OVERRIDE_DURATION_SECONDS
+  }
+
+  return normalizeFanOverrideSettingsDuration(Math.round(value) * 60)
+}
+
+function getOverridePresetValue(durationSeconds: number): string {
+  const preset = FAN_OVERRIDE_PRESETS.find((option) => option.value === String(durationSeconds))
+  return preset?.value ?? 'custom'
 }
 
 function getApiErrorMessage(error: unknown, fallback: string) {
@@ -231,6 +263,30 @@ function AdminSettingsDrawerContent({ opened, onClose, onSettingsChange }: Admin
     setAuthError(null)
   }
 
+  function setFanOverrideDuration(durationSeconds: number) {
+    setSettingsForm((currentSettings) =>
+      currentSettings
+        ? {
+            ...currentSettings,
+            fan_override_duration: normalizeFanOverrideSettingsDuration(durationSeconds),
+          }
+        : currentSettings
+    )
+    setSettingsSuccess(null)
+  }
+
+  function handleFanOverridePresetChange(value: string) {
+    if (value === 'custom') {
+      return
+    }
+
+    setFanOverrideDuration(Number(value))
+  }
+
+  function handleFanOverrideMinutesChange(value: string | number) {
+    setFanOverrideDuration(minutesToSeconds(value))
+  }
+
   async function handleSaveSettings(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!settingsForm) {
@@ -242,7 +298,7 @@ function AdminSettingsDrawerContent({ opened, onClose, onSettingsChange }: Admin
       dht22_indoor_address: String(formData.get('dht22_indoor_address') || ''),
       dht22_outdoor_address: String(formData.get('dht22_outdoor_address') || ''),
       data_cron: String(formData.get('data_cron') || ''),
-      fan_override_duration: Number(formData.get('fan_override_duration')) || 0,
+      fan_override_duration: normalizeFanOverrideSettingsDuration(settingsForm.fan_override_duration),
     }
 
     setIsSavingSettings(true)
@@ -392,15 +448,32 @@ function AdminSettingsDrawerContent({ opened, onClose, onSettingsChange }: Admin
                         defaultValue={settingsForm.data_cron}
                       />
 
-                      <NumberInput
-                        key={`override-${settingsForm.fan_override_duration}`}
-                        name="fan_override_duration"
-                        label="Lüfter-Override-Dauer"
-                        suffix=" Sekunden"
-                        min={0}
-                        step={60}
-                        defaultValue={settingsForm.fan_override_duration}
-                      />
+                      <Stack gap="xs">
+                        <NumberInput
+                          name="fan_override_duration_minutes"
+                          label="Lüfter-Override-Dauer"
+                          description="Gilt für den nächsten manuellen Lüfterstart oder -stopp."
+                          suffix=" Minuten"
+                          min={1}
+                          max={24 * 60}
+                          step={FAN_OVERRIDE_MINUTES_STEP}
+                          allowDecimal={false}
+                          clampBehavior="strict"
+                          value={secondsToWholeMinutes(settingsForm.fan_override_duration)}
+                          onChange={handleFanOverrideMinutesChange}
+                        />
+
+                        <SegmentedControl
+                          data={FAN_OVERRIDE_PRESETS}
+                          value={getOverridePresetValue(settingsForm.fan_override_duration)}
+                          onChange={handleFanOverridePresetChange}
+                          fullWidth
+                        />
+
+                        <Text size="sm" c="dimmed">
+                          Aktuell gespeichert: {formatFanOverrideDuration(settingsForm.fan_override_duration)}
+                        </Text>
+                      </Stack>
 
                       <Button
                         type="submit"

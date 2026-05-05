@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Box, Button, Group, Paper, Stack, Text, ThemeIcon, alpha, useMantineTheme } from '@mantine/core'
 import { useMediaQuery, useReducedMotion } from '@mantine/hooks'
 import { IconAlertCircle, IconCarFan, IconPlayerPause, IconPlayerPlay, IconWind } from '@tabler/icons-react'
-import { FanStatus } from '../services/api'
+import { FanStatus, formatFanOverrideDuration } from '../services/api'
 import { AnimatedText } from '../ui/AnimatedText'
 import { useAppShellStyles } from '../ui/app-shell'
 import { useDashboardTypography } from '../ui/typography'
@@ -199,11 +199,13 @@ export function FanStatusCard({
   status,
   loading,
   error,
+  overrideDurationSeconds,
   onToggle,
 }: {
   status: FanStatus | null
   loading: boolean
   error: string | null
+  overrideDurationSeconds: number
   onToggle: () => void
 }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
@@ -219,6 +221,7 @@ export function FanStatusCard({
   const overrideUntil = status?.override ? new Date(status.override) : null
   const hasOverride = overrideUntil !== null && Number.isFinite(overrideUntil.getTime())
   const overrideLabel = hasOverride ? overrideUntil.toLocaleString('de-DE') : null
+  const configuredOverrideLabel = formatFanOverrideDuration(overrideDurationSeconds)
 
   return (
     <Paper className="bbs2-motion-panel" radius="xl" p={{ base: 'sm', xs: 'md', sm: 'lg' }} style={{ ...shellStyles.sectionPanel, animationDelay: '180ms' }}>
@@ -294,6 +297,10 @@ export function FanStatusCard({
         >
           {buttonLabel}
         </Button>
+
+        <Text size="sm" c="dimmed" ta="center">
+          Geplante Override-Dauer: {configuredOverrideLabel}
+        </Text>
       </Stack>
     </Paper>
   )

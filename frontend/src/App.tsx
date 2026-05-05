@@ -24,7 +24,13 @@ import { HeroSection } from './components/HeroSection'
 import { HistoryChart } from './components/HistoryChart'
 import { FooterBar } from './components/FooterBar'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
-import { getStoredFanOverrideDuration, toggleFan, type AppSettings } from './services/api'
+import {
+  DEFAULT_FAN_OVERRIDE_DURATION_SECONDS,
+  getStoredFanOverrideDuration,
+  normalizeFanOverrideSettingsDuration,
+  toggleFan,
+  type AppSettings,
+} from './services/api'
 import { useAppShellStyles } from './ui/app-shell'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler, TimeScale)
@@ -44,7 +50,9 @@ function App() {
   const [isDewPointGuideOpen, setIsDewPointGuideOpen] = useState(false)
   const [isTogglingFan, setIsTogglingFan] = useState(false)
   const [refreshInterval, setRefreshInterval] = useState(10000)
-  const [fanOverrideDurationSeconds, setFanOverrideDurationSeconds] = useState(() => getStoredFanOverrideDuration())
+  const [fanOverrideDurationSeconds, setFanOverrideDurationSeconds] = useState(
+    () => getStoredFanOverrideDuration() ?? DEFAULT_FAN_OVERRIDE_DURATION_SECONDS
+  )
   const [visibleChartSeries, setVisibleChartSeries] = useState<ChartSeriesKey[]>(CHART_SERIES_KEYS)
   const {
     chartHistory,
@@ -308,7 +316,7 @@ function App() {
   }, [fanOverrideDurationSeconds, setFanError, setFanStatus])
 
   const handleSettingsChange = useCallback((settings: AppSettings) => {
-    setFanOverrideDurationSeconds(settings.fan_override_duration)
+    setFanOverrideDurationSeconds(normalizeFanOverrideSettingsDuration(settings.fan_override_duration))
   }, [])
 
   const openDewPointGuide = useCallback(() => {
@@ -397,7 +405,13 @@ function App() {
               </Grid.Col>
 
               <Grid.Col span={{ base: 12, lg: 4 }} id="controls">
-                <FanStatusCard status={fanStatus} loading={isTogglingFan} error={fanError} onToggle={handleToggleFan} />
+                <FanStatusCard
+                  status={fanStatus}
+                  loading={isTogglingFan}
+                  error={fanError}
+                  overrideDurationSeconds={fanOverrideDurationSeconds}
+                  onToggle={handleToggleFan}
+                />
               </Grid.Col>
             </Grid>
           </Container>
