@@ -43,7 +43,6 @@ type ComparisonBandProps = {
   leftValue: string
   centerLabel: string
   centerValue: string
-  centerHint: string
   centerColor: 'seafoam' | 'amber' | 'gray'
   rightLabel: string
   rightValue: string
@@ -63,7 +62,6 @@ function ComparisonBand({
   leftValue,
   centerLabel,
   centerValue,
-  centerHint,
   centerColor,
   rightLabel,
   rightValue,
@@ -147,11 +145,6 @@ function ComparisonBand({
             >
               {centerValue}
             </AnimatedText>
-            {centerHint ? (
-              <Text size="xs" c="dimmed" ta="center">
-                {centerHint}
-              </Text>
-            ) : null}
           </Stack>
 
           <Paper radius="md" p={{ base: 'xs', sm: 'sm' }} withBorder style={metricTileStyle}>
@@ -335,7 +328,6 @@ export function HeroSection({
                 leftValue={formatTemperature(current ? current.indoorTemp : null)}
                 centerLabel="Differenz"
                 centerValue={formatTemperature(temperatureDelta)}
-                centerHint=""
                 centerColor={dewPointDelta !== null && dewPointDelta > 0 ? 'seafoam' : 'amber'}
                 rightLabel="Außen"
                 rightValue={formatTemperature(current ? current.outdoorTemp : null)}
@@ -355,7 +347,6 @@ export function HeroSection({
                 leftValue={formatHumidity(current ? current.indoorHumidity : null)}
                 centerLabel="Differenz"
                 centerValue={formatHumidity(humidityDelta)}
-                centerHint=""
                 centerColor={humidityDelta !== null && humidityDelta <= 0 ? 'seafoam' : 'amber'}
                 rightLabel="Außen"
                 rightValue={formatHumidity(current ? current.outdoorHumidity : null)}
@@ -375,7 +366,6 @@ export function HeroSection({
                 leftValue={formatTemperature(current ? current.dewPointIndoor : null)}
                 centerLabel="Empfehlung"
                 centerValue={dewPointDelta !== null && dewPointDelta > 0 ? 'Lüften' : dewPointDelta !== null ? 'Warten' : '--'}
-                centerHint={recommendation}
                 centerColor={recommendationColor}
                 rightLabel="Taupunkt außen"
                 rightValue={formatTemperature(current ? current.dewPointOutdoor : null)}
