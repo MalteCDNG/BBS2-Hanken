@@ -36,6 +36,19 @@ BBS2-Hanken ist eine Webanwendung zur Überwachung von Innen- und Außenklima. D
 - MongoDB-Instanz für das Backend
 - Optional: Raspberry Pi mit GPIO-Zugriff für die echte Lüftersteuerung
 
+## Frontend mit Docker Compose starten
+
+```bash
+docker compose up --build
+```
+
+Das Frontend ist danach unter `http://localhost:5173` erreichbar. Standardmäßig wird die API unter `http://localhost:8000` erwartet. Die URL kannst du über eine `.env` im Projektroot überschreiben:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+FRONTEND_PORT=5173
+```
+
 ## Backend starten
 
 ```bash
