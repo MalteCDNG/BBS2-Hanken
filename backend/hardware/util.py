@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-from dependencies.models import State
+from dependencies.models import State, FanStatus
 from hardware.check_rpi import is_raspberrypi
 from hardware.fan import Fan
 from hardware.hotspot import ensure_hotspot_started
@@ -21,9 +21,18 @@ fan = Fan(fan_gpio)
 if is_raspberrypi():
     import RPi.GPIO as GPIO
 
-def sync_state(state: State):
+def sync_state(state: FanStatus|State):
     print("Syncing state to hardware.")
-    if state.fan_running:
+    print("State:", state.model_dump_json(by_alias=True))
+
+    if isinstance(state, FanStatus):
+        run = state.running
+    elif isinstance(state, State):
+        run = state.fan_running
+    else:
+        raise ValueError("Invalid state type")
+
+    if not run:
         fan.on()
     else:
         fan.off()

@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, BackgroundTasks
 
+import dependencies.app
 import hardware.fan
 import hardware.util
 from dependencies import raven_db
@@ -39,6 +40,7 @@ async def fan_toggle(background_tasks: BackgroundTasks, duration: timedelta=time
     fan_state = FanStatus(running=new_state.fan_running, updatedAt=new_state.timestamp, override=new_state.fan_override)
 
     background_tasks.add_task(hardware.util.sync_state, new_state)
+    dependencies.app.update_fan_override_cron(new_state)
 
     await wsmanager.broadcast(new_state.model_dump_json(by_alias=True))
 
