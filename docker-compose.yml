@@ -1,11 +1,58 @@
-name: bbs2-hanken-frontend
+name: Taupunktlueftung
 
 services:
+  raven:
+    image: ravendb/ravendb
+    restart: unless-stopped
+    networks:
+      - backend
+    environment:
+      RAVEN_SETTINGS: "{}"
+      RAVEN_Setup_Mode: None
+      RAVEN_Security_UnsecuredAccessAllowed: PublicNetwork
+      RAVEN_ServerUrl: http://0.0.0.0:8080
+    ports:
+      - 38888:38888
+      - 8080:8080
+      - 53700:53700
+    volumes:
+      - raven_data:/var/lib/ravendb/data
+
+  backend:
+    depends_on:
+      - raven
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - /sys:/sys
+    environment:
+      RAVEN_ADDRESS: http://raven:8080
+    env_file:
+      - backend.env
+    ports:
+      - 8000:9000
+
   frontend:
+    depends_on:
+      - backend
     build:
       context: ./frontend
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
     restart: unless-stopped
+    env_file:
+      - frontend.env
+    networks:
+      - frontend
     ports:
-      - "${FRONTEND_PORT:-5173}:80"
+      - 5173:80
+
+volumes:
+  raven_data:
+
+networks:
+  backend:
+  frontend:
