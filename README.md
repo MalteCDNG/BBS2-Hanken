@@ -2,6 +2,27 @@
 
 BBS2-Hanken ist eine Webanwendung zur Überwachung von Innen- und Außenklima. Das Projekt sammelt Temperatur- und Luftfeuchtigkeitswerte von zwei Messstationen, berechnet die Taupunkte, zeigt aktuelle Werte und Verlaufskurven an und ermöglicht die manuelle Steuerung eines Lüfters.
 
+## Schnellstart mit Docker
+
+Voraussetzung ist docker mit compose Unterstützung (getestet mit compose Plugin).
+
+1. Repository klonen
+2. `backend.env` sowie `frontend.env` im Root Verzeichnis des Repo erstellen
+   1. `cp backend/.env.example backend.env`
+   2. `cp frontend/.env.example frontend.env`
+3. Beide env Dateien mit Werten füllen
+4. Container starten mit `docker compose up -d`
+
+Diese Vorgehensweise builded die Images für Frontend und Backend lokal und startet drei Container: Frontend, Backend, RavenDB
+
+Das Frontend ist dann erreichbar unter `http://<IP>:5173`
+
+## Konfiguration
+
+Nach dem ersten Start müssen im Frontend die URLs der Messstationen hinterlegt werden.
+Außerdem sollte nach Test der Umgebung eine RavenDB Lizenz installiert werden.
+Das RavenDB Studio ist unter `http://<IP>:8080` erreichbar.
+
 ## Funktionen
 
 - Live-Übersicht für Innen- und Außenwerte
@@ -21,6 +42,7 @@ BBS2-Hanken ist eine Webanwendung zur Überwachung von Innen- und Außenklima. D
 │   ├── hardware/             # Raspberry-Pi-/GPIO-Helfer für den Lüfter
 │   ├── routes/               # API-Routen für Auth, Messwerte, Settings, Lüfter und Insert
 │   ├── main.py               # Einstiegspunkt der Backend-App
+│   ├── measure_station.py    # Kleines Skript, dass die Messstationen hostet
 │   └── requirements.txt      # Python-Abhängigkeiten
 └── frontend/                # React/Vite-Frontend
     ├── src/                  # UI, Hooks und API-Service
@@ -150,6 +172,5 @@ Die Zugangsdaten können über `MOCK_ADMIN_USERNAME` und `MOCK_ADMIN_PASSWORD` a
 ## Produktionshinweise
 
 - `JWT_SECRET` sollte in produktiven Umgebungen lang, zufällig und geheim sein.
-- Die MongoDB-Zugangsdaten gehören nicht ins Repository.
 - Auf echter Hardware wird die Lüftersteuerung nur auf einem Raspberry Pi über `RPi.GPIO` ausgeführt.
 - Das Frontend sollte gegen die öffentliche Backend-URL gebaut werden, z. B. mit `VITE_API_BASE_URL=https://api.example.org npm run build`.
