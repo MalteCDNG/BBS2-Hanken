@@ -58,8 +58,25 @@ async def get_data_cron():
 
     db_settings = await raven_db.get_app_settings()
 
-    indoor = requests.get(db_settings.dht22_indoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
-    outdoor = requests.get(db_settings.dht22_outdoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"]).json()
+    try:
+        indoor = requests.get(
+            db_settings.dht22_indoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"],
+            timeout=10
+        ).json()
+        outdoor = requests.get(
+            db_settings.dht22_outdoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"],
+            timeout=10
+        ).json()
+    except ConnectionError as e:
+        print(e.__traceback__)
+        print("Error connection to measure station")
+        print(e.args)
+        return
+    except TimeoutError as e:
+        print(e.__traceback__)
+        print("Error timeout to measure station")
+        print(e.args)
+        return
 
     reading = Reading(
         timestamp=datetime.now(tz=timezone.utc),
