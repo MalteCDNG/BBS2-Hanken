@@ -25,11 +25,16 @@ services:
       context: ./backend
       dockerfile: docker/Dockerfile
     restart: unless-stopped
+    privileged: true
     networks:
       - backend
       - frontend
     volumes:
       - /sys:/sys
+      - /dev:/dev  # wichtig für libgpiod
+    devices:
+      - /dev/gpiomem:/dev/gpiomem
+
     environment:
       RAVEN_ADDRESS: http://raven:8080
     env_file:
@@ -48,7 +53,7 @@ services:
     networks:
       - frontend
     ports:
-      - 5173:80
+      - 80:80
 
 volumes:
   raven_data:
