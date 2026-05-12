@@ -67,12 +67,12 @@ async def get_data_cron():
             db_settings.dht22_outdoor_address+"?auth="+os.environ["MEASURE_STATION_AUTHENTICATION"],
             timeout=10
         ).json()
-    except ConnectionError as e:
+    except requests.ConnectionError as e:
         print(e.__traceback__)
         print("Error connection to measure station")
         print(e.args)
         return
-    except TimeoutError as e:
+    except requests.Timeout as e:
         print(e.__traceback__)
         print("Error timeout to measure station")
         print(e.args)
