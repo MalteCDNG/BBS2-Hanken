@@ -14,7 +14,10 @@ router = APIRouter()
 @router.get("/current/")
 async def current() -> ReadingWithDewPoint:
     with raven_db.store.open_session() as db:
-        data = db.query(object_type=Reading).order_by_descending("timestamp").first()
+        try:
+            data = db.query(object_type=Reading).order_by_descending("timestamp").first()
+        except IndexError:
+            raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
         if data is None:
             raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
 
