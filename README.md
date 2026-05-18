@@ -10,12 +10,12 @@ Voraussetzung ist docker mit compose Unterstützung (getestet mit compose Plugin
 2. `backend.env` sowie `frontend.env` im Root Verzeichnis des Repo erstellen
    1. `cp backend/.env.example backend.env`
    2. `cp frontend/.env.example frontend.env`
-3. Beide env Dateien mit Werten füllen
+3. Beide env Dateien mit Werten füllen (s.h. unten)
 4. Container starten mit `docker compose up -d`
 
 Diese Vorgehensweise builded die Images für Frontend und Backend lokal und startet drei Container: Frontend, Backend, RavenDB
 
-Das Frontend ist dann erreichbar unter `http://<IP>:5173`
+Das Frontend ist dann erreichbar unter `http://<IP>`
 
 ## Konfiguration
 
@@ -53,32 +53,47 @@ Das RavenDB Studio ist unter `http://<IP>:8080` erreichbar.
 
 ## Voraussetzungen
 
+- Docker inkl. Compose Plugin
+
+oder
+
 - Node.js und npm
 - Python 3.11 oder neuer
-- MongoDB-Instanz für das Backend
-- Optional: Raspberry Pi mit GPIO-Zugriff für die echte Lüftersteuerung
+- RavenDB Instanz
 
-## Frontend mit Docker Compose starten
+---
+Folgende Komponenten können für den Test/Entwicklungsbetrieb weggelassen werden.
+- Raspberry Pi: getestet auf Version 4 Model B
+- 2x DHT22 Sensor + Verkabelung
+- Lüfter (externe Stromversorgung) + Relais zur Ansteuerung
+- Optional: Separater Raspberry Pi für die Messstationen innen und außen 
 
-```bash
-docker compose up --build
-```
+# Manueller Start der Dienste
 
-Das Frontend ist danach unter `http://localhost:5173` erreichbar. Standardmäßig wird die API unter `http://localhost:8000` erwartet. Die URL kannst du über eine `.env` im Projektroot überschreiben:
+## Frontend
+
+Zuerst abhängigkeiten installieren: `npm i`
+
+Das Frontend kann wahlweise als Development Umgebung gestartet werden mit `npm run dev` oder <br>
+gebaut und manuell gehostet werden: `npm run build` &rarr; Frontend als HTML, CSS, und JS werden unter `./dist` bereitgestellt <br>
+Beachten, dass Umgebungsvariablen vor dem Build gesetzt werden müssen, da der Build nicht auf `.env` zugreift.
+
+Das Frontend ist danach unter `http://localhost` (bzw. unter der IP Adresse des Servers) erreichbar.
+Standardmäßig wird die API unter `http://localhost:8000` erwartet. Die URL kannst du über eine `.env` im Projektroot überschreiben:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000
-FRONTEND_PORT=5173
 ```
+Hier ist die Adresse anzugeben, die für die Clients erreichbar ist.
 
-## Backend starten
+## Backend
 
 ```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+cd backend  # Backend Ordner betreten
+python3 -m venv .venv  # Python virtual environment erstellen
+source .venv/bin/activate  # venv aktivieren
+pip install -r requirements.txt  # Abhängigkeiten installieren
+pip install -r requirements-rpi.txt  # Verpflichtend auf Raspberry Pi: Abhängigkeiten installieren
 ```
 
 Das Backend läuft standardmäßig unter `http://localhost:8000`. Die automatisch erzeugte FastAPI-Dokumentation ist unter `http://localhost:8000/docs` erreichbar.
@@ -88,15 +103,24 @@ Das Backend läuft standardmäßig unter `http://localhost:8000`. Die automatisc
 Lege im Ordner `backend/` eine `.env`-Datei an oder setze die Variablen in deiner Umgebung:
 
 ```env
-MONGODB_USER=mongo-user
-MONGODB_PASS=mongo-password
-MONGODB_ADDRESS=localhost:27017
-MONGODB_DATABASE=bbs2_hanken
+# Daten des Datenbankservers
+RAVEN_ADDRESS=http://127.0.0.1:8080
+RAVEN_DATABASE=Deltataupunkt
 
-JWT_SECRET=change-me
-JWT_ALGO=HS256
+# Daten für das Admin Konto
+INIT_ADMIN_USER=CHANGEME
+INIT_ADMIN_PASS=CHANGEME
 
-FAN_GPIO=17
+# Zugangs Token für Messstation sowie GPIO PINs (Board Format) der DHT Sensoren.
+# Werte für JoyPi vorkonfiguriert.
+# Gleiche .env Datei kann für alle Messstationen und den Haupt-Pi genutzt werden.
+MEASURE_STATION_AUTHENTICATION=CHANGEME
+MEASURE_STATION_INDOOR_GPIO=4
+MEASURE_STATION_OUTDOOR_GPIO=26
+
+# Welcher PIN (Board Format) angesteuert wird, um das Relais des Lüfters zu schließen.
+# Es wird von einer NO (normally open) Schaltung ausgegangen.
+FAN_GPIO=21
 
 HOTSPOT_ENABLED=true
 HOTSPOT_SSID=BBS2-Hanken
@@ -105,12 +129,21 @@ HOTSPOT_INTERFACE=wlan0
 HOTSPOT_CONNECTION_NAME=bbs2-hotspot
 HOTSPOT_ADDRESS=10.42.0.1/24
 
-MEASURE_STATION_URL_INDOOR=http://127.0.0.1:8000/get/
-MEASURE_STATION_URL_OUTDOOR=http://127.0.0.1:8001/get/
-MEASURE_STATION_AUTHENTICATION=secret
+# Daten zur Generierung der JWT Tokens. Sicheres Secret erzeugen und setzen!
+JWT_SECRET=CHANGEME
+JWT_ALGO=HS256
+
 ```
 
-Beim Start initialisiert das Backend die MongoDB-Dokumente für Messwerte, Lüfterstatus, Einstellungen und Benutzer. Für den Login muss ein passender Benutzer in der Datenbank vorhanden sein.
+---
+Nach dem Setzen der Variablen kann die App gestartet werden:
+
+```bash
+uvicorn main:app --host "0.0.0.0" --port 8000  # App mit uvicorn Server starten
+```
+
+Beim Start initialisiert das Backend die RavenDB Datenbank und legt den Admin Nutzer aus der `.env` Datei einmalig an.
+Sofern ein Admin Nutzer vorhanden ist, wird dieser nicht angepasst. Nach dem ersten Start können (und sollten) die Zugangsdaten aus der `.env` Datei entfernt werden.
 
 Auf einem Raspberry Pi versucht das Backend beim Start zusätzlich, per `nmcli` einen WLAN-Hotspot zu aktivieren. `HOTSPOT_SSID` und `HOTSPOT_PASSWORD` steuern Name und WPA-Kennwort, `HOTSPOT_PASSWORD` muss mindestens 8 Zeichen lang sein. Mit `HOTSPOT_ADDRESS` wird die feste Adresse des Raspberry Pi im Hotspot-Netz gesetzt, standardmäßig `10.42.0.1/24`. NetworkManager übernimmt mit `ipv4.method=shared` DHCP für verbundene Geräte, sodass das Backend im Hotspot z. B. unter `http://10.42.0.1:9000` erreichbar ist. Lokal oder auf Nicht-Pi-Systemen wird der Hotspot-Start übersprungen.
 
@@ -124,9 +157,11 @@ npm run dev
 
 Das Frontend nutzt standardmäßig `http://localhost:8000` als API-Basis-URL. Bei Bedarf kann die URL überschrieben werden:
 
+Direkt im Bash befehl:
 ```bash
 VITE_API_BASE_URL=http://localhost:4000 npm run dev
 ```
+Oder permanent in der `.env` Datei.
 
 ## Entwicklung mit Mock-Backend
 
