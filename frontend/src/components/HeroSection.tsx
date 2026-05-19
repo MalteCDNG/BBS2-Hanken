@@ -276,8 +276,7 @@ export function HeroSection({
                 </Text>
               </Title>
               <Text maw={isMobile ? undefined : 560} style={typography.heroCopy}>
-                Live-Werte für innen und außen, Taupunktvergleich und eine schnelle Einschätzung fürs Auslüften in einer
-                ruhigeren Übersicht.
+                Live-Werte für innen und außen, Taupunktvergleich und eine schnelle Einschätzung fürs Auslüften.
               </Text>
               <Button
                 variant="light"
