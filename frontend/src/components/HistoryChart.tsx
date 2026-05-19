@@ -76,7 +76,6 @@ export function HistoryChart({
   const typography = useDashboardTypography()
 
   const hasData = history.length > 0
-  const summary = hasData
     ? isMobile
       ? `${history.length} Punkte, zuletzt ${lastUpdatedRelative}`
       : `${history.length} Punkte, ${resolutionLabel}, zuletzt ${lastUpdatedRelative}`
@@ -99,9 +98,7 @@ export function HistoryChart({
               <Text fw={800} size={isMobile ? 'lg' : 'xl'} ff={theme.headings.fontFamily}>
                 Verlauf im Zeitfenster
               </Text>
-              <Text size="sm" c="dimmed">
-                {summary}
-              </Text>
+      
             </Box>
           </Group>
 
