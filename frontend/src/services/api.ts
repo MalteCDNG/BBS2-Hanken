@@ -49,6 +49,7 @@ const API_ROUTES = {
   fan: {
     status: '/fan/',
     toggle: '/fan/toggle/',
+    clearOverride: '/fan/override/clear/',
   },
   insert: {
     create: '/insert/',
@@ -200,6 +201,11 @@ export async function toggleFan(durationSeconds?: number | null): Promise<FanSta
   const normalizedDuration = normalizeFanOverrideDuration(durationSeconds)
   const params = normalizedDuration === null ? undefined : { duration: formatDurationSecondsForApi(normalizedDuration) }
   const { data } = await api.post<FanStatus>(API_ROUTES.fan.toggle, undefined, { params })
+  return normalizeFanStatus(data)
+}
+
+export async function clearFanOverride(): Promise<FanStatus> {
+  const { data } = await api.post<FanStatus>(API_ROUTES.fan.clearOverride)
   return normalizeFanStatus(data)
 }
 

@@ -25,6 +25,7 @@ import { HistoryChart } from './components/HistoryChart'
 import { FooterBar } from './components/FooterBar'
 import { HISTORY_RANGE_OPTIONS, HistoryRange, useHistoryData } from './hooks/useHistoryData'
 import {
+  clearFanOverride,
   DEFAULT_FAN_OVERRIDE_DURATION_SECONDS,
   getStoredFanOverrideDuration,
   normalizeFanOverrideSettingsDuration,
@@ -315,6 +316,20 @@ function App() {
     }
   }, [fanOverrideDurationSeconds, setFanError, setFanStatus])
 
+  const handleClearFanOverride = useCallback(async () => {
+    setIsTogglingFan(true)
+    try {
+      const updatedStatus = await clearFanOverride()
+      setFanStatus(updatedStatus)
+      setFanError(null)
+    } catch (err) {
+      console.error(err)
+      setFanError('Konnte den manuellen Lüftermodus nicht entfernen.')
+    } finally {
+      setIsTogglingFan(false)
+    }
+  }, [setFanError, setFanStatus])
+
   const handleSettingsChange = useCallback((settings: AppSettings) => {
     setFanOverrideDurationSeconds(normalizeFanOverrideSettingsDuration(settings.fan_override_duration))
   }, [])
@@ -411,6 +426,7 @@ function App() {
                   error={fanError}
                   overrideDurationSeconds={fanOverrideDurationSeconds}
                   onToggle={handleToggleFan}
+                  onClearOverride={handleClearFanOverride}
                 />
               </Grid.Col>
             </Grid>

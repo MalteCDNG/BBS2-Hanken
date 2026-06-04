@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Button, Group, Paper, Stack, Text, ThemeIcon, alpha, useMantineTheme } from '@mantine/core'
 import { useMediaQuery, useReducedMotion } from '@mantine/hooks'
-import { IconAlertCircle, IconCarFan, IconPlayerPause, IconPlayerPlay, IconWind } from '@tabler/icons-react'
+import { IconAlertCircle, IconCarFan, IconPlayerPause, IconPlayerPlay, IconWind, IconX } from '@tabler/icons-react'
 import { FanStatus, formatFanOverrideDuration } from '../services/api'
 import { AnimatedText } from '../ui/AnimatedText'
 import { useAppShellStyles } from '../ui/app-shell'
@@ -201,12 +201,14 @@ export function FanStatusCard({
   error,
   overrideDurationSeconds,
   onToggle,
+  onClearOverride,
 }: {
   status: FanStatus | null
   loading: boolean
   error: string | null
   overrideDurationSeconds: number
   onToggle: () => void
+  onClearOverride: () => void
 }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const reduceMotion = useReducedMotion()
@@ -285,18 +287,34 @@ export function FanStatusCard({
           </Group>
         ) : null}
 
-        <Button
-          color={isRunning ? 'amber' : 'seafoam'}
-          variant="gradient"
-          gradient={isRunning ? { from: 'ocean.8', to: 'amber.5', deg: 145 } : { from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
-          leftSection={buttonIcon}
-          loading={loading}
-          onClick={onToggle}
-          fullWidth
-          size={isMobile ? 'sm' : 'md'}
-        >
-          {buttonLabel}
-        </Button>
+        <Stack gap="xs">
+          <Button
+            color={isRunning ? 'amber' : 'seafoam'}
+            variant="gradient"
+            gradient={isRunning ? { from: 'ocean.8', to: 'amber.5', deg: 145 } : { from: 'ocean.7', to: 'seafoam.5', deg: 145 }}
+            leftSection={buttonIcon}
+            loading={loading}
+            onClick={onToggle}
+            fullWidth
+            size={isMobile ? 'sm' : 'md'}
+          >
+            {buttonLabel}
+          </Button>
+
+          {hasOverride ? (
+            <Button
+              color="gray"
+              variant="light"
+              leftSection={<IconX size={18} />}
+              loading={loading}
+              onClick={onClearOverride}
+              fullWidth
+              size={isMobile ? 'sm' : 'md'}
+            >
+              Override entfernen
+            </Button>
+          ) : null}
+        </Stack>
 
         <Text size="sm" c="dimmed" ta="center">
           Geplante Override-Dauer: {configuredOverrideLabel}

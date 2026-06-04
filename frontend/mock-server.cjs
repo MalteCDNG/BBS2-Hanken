@@ -226,6 +226,15 @@ function requireAuth(req, res, next) {
   next()
 }
 
+function getAutomaticFanRunning() {
+  const latest = getLatestReading.get()
+  if (!latest) {
+    return fanState?.running ?? false
+  }
+
+  return latest.dewPointIndoor > latest.dewPointOutdoor
+}
+
 app.get('/', (req, res) => {
   res.json({ Hello: 'World' })
 })
@@ -337,6 +346,16 @@ app.post('/fan/toggle/', (req, res) => {
     running: !(fanState?.running ?? false),
     updatedAt: new Date().toISOString(),
     override: new Date(Date.now() + durationSeconds * 1000).toISOString(),
+  }
+
+  res.json(fanState)
+})
+
+app.post('/fan/override/clear/', (req, res) => {
+  fanState = {
+    running: getAutomaticFanRunning(),
+    updatedAt: new Date().toISOString(),
+    override: null,
   }
 
   res.json(fanState)
